@@ -1,0 +1,57 @@
+
+test_that("Method 'surv_grad' with CoxTime", {
+
+  # Preparation ----------------------------------------------------------------
+  model_1d <- seq_model_1D(6)
+  data <- torch_randn(10, 5)
+  base_hazard <- get_base_hazard(20)
+  exp_1d <- explain(model_1d, data = data, model_type = "coxtime",
+                    baseline_hazard = base_hazard)
+
+  # Test arguments -------------------------------------------------------------
+  expect_error(surv_grad("no explainer"))
+  res <- surv_grad(exp_1d)
+  expect_error(surv_grad(exp_1d, target = "wrong target"))
+  expect_error(surv_grad(exp_1d, instance = "wrong instance"))
+  expect_error(surv_grad(exp_1d, times_input = list("not boolean")))
+  expect_error(surv_grad(exp_1d, use_base_hazard = list("not boolean")))
+  expect_error(surv_grad(exp_1d, batch_size = "not integer"))
+  expect_error(surv_grad(exp_1d, include_time = "not boolean"))
+
+  # Test sequential 1D model ---------------------------------------------------
+  res <- surv_grad(exp_1d, instance = c(1, 3))
+  expect_class(res, "surv_result")
+  expect_names(names(res), subset.of = c("res", "pred", "time", "method", "method_args", "competing_risks"))
+  expect_equal(res$method, "Surv_Gradient")
+  expect_equal(res$method_args$times_input, FALSE)
+  expect_equal(dim(res$res), c(2, 5, 20))
+  expect_equal(dim(res$pred), c(2, 20))
+  expect_equal(length(res$time), 20)
+  expect_array(res$res)
+  expect_array(res$pred)
+  expect_vector(res$time)
+
+  # Test sequential 1D model with times_input = TRUE ---------------------------
+  res <- surv_grad(exp_1d, instance = c(1, 3), times_input = TRUE)
+  expect_equal(res$method_args$times_input, TRUE)
+  expect_equal(dim(res$res), c(2, 5, 20))
+  expect_equal(dim(res$pred), c(2, 20))
+  expect_equal(length(res$time), 20)
+  expect_array(res$res)
+  expect_array(res$pred)
+  expect_vector(res$time)
+
+  # Test sequential 1D model with other targets --------------------------------
+  res <- surv_grad(exp_1d, instance = c(1, 3), target = "hazard")
+  expect_equal(dim(res$res), c(2, 5, 20))
+  expect_equal(dim(res$pred), c(2, 20))
+  expect_equal(length(res$time), 20)
+  res <- surv_grad(exp_1d, instance = c(1, 3), target = "cum_hazard")
+  expect_equal(dim(res$res), c(2, 5, 20))
+  expect_equal(dim(res$pred), c(2, 20))
+  expect_equal(length(res$time), 20)
+  res <- surv_grad(exp_1d, instance = c(1, 3), target = "survival")
+  expect_equal(dim(res$res), c(2, 5, 20))
+  expect_equal(dim(res$pred), c(2, 20))
+  expect_equal(length(res$time), 20)
+})
