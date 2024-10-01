@@ -132,7 +132,7 @@ surv_smoothgrad.explainer_coxtime <- function(exp, target = "survival", instance
 #' @export
 surv_smoothgrad.explainer_deephit <- function(exp, target = "survival", instance = 1,
                                               times_input = FALSE, n = 10, noise_level = 0.1,
-                                              use_base_hazard = TRUE, include_time = FALSE, batch_size = 50) {
+                                              use_base_hazard = TRUE, batch_size = 50) {
 
   # Check arguments
   assertClass(exp, "explainer_deephit")
@@ -143,7 +143,6 @@ surv_smoothgrad.explainer_deephit <- function(exp, target = "survival", instance
   assertIntegerish(batch_size, lower = 1)
   assertLogical(times_input)
   assertLogical(use_base_hazard)
-  assertLogical(include_time)
 
   # Get the input tensor
   inputs_orig <- to_tensor(exp$input_data, instance, repeats = n)

@@ -212,7 +212,6 @@ surv_grad.explainer_deephit <- function(exp, target = "survival", instance = 1,
   assertIntegerish(instance, lower = 1, upper = dim(exp$input_data[[1]])[1])
   assertIntegerish(batch_size, lower = 1)
   assertLogical(times_input)
-  assertLogical(include_time)
 
   # Get the input tensor
   inputs_orig <- to_tensor(exp$input_data, instance)
