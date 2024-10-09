@@ -2,6 +2,7 @@
 % Please edit documentation in R/surv_smoothgrad.R
 \name{surv_smoothgrad}
 \alias{surv_smoothgrad}
+\alias{surv_smoothgrad.explainer_deepsurv}
 \alias{surv_smoothgrad.explainer_coxtime}
 \alias{surv_smoothgrad.explainer_deephit}
 \title{Calculate the SmoothGrad values of the Survival Function}
@@ -11,11 +12,21 @@ surv_smoothgrad(
   target = "survival",
   instance = 1,
   times_input = FALSE,
+  batch_size = 50,
   n = 10,
   noise_level = 0.1,
-  use_base_hazard = TRUE,
-  include_time = FALSE,
-  batch_size = 50
+  include_time = FALSE
+)
+
+\method{surv_smoothgrad}{explainer_deepsurv}(
+  exp,
+  target = "survival",
+  instance = 1,
+  times_input = FALSE,
+  batch_size = 50,
+  n = 10,
+  noise_level = 0.1,
+  ...
 )
 
 \method{surv_smoothgrad}{explainer_coxtime}(
@@ -23,11 +34,10 @@ surv_smoothgrad(
   target = "survival",
   instance = 1,
   times_input = FALSE,
+  batch_size = 50,
   n = 10,
   noise_level = 0.1,
-  use_base_hazard = TRUE,
-  include_time = FALSE,
-  batch_size = 50
+  include_time = FALSE
 )
 
 \method{surv_smoothgrad}{explainer_deephit}(
@@ -35,11 +45,10 @@ surv_smoothgrad(
   target = "survival",
   instance = 1,
   times_input = FALSE,
+  batch_size = 50,
   n = 10,
   noise_level = 0.1,
-  use_base_hazard = TRUE,
-  include_time = FALSE,
-  batch_size = 50
+  ...
 )
 }
 \description{

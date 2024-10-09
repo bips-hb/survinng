@@ -2,6 +2,7 @@
 % Please edit documentation in R/surv_gradSHAP.R
 \name{surv_gradSHAP}
 \alias{surv_gradSHAP}
+\alias{surv_gradSHAP.explainer_deepsurv}
 \alias{surv_gradSHAP.explainer_coxtime}
 \alias{surv_gradSHAP.explainer_deephit}
 \title{Calculate the GradSHAP values of the Survival Function}
@@ -10,32 +11,48 @@ surv_gradSHAP(
   exp,
   target = "survival",
   instance = 1,
+  times_input = TRUE,
+  batch_size = 50,
   n = 50,
   num_samples = 10,
   data_ref = NULL,
-  use_base_hazard = TRUE,
-  batch_size = 50
+  include_time = FALSE
+)
+
+\method{surv_gradSHAP}{explainer_deepsurv}(
+  exp,
+  target = "survival",
+  instance = 1,
+  times_input = TRUE,
+  batch_size = 50,
+  n = 50,
+  num_samples = 10,
+  data_ref = NULL,
+  ...
 )
 
 \method{surv_gradSHAP}{explainer_coxtime}(
   exp,
   target = "survival",
   instance = 1,
+  times_input = TRUE,
+  batch_size = 50,
   n = 50,
   num_samples = 10,
   data_ref = NULL,
-  use_base_hazard = TRUE,
-  batch_size = 50
+  include_time = FALSE
 )
 
 \method{surv_gradSHAP}{explainer_deephit}(
   exp,
   target = "survival",
   instance = 1,
+  times_input = TRUE,
+  batch_size = 50,
   n = 50,
   num_samples = 10,
   data_ref = NULL,
-  batch_size = 50
+  ...
 )
 }
 \description{

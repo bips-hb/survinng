@@ -65,9 +65,17 @@ assertArgData <- function(data, null.ok = FALSE) {
 }
 
 combine_batch_grads <- function(res, feat_names, timepoints, include_time = FALSE,
-                                event_names = NULL) {
-  grads <- lapply(seq_along(res[[1]]$grads), function(input_layer) {
-    lapply(res, function(x) x$grads[[input_layer]]) |>
+                                event_names = NULL, n = 1) {
+  combine_same_instance <- function(a) {
+    a <- unlist(a, recursive = FALSE)
+    lapply(unique(names(a)), function(instance_id) {
+      Reduce("+", a[names(a) == instance_id]) / n
+    })
+  }
+
+  grads <- lapply(seq_along(res[[1]]), function(input_layer) {
+    lapply(res, function(x) x[[input_layer]]) |>
+      combine_same_instance() |>
       torch::torch_cat(dim = 1) |>
       set_names(feat_names = feat_names[[input_layer]],
                 include_time = include_time,
@@ -77,6 +85,116 @@ combine_batch_grads <- function(res, feat_names, timepoints, include_time = FALS
   if (length(grads) == 1) grads <- grads[[1]]
 
   grads
+}
+
+
+# Convert to torch tensor and repeat rows --------------------------------------
+to_tensor <- function(x, instance, repeats = 1) {
+  # Convert to list if not already
+  if (!is.list(x)) {
+    x <- list(x)
+  }
+
+  lapply(x, function(i) {
+    if (inherits(i, "torch_tensor")) {
+      res <- i[instance,, drop = FALSE]
+    } else {
+      res <- torch::torch_tensor(as.matrix(i[instance,,drop = FALSE]))
+    }
+
+    # Convert to tensor and repeat rows
+    res <- res$repeat_interleave(repeats = as.integer(repeats), dim = 1)
+
+    res
+  })
+}
+
+# Split tensor into batches ----------------------------------------------------
+split_batches <- function(inputs, batch_size, n_timepoints, n = 1) {
+  # Calculate batch size
+  batch_size <- max(1, batch_size) * n_timepoints
+  rows_per_instance <- n * n_timepoints
+
+  # Split inputs into batches
+  total_rows <- if (is.list(inputs)) inputs[[1]]$shape[1] else inputs$shape[1]
+  idx <- lapply(seq(1, total_rows, by = batch_size), function(i) {
+    c(i, min(i + batch_size - 1, total_rows))
+  })
+  instance_idx <- rep(seq_len(total_rows %/% rows_per_instance), each = n)
+  lapply(idx, function(i) {
+    if (is.list(inputs)) {
+      list(
+        batch = lapply(inputs, function(x) x[i[1]:i[2],,drop = FALSE]),
+        num = data.frame(table(
+          instance_idx[(((i[1] - 1) %/% n_timepoints) + 1):(i[2] %/% n_timepoints)],
+          dnn = "instance_id")),
+        idx = i
+      )
+    } else {
+      list(
+        batch = inputs[i[1]:i[2],,drop = FALSE],
+        num = data.frame(table(
+          instance_idx[(((i[1] - 1) %/% n_timepoints) + 1):(i[2] %/% n_timepoints)],
+          dnn = "instance_id")),
+        idx = i
+      )
+    }
+  })
+}
+
+# split_batches <- function(inputs, batch_size, n_timepoints, n = NULL) {
+#   # Calculate batch size
+#   if (!is.null(n)) {
+#     batch_size <- max(1, batch_size %/% n) * n * n_timepoints
+#     rows_per_instance <- n * n_timepoints
+#   } else {
+#     batch_size <- batch_size * n_timepoints
+#     rows_per_instance <- n_timepoints
+#   }
+#
+#   # Split inputs into batches
+#   total_rows <- if (is.list(inputs)) inputs[[1]]$shape[1] else inputs$shape[1]
+#   idx <- lapply(seq(1, total_rows, by = batch_size), function(i) {
+#     c(i, min(i + batch_size - 1, total_rows))
+#   })
+#   lapply(idx, function(i) {
+#     if (is.list(inputs)) {
+#       list(
+#         batch = lapply(inputs, function(x) x[i[1]:i[2],,drop = FALSE]),
+#         num = as.integer((i[2] - i[1] + 1) / rows_per_instance),
+#         idx = i
+#       )
+#     } else {
+#       list(
+#         batch = inputs[i[1]:i[2],,drop = FALSE],
+#         num = as.integer((i[2] - i[1] + 1) / rows_per_instance),
+#         idx = i
+#       )
+#     }
+#   })
+# }
+
+
+# Add noise --------------------------------------------------------------------
+add_noise <- function(inputs, orig_data, noise_level) {
+  # Make sure both are lists
+  if (!is.list(inputs)) inputs <- list(inputs)
+  if (!is.list(orig_data)) orig_data <- list(orig_data)
+
+  lapply(seq_along(inputs), function(i) {
+    orig <- orig_data[[i]]
+    names(orig) <- NULL
+
+    # Calculate standard deviation
+    std <- torch::torch_tensor(apply(orig, seq_along(dim(orig))[-1], sd))$unsqueeze(1)
+
+    # Generate noise
+    noise <- torch::torch_tensor(array(rnorm(prod(dim(inputs[[i]]))), dim = dim(inputs[[i]])))
+    noise <- noise * noise_level *std
+
+    # Add noise
+    inputs[[i]] + noise
+  })
 }
 
 # Set feature names ------------------------------------------------------------

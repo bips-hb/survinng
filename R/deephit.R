@@ -26,17 +26,7 @@ DeepHit <- torch::nn_module(
 
     if (is.null(postprocess_fun)) {
       self$postprocess_fun <- function(x) {
-        # For competing risk, the output is n x num_risks x time_bins
-        pred <- x$view(c(dim(x)[1], -1))
-        pred <- torch_cat(c(torch_zeros_like(pred[, 1, drop = FALSE]), pred), dim = -1)
-        pred <- pred$softmax(dim = -1)[, seq_len(dim(pred)[2] - 1)]
-        pred <- pred$view(dim(x))
-
-        if (length(dim(pred)) == 2) {
-          pred <- pred$unsqueeze(2)
-        }
-
-        pred
+        x$unsqueeze(-1)$unsqueeze(-1)
       }
     } else {
       self$postprocess_fun <- postprocess_fun
@@ -44,13 +34,26 @@ DeepHit <- torch::nn_module(
   },
 
   # Input is a list of lists of (features, time)
-  forward = function(input, target = "pmf") {
+  forward = function(input, target = "pmf", use_base_hazard = FALSE) {
 
     # Remove list if only one element
     if (is.list(input) && length(input) == 1) input <- input[[1]]
 
     # Calculate net output (with shape (batch_size, num_risks, time_bins)
-    out <- self$postprocess_fun(self$net$forward(input))
+    out <- self$net$forward(input)
+
+    # Make sure output as an event dimension
+    if(length(dim(out)) == 2) {
+      out <- out$unsqueeze(2)
+    }
+
+    # Postprocess output
+    out_shape <- dim(out)
+    out <- torch::torch_cat(
+      list(out$view(c(out_shape[1], -1)),
+           torch::torch_zeros(out_shape[1], 1)),
+      dim = 2)
+    out <- out$softmax(dim = 2)[, seq_len(dim(out)[2] - 1)]$view(out_shape)
 
     # Calculate target
     if (target == "pmf") {
@@ -65,7 +68,7 @@ DeepHit <- torch::nn_module(
   },
 
   # Calculate the gradients
-  calc_gradients = function(inputs, target, return_out = FALSE) {
+  calc_gradients = function(inputs, target, return_out = FALSE, use_base_hazard = FALSE) {
     # Clone tensor
     if (is.list(inputs)) {
       inputs <- lapply(inputs, function(i) torch::torch_clone(i))

@@ -28,14 +28,8 @@ DeepSurv <- torch::nn_module(
 
     if (is.null(postprocess_fun)) {
       self$postprocess_fun <- function(x) {
-        if (is.list(x) && length(x) == 1) {
-          x <- x[[1]]
-        } else if (is.list(x)) {
-          stop("Currently, only one input layer is supported!")
-        }
-
-        # Add pseudo time dimension
-        x$unsqueeze(-1)
+        x <- x$unsqueeze(-1) * torch_ones(c(dim(x), length(self$t)))
+        x$unsqueeze(-2)
       }
     } else {
       self$postprocess_fun <- postprocess_fun
@@ -48,15 +42,18 @@ DeepSurv <- torch::nn_module(
     # Remove list if only one element
     if (is.list(input) && length(input) == 1) input <- input[[1]]
 
-    # Calculate net output
-    out <- self$postprocess_fun(self$net$forward(input))
+    # Calculate net output of shape (batch_size, out_features)
+    out <- self$net$forward(input)
 
     # Get baseline hazards
     if (use_base_hazard) {
-      base_hazard <- torch::torch_tensor(self$base_hazard$hazard)$unsqueeze(1)$unsqueeze(1)
+      base_hazard <- torch::torch_tensor(self$base_hazard$hazard)$reshape(c(rep(1, out$dim()), -1))
     } else {
       base_hazard <- 1
     }
+
+    # Add pseudo time dimension, i.e. shape (batch_size, out_features, 1)
+    out <- out$unsqueeze(-1)
 
     # Calculate target
     if (target == "hazard") {
@@ -67,11 +64,12 @@ DeepSurv <- torch::nn_module(
       out <- torch::torch_exp(-(torch::torch_exp(out) * base_hazard)$cumsum(dim = -1))
     }
 
-    list(out)
+    list(out$unsqueeze(-2))
   },
 
   # Calculate gradients of a CoxTime model
-  calc_gradients = function(inputs, return_out = FALSE, use_base_hazard = TRUE) {
+  calc_gradients = function(inputs, return_out = FALSE, use_base_hazard = TRUE,
+                            target = "hazard") {
 
     # Clone tensor
     if (is.list(inputs)) {
@@ -151,14 +149,8 @@ CoxTime <- torch::nn_module(
 
     if (is.null(postprocess_fun)) {
       self$postprocess_fun <- function(x) {
-        if (is.list(x) && length(x) == 1) {
-          x <- x[[1]]
-        } else if (is.list(x)) {
-          stop("Currently, only one input layer is supported!")
-        }
-
-        # Output (batch_size * t, out_features) -> (batch_size, out_features, t)
-        x$reshape(c(-1, length(self$t), x$size(-1)))$movedim(2, -1)
+        # Output (batch_size * t, out_features) -> (batch_size, out_features, 1, t)
+        x$reshape(c(-1, length(self$t), x$size(-1), 1))$movedim(2, -1)
       }
     } else {
       self$postprocess_fun <- postprocess_fun
@@ -171,12 +163,13 @@ CoxTime <- torch::nn_module(
     # Remove list if only one element
     if (is.list(input) && length(input) == 1) input <- input[[1]]
 
-    # Calculate net output
-    out <- self$postprocess_fun(self$net$forward(input))
+    # Calculate net output and transform to (batch_size, out_features, 1, t)
+    out <- self$net$forward(input)
+    out <- out$reshape(c(-1, length(self$t), out$size(-1), 1))$movedim(2, -1)
 
     # Get baseline hazards
     if (use_base_hazard) {
-      base_hazard <- torch::torch_tensor(self$base_hazard$hazard)$unsqueeze(1)$unsqueeze(1)
+      base_hazard <- torch::torch_tensor(self$base_hazard$hazard)$unsqueeze(1)$unsqueeze(1)$unsqueeze(1)
     } else {
       base_hazard <- 1
     }
@@ -194,7 +187,8 @@ CoxTime <- torch::nn_module(
   },
 
   # Calculate gradients of a CoxTime model
-  calc_gradients = function(inputs, return_out = FALSE, use_base_hazard = TRUE) {
+  calc_gradients = function(inputs, return_out = FALSE, use_base_hazard = TRUE,
+                            target = "hazard") {
 
     # Clone tensor
     if (is.list(inputs)) {
@@ -254,8 +248,8 @@ load_pycox_model <- function(path, in_features, base_hazard, type = "CoxTime", a
 
   # Rebuild architecture and load state dict
   if (is.null(architecture)) {
-    net <- CoxTimeNet$new(in_features + 1, num_nodes, batch_norm,
-                             dropout, activation, output_activation)
+    net <- BaseMLP$new(in_features + 1, num_nodes, batch_norm,
+                       dropout, activation, output_activation)
   }
 
   # Load and preprocess state dict

@@ -2,26 +2,53 @@
 
 #' Plot method for survival attribution results
 #'
+#' @importFrom stats aggregate as.formula ave
 #' @family Plot Methods
 #' @export
-plot.surv_result <- function(x, ...) {
+plot.surv_result <- function(x, normalize = FALSE, add_sum = FALSE, ...) {
   dat <- as.data.frame(x)
 
-  if ("pred_diff" %in% colnames(dat)) {
-    line <- geom_line(aes(y = .data$pred_diff), color = "darkgray", linetype = "dashed")
-  } else {
-    line <- geom_line(aes(y = .data$pred), color = "darkgray", linetype = "dashed")
+  if ("feature2" %in% colnames(dat)) {
+    stop("This plot method only supports one dimensional feature attributions.")
   }
 
-  ggplot(dat, aes(x = .data$time)) +
+  # Normalize value
+  if (normalize) {
+    dat$value <- ave(dat$value, dat$id, dat$time,
+                     FUN = function(x) abs(x) / sum(abs(x)))
+  }
+
+  # Add sum of all attributions if requested
+  if (add_sum) {
+    dat_sum <- aggregate(as.formula(paste0("value ~ ", paste0(setdiff(colnames(dat), c("feature", "value")), collapse = " + "))),
+                         data = dat, sum)
+    dat_sum$feature <- "Sum"
+    dat <- rbind(dat, dat_sum)
+  }
+
+  if ("pred_diff" %in% colnames(dat)) {
+    line <- geom_line(aes(y = .data$pred_diff), color = "darkgray", linetype = "dashed", linewidth = 1.15)
+  } else {
+    line <- geom_line(aes(y = .data$pred), color = "darkgray", linetype = "dashed", linewidth = 1.15)
+  }
+
+  if ("pred_diff_q1" %in% colnames(dat)) {
+    ribbon <- geom_ribbon(aes(ymin = .data$pred_diff_q1, ymax = .data$pred_diff_q3),
+                          fill = "gray", alpha = 0.4, linetype = "dashed")
+  } else {
+    ribbon <- NULL
+  }
+
+  ggplot(dat, aes(x = .data$time)) + NULL +
+    ribbon +
     geom_line(aes(y = .data$value, group = .data$feature, color = .data$feature)) +
+    geom_point(aes(y = .data$value, group = .data$feature, color = .data$feature), size = 0.75) +
     line +
     geom_hline(yintercept = 0, color = "black") +
-    geom_point(aes(y = .data$value, group = .data$feature, color = .data$feature)) +
     facet_wrap(vars(.data$id), scales = "free_x", labeller = as_labeller(function(a) paste0("Instance ID: ", a))) +
     theme_minimal() +
     theme(legend.position = "bottom") +
-    labs(x = "Time", y = paste0("Attribution (", x$method, ")"), color = "Feature", linetype = NULL)
+    labs(x = "Time", y = paste0("Attribution: ", unique(dat$method)), color = "Feature", linetype = NULL)
 }
 
 

@@ -2,6 +2,7 @@
 % Please edit documentation in R/surv_grad.R
 \name{surv_grad}
 \alias{surv_grad}
+\alias{surv_grad.explainer_deepsurv}
 \alias{surv_grad.explainer_coxtime}
 \alias{surv_grad.explainer_deephit}
 \title{Calculate the Gradient of the Survival Function}
@@ -11,9 +12,17 @@ surv_grad(
   target = "survival",
   instance = 1,
   times_input = FALSE,
-  use_base_hazard = TRUE,
-  include_time = FALSE,
-  batch_size = 50
+  batch_size = 50,
+  include_time = FALSE
+)
+
+\method{surv_grad}{explainer_deepsurv}(
+  exp,
+  target = "survival",
+  instance = 1,
+  times_input = FALSE,
+  batch_size = 50,
+  ...
 )
 
 \method{surv_grad}{explainer_coxtime}(
@@ -21,9 +30,8 @@ surv_grad(
   target = "survival",
   instance = 1,
   times_input = FALSE,
-  use_base_hazard = TRUE,
-  include_time = FALSE,
-  batch_size = 50
+  batch_size = 50,
+  include_time = FALSE
 )
 
 \method{surv_grad}{explainer_deephit}(
@@ -31,7 +39,8 @@ surv_grad(
   target = "survival",
   instance = 1,
   times_input = FALSE,
-  batch_size = 50
+  batch_size = 50,
+  ...
 )
 }
 \description{

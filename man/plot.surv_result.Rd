@@ -4,7 +4,7 @@
 \alias{plot.surv_result}
 \title{Plot method for survival attribution results}
 \usage{
-\method{plot}{surv_result}(x, ...)
+\method{plot}{surv_result}(x, normalize = FALSE, add_sum = FALSE, ...)
 }
 \description{
 Plot method for survival attribution results

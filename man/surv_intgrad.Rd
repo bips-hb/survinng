@@ -2,6 +2,7 @@
 % Please edit documentation in R/surv_intgrad.R
 \name{surv_intgrad}
 \alias{surv_intgrad}
+\alias{surv_intgrad.explainer_deepsurv}
 \alias{surv_intgrad.explainer_coxtime}
 \alias{surv_intgrad.explainer_deephit}
 \title{Calculate the Integrated Gradients of the Survival Function}
@@ -10,29 +11,44 @@ surv_intgrad(
   exp,
   target = "survival",
   instance = 1,
+  times_input = TRUE,
+  batch_size = 50,
   n = 10,
   x_ref = NULL,
-  use_base_hazard = TRUE,
-  batch_size = 50
+  include_time = FALSE
+)
+
+\method{surv_intgrad}{explainer_deepsurv}(
+  exp,
+  target = "survival",
+  instance = 1,
+  times_input = TRUE,
+  batch_size = 50,
+  n = 10,
+  x_ref = NULL,
+  ...
 )
 
 \method{surv_intgrad}{explainer_coxtime}(
   exp,
   target = "survival",
   instance = 1,
+  times_input = TRUE,
+  batch_size = 50,
   n = 10,
   x_ref = NULL,
-  use_base_hazard = TRUE,
-  batch_size = 50
+  include_time = FALSE
 )
 
 \method{surv_intgrad}{explainer_deephit}(
   exp,
   target = "survival",
   instance = 1,
+  times_input = TRUE,
+  batch_size = 50,
   n = 10,
   x_ref = NULL,
-  batch_size = 50
+  ...
 )
 }
 \description{

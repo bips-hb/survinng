@@ -4,12 +4,17 @@
 \name{Survinng-package}
 \alias{Survinng}
 \alias{Survinng-package}
-\title{Survinng: What the Package Does (One Line, Title Case)}
+\title{Survinng: Gradient-Based Feature Attribution for Survival Neural Networks}
 \description{
-What the package does (one paragraph).
+This package explains survival neural networks (TODO).
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Niklas Koenen \email{niklas.koenen@gmail.com} (\href{https://orcid.org/0000-0002-4623-8271}{ORCID})
+
+Authors:
+\itemize{
+  \item Sophie Hanna Langbein (\href{https://orcid.org/0000-0001-5629-2055}{ORCID})
+}
 
 }
 \keyword{internal}

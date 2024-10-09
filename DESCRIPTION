@@ -1,22 +1,25 @@
 Package: Survinng
-Title: What the Package Does (One Line, Title Case)
+Title: Gradient-Based Feature Attribution for Survival Neural Networks
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Niklas", "Koenen", , "niklas.koenen@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-4623-8271")),
+    person(c("Sophie", "Hanna"), "Langbein", role = "aut",
+           comment = c(ORCID = "0000-0001-5629-2055"))
+  )
+Description: This package explains survival neural networks (TODO).
 License: MIT + file LICENSE
+Imports: 
+    checkmate,
+    ggplot2,
+    torch
+Suggests: 
+    data.table,
+    keras,
+    simsurv,
+    tensorflow,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Imports: 
-    ggplot2,
-    torch,
-    checkmate
-Suggests: 
-    keras,
-    tensorflow,
-    testthat (>= 3.0.0),
-    simsurv,
-    data.table
-Config/testthat/edition: 3
