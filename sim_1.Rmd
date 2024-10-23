@@ -112,7 +112,6 @@ p1 <- plot_survival(ext_deephit$pred, test, label = "(DeepHit)")
 p2 <- plot_survival(ext_coxtime$pred, test, label = "(CoxTime)")
 p3 <- plot_survival(ext_deepsurv$pred, test, label = "(DeepSurv)")
 cowplot::plot_grid(p1, p2, p3, nrow = 3)
-
 ```
 
 
@@ -212,9 +211,9 @@ cowplot::plot_grid(plot(intgrad_cox, normalize = TRUE),
 ### GradientSHAP
 
 ```{r sim1 gradSHAP, fig.width=14, fig.height=8}
-shap_cox <- surv_gradSHAP(exp_coxtime, target = "survival", n = 50, num_samples = 50)
-shap_deephit <- surv_gradSHAP(exp_deephit, target = "survival", n = 50, num_samples = 50)
-shap_deepsurv <- surv_gradSHAP(exp_deepsurv, target = "survival", n = 50, num_samples = 50)
+shap_cox <- surv_gradSHAP(exp_coxtime, target = "survival", n = 20, num_samples = 500)
+shap_deephit <- surv_gradSHAP(exp_deephit, target = "survival", n = 20, num_samples = 500)
+shap_deepsurv <- surv_gradSHAP(exp_deepsurv, target = "survival", n = 20, num_samples =500)
 
 cowplot::plot_grid(plot(shap_cox, add_sum = TRUE), plot(shap_deephit, add_sum = TRUE), 
                    plot(shap_deepsurv, add_sum = TRUE),

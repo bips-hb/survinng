@@ -94,7 +94,7 @@ plot.surv_result <- function(x, stacked = FALSE, normalize = FALSE, add_sum = FA
       )
   }
 
-  if (stacked == TRUE){
+  if (stacked == TRUE) {
     dat <- as.data.frame(x, stacked = TRUE)
 
     if ("feature2" %in% colnames(dat)) {
@@ -102,16 +102,42 @@ plot.surv_result <- function(x, stacked = FALSE, normalize = FALSE, add_sum = FA
     }
 
     ggplot(df, aes(x = .data$time)) + NULL +
-      geom_ribbon(aes(ymin = .data$min_value, ymax = cum_ref, group = .data$feature, color = .data$feature, fill = .data$feature), alpha = 0.3) +
-      geom_line(aes(y = .data$cum_ref, group = .data$feature, color = .data$feature), linewidth = 0.7) +
-      geom_line(aes(y = .data$pred_ref), color = "blue", linetype = "dotted", linewidth = 1.5, alpha = 0.5) +
-      geom_line(aes(y = .data$pred), color = "red", linetype = "dotted", linewidth = 1.5, alpha = 0.5) +
+      geom_ribbon(
+        aes(
+          ymin = .data$min_value,
+          ymax = cum_ref,
+          group = .data$feature,
+          color = .data$feature,
+          fill = .data$feature
+        ),
+        alpha = 0.3
+      ) +
+      geom_line(aes(
+        y = .data$cum_ref,
+        group = .data$feature,
+        color = .data$feature
+      ),
+      linewidth = 0.7) +
+      geom_line(
+        aes(y = .data$pred_ref),
+        color = "blue",
+        linetype = "dotted",
+        linewidth = 1.5,
+        alpha = 0.5
+      ) +
+      geom_line(
+        aes(y = .data$pred),
+        color = "red",
+        linetype = "dotted",
+        linewidth = 1.5,
+        alpha = 0.5
+      ) +
       theme_minimal() +
       scale_colour_viridis_d() +
       scale_fill_viridis_d() +
       ylab("") +
       theme(legend.position = "bottom")
-    }
+  }
 
 }
 

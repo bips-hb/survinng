@@ -45,7 +45,7 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
 
   # Get scale tensor
   scale <- torch::torch_tensor(rep(seq(1/n, 1, length.out = n),
-                                   times = length(instance)))$unsqueeze(-1)
+                                   times = length(instance), dtype = torch_double()), dtype = torch_double())$unsqueeze(-1)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -110,7 +110,7 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
   # Create scale tensor
   scale <- torch::torch_tensor(rep(seq(1/n, 1, length.out = n),
                                    times = length(instance),
-                                   each = length(exp$model$t_orig)))$unsqueeze(-1)
+                                   each = length(exp$model$t_orig)), dtype = torch_double())$unsqueeze(-1)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -170,7 +170,7 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
 
   # Create scale tensor
   scale <- torch::torch_tensor(rep(seq(1/n, 1, length.out = n),
-                                   times = length(instance)))$unsqueeze(-1)
+                                   times = length(instance)), dtype = torch_double())$unsqueeze(-1)
 
   result <- base_method(exp = exp,
                         instance = instance,

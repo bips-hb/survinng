@@ -9,7 +9,7 @@ DeepSurv <- torch::nn_module(
                         postprocess_fun = NULL) {
     self$net <- net
     self$base_hazard <- base_hazard
-    self$t <- torch::torch_tensor(base_hazard$time)
+    self$t <- torch::torch_tensor(base_hazard$time, dtype = torch_double())
     self$t_orig <- self$base_hazard$time
 
     if (is.null(preprocess_fun)) {
@@ -47,7 +47,7 @@ DeepSurv <- torch::nn_module(
 
     # Get baseline hazards
     if (use_base_hazard) {
-      base_hazard <- torch::torch_tensor(self$base_hazard$hazard)$reshape(c(rep(1, out$dim()), -1))
+      base_hazard <- torch::torch_tensor(self$base_hazard$hazard, dtype = torch_double())$reshape(c(rep(1, out$dim()), -1))
     } else {
       base_hazard <- 1
     }
@@ -112,7 +112,7 @@ CoxTime <- torch::nn_module(
                         postprocess_fun = NULL) {
     self$net <- net
     self$base_hazard <- base_hazard
-    self$t <- torch::torch_tensor(base_hazard$time)
+    self$t <- torch::torch_tensor(base_hazard$time, dtype = torch_double())
 
     if (!is.null(labtrans)) {
       if (!is.function(labtrans$transform) || !is.function(labtrans$inv_transform)) {
@@ -169,7 +169,7 @@ CoxTime <- torch::nn_module(
 
     # Get baseline hazards
     if (use_base_hazard) {
-      base_hazard <- torch::torch_tensor(self$base_hazard$hazard)$unsqueeze(1)$unsqueeze(1)$unsqueeze(1)
+      base_hazard <- torch::torch_tensor(self$base_hazard$hazard, dtype = torch_double())$unsqueeze(1)$unsqueeze(1)$unsqueeze(1)
     } else {
       base_hazard <- 1
     }
