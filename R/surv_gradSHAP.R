@@ -103,7 +103,8 @@ surv_gradSHAP.explainer_coxtime <- function(exp, target = "survival", instance =
   data_ref <- lapply(data_ref, function(x) x[idx, , drop = FALSE])
 
   # Sample value between 0 and 1
-  scale <- torch::torch_tensor(rep(runif(n * length(exp$model$t_orig) * num_samples),
+  scale <- torch::torch_tensor(rep(runif(n * num_samples),
+                                   each = length(exp$model$t_orig),
                                    times = length(instance)))$unsqueeze(-1)
 
   result <- base_method(exp = exp,

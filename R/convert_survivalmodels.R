@@ -26,7 +26,7 @@ extract_model.coxtime <- function(x, path = NULL) {
   )
 
   # Get baseline hazard
-  baseline_hazard <- x$model$compute_baseline_hazards()
+  baseline_hazard <- x$model$compute_baseline_hazards() #(sample = 500L)
   base_hazard <- data.frame(time = as.numeric(names(baseline_hazard)),
                             hazard = as.numeric(baseline_hazard))
 
@@ -109,7 +109,7 @@ extract_model.deepsurv <- function(x, path = NULL) {
   )
 
   # Get baseline hazard
-  baseline_hazard <- x$model$compute_baseline_hazards()
+  baseline_hazard <- x$model$compute_baseline_hazards() #(sample = 500L)
   base_hazard <- data.frame(time = as.numeric(names(baseline_hazard)),
                             hazard = as.numeric(baseline_hazard))
 

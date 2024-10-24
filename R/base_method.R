@@ -48,7 +48,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
 
   # Calculate the method (batch-wise) ------------------------------------------
   res <- lapply(batches, function(batch) {
-    message("Processing batch ", batch$idx[1], " to ", batch$idx[2], "...")
+    #message("Processing batch ", batch$idx[1], " to ", batch$idx[2], "...")
 
     # Calculate the gradients
     # Note: For all targets, the gradients are w.r.t. the hazard and
