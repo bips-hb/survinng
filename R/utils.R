@@ -99,7 +99,7 @@ to_tensor <- function(x, instance, repeats = 1) {
     if (inherits(i, "torch_tensor")) {
       res <- i[instance,, drop = FALSE]
     } else {
-      res <- torch::torch_tensor(as.matrix(i[instance,,drop = FALSE]))
+      res <- torch::torch_tensor(as.matrix(i[instance,,drop = FALSE]), dtype = torch_double())
     }
 
     # Convert to tensor and repeat rows
@@ -186,10 +186,10 @@ add_noise <- function(inputs, orig_data, noise_level) {
     names(orig) <- NULL
 
     # Calculate standard deviation
-    std <- torch::torch_tensor(apply(orig, seq_along(dim(orig))[-1], sd))$unsqueeze(1)
+    std <- torch::torch_tensor(apply(orig, seq_along(dim(orig))[-1], sd), dtype = torch_double())$unsqueeze(1)
 
     # Generate noise
-    noise <- torch::torch_tensor(array(rnorm(prod(dim(inputs[[i]]))), dim = dim(inputs[[i]])))
+    noise <- torch::torch_tensor(array(rnorm(prod(dim(inputs[[i]]))), dim = dim(inputs[[i]])), dtype = torch_double())
     noise <- noise * noise_level *std
 
     # Add noise

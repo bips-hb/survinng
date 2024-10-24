@@ -44,7 +44,7 @@ surv_gradSHAP.explainer_deepsurv <- function(exp, target = "survival", instance 
 
   # Sample value between 0 and 1
   scale <- torch::torch_tensor(rep(runif(n * num_samples),
-                                   times = length(instance)))$unsqueeze(-1)
+                                   times = length(instance)), dtype = torch_double())$unsqueeze(-1)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -104,7 +104,7 @@ surv_gradSHAP.explainer_coxtime <- function(exp, target = "survival", instance =
 
   # Sample value between 0 and 1
   scale <- torch::torch_tensor(rep(runif(n * length(exp$model$t_orig) * num_samples),
-                                   times = length(instance)))$unsqueeze(-1)
+                                   times = length(instance)), dtype = torch_double())$unsqueeze(-1)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -165,7 +165,7 @@ surv_gradSHAP.explainer_deephit <- function(exp, target = "survival", instance =
 
   # Sample value between 0 and 1
   scale <- torch::torch_tensor(rep(runif(n * num_samples),
-                                   times = length(instance)))$unsqueeze(-1)
+                                   times = length(instance)), dtype = torch_double())$unsqueeze(-1)
 
   result <- base_method(exp = exp,
                         instance = instance,

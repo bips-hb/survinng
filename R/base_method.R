@@ -89,7 +89,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
 
         # The baseline hazard is not used in the DeepSurv model, so we need to
         # multiply the gradients and outputs with the baseline hazard
-        base_haz <- torch::torch_tensor(exp$model$base_hazard$hazard)
+        base_haz <- torch::torch_tensor(exp$model$base_hazard$hazard, dtype = torch_double())
         base_haz <- base_haz$reshape(c(rep(1, grad$dim() - 1), -1))
         grad <- grad * base_haz
         outs <- outs * base_haz

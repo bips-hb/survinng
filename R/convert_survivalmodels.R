@@ -1,4 +1,3 @@
-
 # Extract models from `survivalmodels` package ---------------------------------
 
 #' Extract model information from a `survivalmodels` object
@@ -26,7 +25,7 @@ extract_model.coxtime <- function(x, path = NULL) {
   )
 
   # Get baseline hazard
-  baseline_hazard <- x$model$compute_baseline_hazards()
+  baseline_hazard <- x$model$compute_baseline_hazards(sample = 200L)
   base_hazard <- data.frame(time = as.numeric(names(baseline_hazard)),
                             hazard = as.numeric(baseline_hazard))
 
