@@ -76,12 +76,14 @@ print.surv_result <- function(x, ...) {
 }
 
 
-#' Custom print method for explainer_coxtime objects
+#' Custom print method for explainer objects
 #'
-#' This function prints a summary of the explainer_coxtime object.
+#' This function prints a summary of the explainer object.
 #'
-#' @param x An object of class 'explainer_coxtime'.
+#' @param x An object of class 'explainer_coxtime', 'explainer_deepsurv', or
+#' 'explainer_deephit'.
 #' @param ... Additional arguments (not used).
+#' @rdname print.explainer
 #' @export
 print.explainer_coxtime <- function(x, ...) {
   # Check if the object is of the correct class
@@ -134,12 +136,7 @@ print.explainer_coxtime <- function(x, ...) {
   invisible(x)
 }
 
-#' Custom print method for explainer_deepsurv objects
-#'
-#' This function prints a summary of the explainer_deepsurv object.
-#'
-#' @param x An object of class 'explainer_deepsurv'.
-#' @param ... Additional arguments (not used).
+#' @rdname print.explainer
 #' @export
 print.explainer_deepsurv <- function(x, ...) {
   # Check if the object is of the correct class
@@ -192,12 +189,7 @@ print.explainer_deepsurv <- function(x, ...) {
   invisible(x)
 }
 
-#' Custom print method for explainer_deephit objects
-#'
-#' This function prints a summary of the explainer_deephit object.
-#'
-#' @param x An object of class 'explainer_deephit'.
-#' @param ... Additional arguments (not used).
+#' @rdname print.explainer
 #' @export
 print.explainer_deephit <- function(x, ...) {
   # Check if the object is of the correct class
@@ -252,10 +244,12 @@ print.explainer_deephit <- function(x, ...) {
   invisible(x)
 }
 
-#' Print method for extracted CoxTime survival model
+#' Print method for extracted pycox survival model
 #'
-#' @param x An object of class `extracted_survivalmodels_coxtime`.
+#' @param x An object of class `extracted_survivalmodels_coxtime`,
+#' `extracted_survivalmodels_deepsurv`, or `extracted_survivalmodels_deephit`.
 #' @param ... Additional arguments (not used).
+#' @rdname print.extracted_survivalmodels
 #' @export
 print.extracted_survivalmodels_coxtime <- function(x, ...) {
   cat("Extracted CoxTime Survival Model:\n\n")
@@ -287,10 +281,7 @@ print.extracted_survivalmodels_coxtime <- function(x, ...) {
   invisible(x)
 }
 
-#' Print method for extracted DeepSurv survival model
-#'
-#' @param x An object of class `extracted_survivalmodels_deepsurv`.
-#' @param ... Additional arguments (not used).
+#' @rdname print.extracted_survivalmodels
 #' @export
 print.extracted_survivalmodels_deepsurv <- function(x, ...) {
   cat("Extracted DeepSurv Survival Model:\n\n")
@@ -315,10 +306,7 @@ print.extracted_survivalmodels_deepsurv <- function(x, ...) {
   invisible(x)
 }
 
-#' Print method for extracted DeepHit survival model
-#'
-#' @param x An object of class `extracted_survivalmodels_deephit`.
-#' @param ... Additional arguments (not used).
+#' @rdname print.extracted_survivalmodels
 #' @export
 print.extracted_survivalmodels_deephit <- function(x, ...) {
   cat("Extracted DeepHit Survival Model:\n\n")

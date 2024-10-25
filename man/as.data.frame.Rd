@@ -5,7 +5,7 @@
 \alias{as.data.table.surv_result}
 \title{Convert survival attribution results to a data frame}
 \usage{
-\method{as.data.frame}{surv_result}(x, ...)
+\method{as.data.frame}{surv_result}(x, ..., stacked = FALSE)
 
 as.data.table.surv_result(x, ...)
 }

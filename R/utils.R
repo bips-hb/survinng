@@ -89,7 +89,7 @@ combine_batch_grads <- function(res, feat_names, timepoints, include_time = FALS
 
 
 # Convert to torch tensor and repeat rows --------------------------------------
-to_tensor <- function(x, instance, repeats = 1, dtype = torch_float()) {
+to_tensor <- function(x, instance, repeats = 1, dtype = torch::torch_float()) {
   # Convert to list if not already
   if (!is.list(x)) {
     x <- list(x)

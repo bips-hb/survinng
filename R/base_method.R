@@ -5,7 +5,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
                         n_timepoints = 1, return_out = FALSE,
                         times_input = FALSE, remove_time = TRUE,
                         batch_size = 10, target = "survival",
-                        num_samples = 1, dtype = torch_float()) {
+                        num_samples = 1, dtype = torch::torch_float()) {
 
   # Preprocess inputs ----------------------------------------------------------
   inputs_ref_orig <- inputs_ref
@@ -182,7 +182,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
         a <- a$squeeze(dim = c(2, 3))
         list(
           mean = torch::torch_mean(a, dim = 1, keepdim = TRUE),
-          quantile = torch::torch_quantile(a, q = torch_tensor(c(0.25, 0.75), dtype = dtype), dim = 1)
+          quantile = torch::torch_quantile(a, q = torch::torch_tensor(c(0.25, 0.75), dtype = dtype), dim = 1)
         )
       })
 

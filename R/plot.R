@@ -5,7 +5,7 @@
 #' @importFrom stats aggregate as.formula ave
 #' @family Plot Methods
 #' @export
-plot.surv_result <- function(x, stacked = FALSE, normalize = FALSE, add_sum = FALSE, ...) {
+plot.surv_result <- function(x,...,  stacked = FALSE, normalize = FALSE, add_sum = FALSE) {
   if (stacked == FALSE) {
     dat <- as.data.frame(x)
 
@@ -65,7 +65,7 @@ plot.surv_result <- function(x, stacked = FALSE, normalize = FALSE, add_sum = FA
       ribbon <- NULL
     }
 
-    ggplot(dat, aes(x = .data$time)) + NULL +
+    p <- ggplot(dat, aes(x = .data$time)) + NULL +
       ribbon +
       geom_line(aes(
         y = .data$value,
@@ -101,11 +101,11 @@ plot.surv_result <- function(x, stacked = FALSE, normalize = FALSE, add_sum = FA
       stop("This plot method only supports one dimensional feature attributions.")
     }
 
-    ggplot(df, aes(x = .data$time)) + NULL +
+    p <- ggplot(dat, aes(x = .data$time)) + NULL +
       geom_ribbon(
         aes(
           ymin = .data$min_value,
-          ymax = cum_ref,
+          ymax = .data$cum_ref,
           group = .data$feature,
           color = .data$feature,
           fill = .data$feature
@@ -139,6 +139,7 @@ plot.surv_result <- function(x, stacked = FALSE, normalize = FALSE, add_sum = FA
       theme(legend.position = "bottom")
   }
 
+  p
 }
 
 
@@ -147,7 +148,7 @@ plot.surv_result <- function(x, stacked = FALSE, normalize = FALSE, add_sum = FA
 #' @family Conversion Methods
 #' @rdname as.data.frame
 #' @export
-as.data.frame.surv_result <- function(x, stacked = FALSE, ...) {
+as.data.frame.surv_result <- function(x, ..., stacked = FALSE) {
 
   # Get id, time and feature names
   id <- x$method_args$instance
@@ -195,9 +196,9 @@ as.data.frame.surv_result <- function(x, stacked = FALSE, ...) {
 
     # Compute mean of absolute attribution values
     abs_contributions <- df %>%
-      arrange(time, feature) %>%
-      group_by(feature) %>%
-      summarize(means = mean(abs(value), na.rm = TRUE), )
+      arrange(.data$time, .data$feature) %>%
+      group_by(.data$feature) %>%
+      summarize(means = mean(abs(.data$value), na.rm = TRUE), )
 
     # Order features by reverse order of mean of absolute attribution values
     custom_order <- as.character(abs_contributions[order(-abs_contributions$means), ]$feature)
@@ -205,19 +206,19 @@ as.data.frame.surv_result <- function(x, stacked = FALSE, ...) {
 
     # Compute cumulative sum of ordered attribution values
     df <- df %>%
-      group_by(time) %>%
-      arrange(time, feature) %>%
-      mutate(cum_value = cumsum(value))
+      group_by(.data$time) %>%
+      arrange(.data$time, .data$feature) %>%
+      mutate(cum_value = cumsum(.data$value))
 
     # Add reference value to cumulative sum
     df$cum_ref <- df$cum_value + df$pred_ref
 
     # Compute minimum value for ribbon plots
     df <- df %>%
-      group_by(time) %>%
-      arrange(time, feature) %>%
-      mutate(min_value = lag(cum_ref),
-             min_value = coalesce(min_value, pred_ref))
+      group_by(.data$time) %>%
+      arrange(.data$time, .data$feature) %>%
+      mutate(min_value = lag(.data$cum_ref),
+             min_value = coalesce(.data$min_value, .data$pred_ref))
 
     # Order features by mean of absolute attribution values
     df$feature <- factor(df$feature, levels = custom_order)

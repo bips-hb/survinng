@@ -199,7 +199,7 @@ surv_smoothgrad.explainer_deephit <- function(exp, target = "survival", instance
 ########################## Utility functions ###################################
 
 # Add noise --------------------------------------------------------------------
-add_noise <- function(inputs, orig_data, noise_level, dtype = torch_float()) {
+add_noise <- function(inputs, orig_data, noise_level, dtype = torch::torch_float()) {
   # Make sure both are lists
   if (!is.list(inputs)) inputs <- list(inputs)
   if (!is.list(orig_data)) orig_data <- list(orig_data)

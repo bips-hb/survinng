@@ -12,7 +12,8 @@ License: MIT + file LICENSE
 Imports: 
     checkmate,
     ggplot2,
-    torch
+    torch,
+    dplyr
 Suggests: 
     data.table,
     keras,
