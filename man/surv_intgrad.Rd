@@ -51,7 +51,7 @@ surv_intgrad(
   batch_size = 50,
   n = 10,
   x_ref = NULL,
-  dtype = dtype,
+  dtype = "float",
   ...
 )
 }

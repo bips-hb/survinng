@@ -50,9 +50,8 @@ surv_gradSHAP.explainer_deepsurv <- function(exp, target = "survival", instance 
              times = length(instance), each = n)
   data_ref <- lapply(data_ref, function(x) x[idx, , drop = FALSE])
 
-  # Sample value between 0 and 1
-  scale <- torch::torch_tensor(rep(runif(n * num_samples),
-                                   times = length(instance)), dtype = dtype)$unsqueeze(-1)
+  # Sample value between 0 and 1 (same for each timepoint and instance)
+  scale_fun <- function(dim, ...) torch::torch_rand(dim, dtype = dtype)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -60,7 +59,7 @@ surv_gradSHAP.explainer_deepsurv <- function(exp, target = "survival", instance 
                         model_class = "DeepSurv",
                         inputs_ref = data_ref,
                         method_pre_fun = NULL,
-                        scale_tensor = scale,
+                        scale_fun = scale_fun,
                         n_timepoints = 1,
                         return_out = TRUE,
                         remove_time = TRUE,
@@ -113,14 +112,13 @@ surv_gradSHAP.explainer_coxtime <- function(exp, target = "survival", instance =
   }
   if (!is.list(data_ref)) data_ref <- list(data_ref)
 
-  # Sample from baseline distribution
-  idx <- rep(sample.int(dim(data_ref[[1]])[1], num_samples, replace = TRUE),
-             times = length(instance), each = n)
+  # Sample from baseline distribution (same for each timepoint and instance)
+  num_samples <- min(num_samples, dim(data_ref[[1]])[1])
+  idx <- rep(sample.int(dim(data_ref[[1]])[1], num_samples), times = length(instance), each = n)
   data_ref <- lapply(data_ref, function(x) x[idx, , drop = FALSE])
 
-  # Sample value between 0 and 1
-  scale <- torch::torch_tensor(rep(runif(n * length(exp$model$t_orig) * num_samples),
-                                   times = length(instance)), dtype = dtype)$unsqueeze(-1)
+  # Sample value between 0 and 1 (same for each timepoint and instance)
+  scale_fun <- function(dim, ...) torch::torch_rand(dim, dtype = dtype)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -128,7 +126,7 @@ surv_gradSHAP.explainer_coxtime <- function(exp, target = "survival", instance =
                         model_class = "CoxTime",
                         inputs_ref = data_ref,
                         method_pre_fun = NULL,
-                        scale_tensor = scale,
+                        scale_fun = scale_fun,
                         n_timepoints = length(exp$model$t_orig),
                         return_out = TRUE,
                         remove_time = !include_time,
@@ -188,9 +186,8 @@ surv_gradSHAP.explainer_deephit <- function(exp, target = "survival", instance =
              times = length(instance), each = n)
   data_ref <- lapply(data_ref, function(x) x[idx, , drop = FALSE])
 
-  # Sample value between 0 and 1
-  scale <- torch::torch_tensor(rep(runif(n * num_samples),
-                                   times = length(instance)), dtype = dtype)$unsqueeze(-1)
+  # Sample value between 0 and 1 (same for each timepoint and instance)
+  scale_fun <- function(dim, ...) torch::torch_rand(dim, dtype = dtype)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -198,7 +195,7 @@ surv_gradSHAP.explainer_deephit <- function(exp, target = "survival", instance =
                         model_class = "DeepHit",
                         inputs_ref = data_ref,
                         method_pre_fun = NULL,
-                        scale_tensor = scale,
+                        scale_fun = scale_fun,
                         n_timepoints = 1,
                         return_out = TRUE,
                         remove_time = FALSE,

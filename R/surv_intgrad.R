@@ -52,8 +52,10 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
   })
 
   # Get scale tensor
-  scale <- torch::torch_tensor(rep(seq(1/n, 1, length.out = n),
-                                   times = length(instance)), dtype = dtype)$unsqueeze(-1)
+  scale_fun <- function(dim, idx, ...) {
+    torch::torch_tensor(seq(1/n, 1, length.out = n)[(idx - 1) %% n + 1],
+                        dtype = dtype)$reshape(dim)
+  }
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -61,7 +63,7 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
                         model_class = "DeepSurv",
                         inputs_ref = x_ref,
                         method_pre_fun = NULL,
-                        scale_tensor = scale,
+                        scale_fun = scale_fun,
                         n_timepoints = 1,
                         return_out = TRUE,
                         remove_time = FALSE,
@@ -124,10 +126,11 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
     x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
   })
 
-  # Create scale tensor
-  scale <- torch::torch_tensor(rep(seq(1/n, 1, length.out = n),
-                                   times = length(instance),
-                                   each = length(exp$model$t_orig)), dtype = dtype)$unsqueeze(-1)
+  # Get scale tensor
+  scale_fun <- function(dim, idx, ...) {
+    torch::torch_tensor(seq(1/n, 1, length.out = n)[(idx - 1) %% n + 1],
+                        dtype = dtype)$repeat_interleave(length(exp$model$t_orig))$reshape(dim)
+  }
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -135,7 +138,7 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
                         model_class = "CoxTime",
                         inputs_ref = x_ref,
                         method_pre_fun = NULL,
-                        scale_tensor = scale,
+                        scale_fun = scale_fun,
                         n_timepoints = length(exp$model$t_orig),
                         return_out = TRUE,
                         remove_time = !include_time,
@@ -163,7 +166,7 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
 surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 1,
                                            times_input = TRUE, batch_size = 50,
                                            n = 10, x_ref = NULL,
-                                           dtype = dtype, ...) {
+                                           dtype = "float", ...) {
 
   # Check arguments
   assertClass(exp, "explainer_deephit")
@@ -194,9 +197,11 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
     x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
   })
 
-  # Create scale tensor
-  scale <- torch::torch_tensor(rep(seq(1/n, 1, length.out = n),
-                                   times = length(instance)), dtype = dtype)$unsqueeze(-1)
+  # Get scale tensor
+  scale_fun <- function(dim, idx, ...) {
+    torch::torch_tensor(seq(1/n, 1, length.out = n)[(idx - 1) %% n + 1],
+                        dtype = dtype)$reshape(dim)
+  }
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -204,7 +209,7 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
                         model_class = "DeepHit",
                         inputs_ref = x_ref,
                         method_pre_fun = NULL,
-                        scale_tensor = scale,
+                        scale_fun = scale_fun,
                         n_timepoints = 1,
                         return_out = TRUE,
                         remove_time = FALSE,

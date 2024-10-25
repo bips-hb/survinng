@@ -13,7 +13,8 @@ Imports:
     checkmate,
     ggplot2,
     torch,
-    dplyr
+    dplyr,
+    methods
 Suggests: 
     data.table,
     keras,

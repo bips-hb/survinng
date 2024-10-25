@@ -1,7 +1,7 @@
 
 
 base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
-                        method_pre_fun = NULL, scale_tensor = NULL,
+                        method_pre_fun = NULL, scale_fun = NULL,
                         n_timepoints = 1, return_out = FALSE,
                         times_input = FALSE, remove_time = TRUE,
                         batch_size = 10, target = "survival",
@@ -19,39 +19,24 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
     inputs_ref <- to_tensor(inputs_ref, seq_len(dim(inputs_ref[[1]])[1]), repeats = 1, dtype = dtype)
   }
 
-  # Apply the method-specific preprocessing function (e.g. adding noise)
-  if (is.null(method_pre_fun)) method_pre_fun <- identity
-  inputs <- method_pre_fun(inputs)
-  if (!is.null(inputs_ref)) {
-    inputs_ref <- method_pre_fun(inputs_ref)
-  }
-
-  # Preprocess inputs (e.g. add the time dimension for CoxTime models)
-  inputs <- lapply(inputs, exp$model$preprocess_fun)
-  if (!is.null(inputs_ref)) {
-    inputs_ref <- lapply(inputs_ref, exp$model$preprocess_fun)
-  }
-
-  # Combine inputs and inputs_ref according to the method
-  if (!is.null(scale_tensor)) {
-    # Check if dimensions match
-    lapply(seq_along(inputs),
-           function(i) assertTensorDim(inputs[[i]], inputs_ref[[i]],
-                                       n1 = "'data'", n2 = "'data_ref'"))
-    # Scale the inputs
-    inputs_combined <- lapply(seq_along(inputs), function(i) {
-      inputs_ref[[i]] + scale_tensor * (inputs[[i]] - inputs_ref[[i]])
-    })
-  } else {
-    inputs_combined <- inputs
-  }
-
   # Split inputs into batches
-  batches <- split_batches(inputs_combined, batch_size, n_timepoints = n_timepoints, n = n * num_samples)
+  batches <- Surv_BatchLoader(
+    inputs = inputs,
+    inputs_ref = inputs_ref,
+    method_pre_fun = method_pre_fun,
+    model_pre_fun = exp$model$preprocess_fun,
+    scale_fun = scale_fun,
+    batch_size = batch_size,
+    n_timepoints = n_timepoints,
+    n = n * num_samples)
 
   # Calculate the method (batch-wise) ------------------------------------------
-  res <- lapply(batches, function(batch) {
-    message("Processing batch ", batch$idx[1], " to ", batch$idx[2], "...")
+  res <- lapply(seq_len(batches@total_batches), function(b) {
+
+    # Get the current batch and update the batch loader
+    batch <- get_batch(batches)
+    batches <<- update(batches)
+
 
     # Calculate the gradients
     # Note: For all targets, the gradients are w.r.t. the hazard and
@@ -116,8 +101,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
         if (is.null(inputs_ref)) {
           grad <- grad * exp$model$postprocess_fun(batch$batch[[i]])[, feat_idx,, drop = FALSE]
         } else {
-          rows <- batch$idx[1]:batch$idx[2]
-          input_diff <- inputs[[i]][rows,, drop = FALSE] - inputs_ref[[i]][rows,, drop = FALSE]
+          input_diff <- batch$inputs[[i]] - batch$inputs_ref[[i]]
           grad <- grad * exp$model$postprocess_fun(input_diff)[, feat_idx,, drop = FALSE]
         }
       }
