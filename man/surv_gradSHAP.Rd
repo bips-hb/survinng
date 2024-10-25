@@ -16,6 +16,7 @@ surv_gradSHAP(
   n = 50,
   num_samples = 10,
   data_ref = NULL,
+  dtype = "float",
   include_time = FALSE
 )
 
@@ -28,6 +29,7 @@ surv_gradSHAP(
   n = 50,
   num_samples = 10,
   data_ref = NULL,
+  dtype = "float",
   ...
 )
 
@@ -40,6 +42,7 @@ surv_gradSHAP(
   n = 50,
   num_samples = 10,
   data_ref = NULL,
+  dtype = "float",
   include_time = FALSE
 )
 
@@ -52,6 +55,7 @@ surv_gradSHAP(
   n = 50,
   num_samples = 10,
   data_ref = NULL,
+  dtype = "float",
   ...
 )
 }

@@ -8,7 +8,7 @@
 #' @export
 surv_intgrad <- function(exp, target = "survival", instance = 1,
                          times_input = TRUE, batch_size = 50,
-                         n = 10, x_ref = NULL, include_time = FALSE) {
+                         n = 10, x_ref = NULL, dtype = "float", include_time = FALSE) {
   UseMethod("surv_intgrad")
 }
 
@@ -18,7 +18,8 @@ surv_intgrad <- function(exp, target = "survival", instance = 1,
 #' @export
 surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance = 1,
                                             times_input = TRUE, batch_size = 50,
-                                            n = 10, x_ref = NULL, ...) {
+                                            n = 10, x_ref = NULL,
+                                            dtype = "float", ...) {
 
   # Check arguments
   assertClass(exp, "explainer_deepsurv")
@@ -27,6 +28,13 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
   assertIntegerish(n, lower = 1)
   assertIntegerish(batch_size, lower = 1)
   assertArgData(x_ref, null.ok = TRUE)
+  assertChoice(dtype, c("float", "double"))
+
+  # Set dtype of all tensors
+  dtype_name <- dtype
+  dtype <- switch(dtype_name,
+                  "float" = torch::torch_float(),
+                  "double" = torch::torch_double())
 
   # Set reference value
   if (is.null(x_ref)) {
@@ -45,7 +53,7 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
 
   # Get scale tensor
   scale <- torch::torch_tensor(rep(seq(1/n, 1, length.out = n),
-                                   times = length(instance), dtype = torch_double()), dtype = torch_double())$unsqueeze(-1)
+                                   times = length(instance)), dtype = dtype)$unsqueeze(-1)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -59,14 +67,15 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
                         remove_time = FALSE,
                         batch_size = batch_size,
                         times_input = times_input,
-                        target = target)
+                        target = target,
+                        dtype = dtype)
 
   result <- append(result, list(
     model_class = "DeepSurv",
     method = "Surv_IntGrad",
     method_args = list(
       target = target, instance = instance, times_input = times_input,
-      n = n
+      n = n, dtype = dtype_name
     )
   ))
   class(result) <- c("surv_result", class(result))
@@ -80,7 +89,8 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
 #' @export
 surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 1,
                                            times_input = TRUE, batch_size = 50,
-                                           n = 10, x_ref = NULL, include_time = FALSE) {
+                                           n = 10, x_ref = NULL,
+                                           dtype = "float", include_time = FALSE) {
 
   # Check arguments
   assertClass(exp, "explainer_coxtime")
@@ -90,6 +100,13 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
   assertLogical(include_time)
   assertIntegerish(batch_size, lower = 1)
   assertArgData(x_ref, null.ok = TRUE)
+  assertChoice(dtype, c("float", "double"))
+
+  # Set dtype of all tensors
+  dtype_name <- dtype
+  dtype <- switch(dtype_name,
+                  "float" = torch::torch_float(),
+                  "double" = torch::torch_double())
 
 
   # Set reference value
@@ -110,7 +127,7 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
   # Create scale tensor
   scale <- torch::torch_tensor(rep(seq(1/n, 1, length.out = n),
                                    times = length(instance),
-                                   each = length(exp$model$t_orig)), dtype = torch_double())$unsqueeze(-1)
+                                   each = length(exp$model$t_orig)), dtype = dtype)$unsqueeze(-1)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -124,14 +141,15 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
                         remove_time = !include_time,
                         batch_size = batch_size,
                         times_input = times_input,
-                        target = target)
+                        target = target,
+                        dtype = dtype)
 
   result <- append(result, list(
     model_class = "CoxTime",
     method = "Surv_IntGrad",
     method_args = list(
       target = target, instance = instance, times_input = times_input,
-      n = n, include_time = include_time
+      n = n, include_time = include_time, dtype = dtype_name
     )
   ))
   class(result) <- c("surv_result", class(result))
@@ -144,7 +162,8 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
 #' @export
 surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 1,
                                            times_input = TRUE, batch_size = 50,
-                                           n = 10, x_ref = NULL, ...) {
+                                           n = 10, x_ref = NULL,
+                                           dtype = dtype, ...) {
 
   # Check arguments
   assertClass(exp, "explainer_deephit")
@@ -153,6 +172,13 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
   assertIntegerish(n, lower = 1)
   assertIntegerish(batch_size, lower = 1)
   assertArgData(x_ref, null.ok = TRUE)
+  assertChoice(dtype, c("float", "double"))
+
+  # Set dtype of all tensors
+  dtype_name <- dtype
+  dtype <- switch(dtype_name,
+                  "float" = torch::torch_float(),
+                  "double" = torch::torch_double())
 
   # Set reference value
   if (is.null(x_ref)) {
@@ -170,7 +196,7 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
 
   # Create scale tensor
   scale <- torch::torch_tensor(rep(seq(1/n, 1, length.out = n),
-                                   times = length(instance)), dtype = torch_double())$unsqueeze(-1)
+                                   times = length(instance)), dtype = dtype)$unsqueeze(-1)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -184,14 +210,15 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
                         remove_time = FALSE,
                         batch_size = batch_size,
                         times_input = times_input,
-                        target = target)
+                        target = target,
+                        dtype = dtype)
 
   result <- append(result, list(
     model_class = "DeepHit",
     method = "Surv_IntGrad",
     method_args = list(
       target = target, instance = instance, times_input = times_input,
-      n = n
+      n = n, dtype = dtype_name
     )
   ))
   class(result) <- c("surv_result", class(result))

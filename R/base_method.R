@@ -5,15 +5,18 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
                         n_timepoints = 1, return_out = FALSE,
                         times_input = FALSE, remove_time = TRUE,
                         batch_size = 10, target = "survival",
-                        num_samples = 1) {
+                        num_samples = 1, dtype = torch_float()) {
 
   # Preprocess inputs ----------------------------------------------------------
   inputs_ref_orig <- inputs_ref
 
+  # Set dtype of the model
+  exp$model$set_dtype(dtype)
+
   # Select and convert the inputs to tensors
-  inputs <- to_tensor(exp$input_data, instance, repeats = n * num_samples)
+  inputs <- to_tensor(exp$input_data, instance, repeats = n * num_samples, dtype = dtype)
   if (!is.null(inputs_ref)) {
-    inputs_ref <- to_tensor(inputs_ref, seq_len(dim(inputs_ref[[1]])[1]), repeats = 1)
+    inputs_ref <- to_tensor(inputs_ref, seq_len(dim(inputs_ref[[1]])[1]), repeats = 1, dtype = dtype)
   }
 
   # Apply the method-specific preprocessing function (e.g. adding noise)
@@ -84,12 +87,12 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
         }
       } else if (model_class == "DeepSurv") {
         # Reshape grads (batch_size, input_features) --> (batch_size, input_features, 1, t)
-        grad <- grad$unsqueeze(-1) * torch::torch_ones(c(dim(grad), length(exp$model$t)))
+        grad <- grad$unsqueeze(-1) * torch::torch_ones(c(dim(grad), length(exp$model$t)), dtype = dtype)
         grad <- grad$unsqueeze(-2)
 
         # The baseline hazard is not used in the DeepSurv model, so we need to
         # multiply the gradients and outputs with the baseline hazard
-        base_haz <- torch::torch_tensor(exp$model$base_hazard$hazard, dtype = torch_double())
+        base_haz <- torch::torch_tensor(exp$model$base_hazard$hazard, dtype = dtype)
         base_haz <- base_haz$reshape(c(rep(1, grad$dim() - 1), -1))
         grad <- grad * base_haz
         outs <- outs * base_haz
@@ -179,7 +182,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
         a <- a$squeeze(dim = c(2, 3))
         list(
           mean = torch::torch_mean(a, dim = 1, keepdim = TRUE),
-          quantile = torch::torch_quantile(a, q = c(0.25, 0.75), dim = 1)
+          quantile = torch::torch_quantile(a, q = torch_tensor(c(0.25, 0.75), dtype = dtype), dim = 1)
         )
       })
 

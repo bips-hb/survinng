@@ -13,6 +13,7 @@ surv_grad(
   instance = 1,
   times_input = FALSE,
   batch_size = 50,
+  dtype = "float",
   include_time = FALSE
 )
 
@@ -22,6 +23,7 @@ surv_grad(
   instance = 1,
   times_input = FALSE,
   batch_size = 50,
+  dtype = "float",
   ...
 )
 
@@ -31,6 +33,7 @@ surv_grad(
   instance = 1,
   times_input = FALSE,
   batch_size = 50,
+  dtype = "float",
   include_time = FALSE
 )
 
@@ -40,6 +43,7 @@ surv_grad(
   instance = 1,
   times_input = FALSE,
   batch_size = 50,
+  dtype = "float",
   ...
 )
 }

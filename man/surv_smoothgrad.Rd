@@ -15,6 +15,7 @@ surv_smoothgrad(
   batch_size = 50,
   n = 10,
   noise_level = 0.1,
+  dtype = "float",
   include_time = FALSE
 )
 
@@ -26,6 +27,7 @@ surv_smoothgrad(
   batch_size = 50,
   n = 10,
   noise_level = 0.1,
+  dtype = "float",
   ...
 )
 
@@ -37,6 +39,7 @@ surv_smoothgrad(
   batch_size = 50,
   n = 10,
   noise_level = 0.1,
+  dtype = "float",
   include_time = FALSE
 )
 
@@ -48,6 +51,7 @@ surv_smoothgrad(
   batch_size = 50,
   n = 10,
   noise_level = 0.1,
+  dtype = "float",
   ...
 )
 }

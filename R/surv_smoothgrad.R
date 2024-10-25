@@ -15,6 +15,7 @@ surv_smoothgrad <- function(
     batch_size = 50,
     n = 10,
     noise_level = 0.1,
+    dtype = "float",
     include_time = FALSE) {
 
   UseMethod("surv_smoothgrad")
@@ -28,7 +29,8 @@ surv_smoothgrad <- function(
 #' @export
 surv_smoothgrad.explainer_deepsurv <- function(exp, target = "survival", instance = 1,
                                                times_input = FALSE, batch_size = 50,
-                                               n = 10, noise_level = 0.1, ...) {
+                                               n = 10, noise_level = 0.1,
+                                               dtype = "float", ...) {
 
   # Check arguments
   assertClass(exp, "explainer_deepsurv")
@@ -38,9 +40,16 @@ surv_smoothgrad.explainer_deepsurv <- function(exp, target = "survival", instanc
   assertNumeric(noise_level, lower = 0)
   assertIntegerish(batch_size, lower = 1)
   assertLogical(times_input)
+  assertChoice(dtype, c("float", "double"))
+
+  # Set dtype of all tensors
+  dtype_name <- dtype
+  dtype <- switch(dtype_name,
+                  "float" = torch::torch_float(),
+                  "double" = torch::torch_double())
 
   # Get noise function
-  noise_fun <- function(x) add_noise(x, exp$input_data, noise_level)
+  noise_fun <- function(x) add_noise(x, exp$input_data, noise_level, dtype)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -54,14 +63,15 @@ surv_smoothgrad.explainer_deepsurv <- function(exp, target = "survival", instanc
                         remove_time = FALSE,
                         batch_size = batch_size,
                         times_input = times_input,
-                        target = target)
+                        target = target,
+                        dtype = dtype)
 
   result <- append(result, list(
     model_class = "DeepSurv",
     method = "Surv_SmoothGrad",
     method_args = list(
       target = target, instance = instance, times_input = times_input,
-      n = n, noise_level = noise_level
+      n = n, noise_level = noise_level, dtype = dtype_name
     )
   ))
   class(result) <- c("surv_result", class(result))
@@ -76,7 +86,8 @@ surv_smoothgrad.explainer_deepsurv <- function(exp, target = "survival", instanc
 #' @export
 surv_smoothgrad.explainer_coxtime <- function(exp, target = "survival", instance = 1,
                                               times_input = FALSE, batch_size = 50,
-                                              n = 10, noise_level = 0.1, include_time = FALSE) {
+                                              n = 10, noise_level = 0.1,
+                                              dtype = "float", include_time = FALSE) {
 
   # Check arguments
   assertClass(exp, "explainer_coxtime")
@@ -87,9 +98,16 @@ surv_smoothgrad.explainer_coxtime <- function(exp, target = "survival", instance
   assertIntegerish(batch_size, lower = 1)
   assertLogical(times_input)
   assertLogical(include_time)
+  assertChoice(dtype, c("float", "double"))
+
+  # Set dtype of all tensors
+  dtype_name <- dtype
+  dtype <- switch(dtype_name,
+                  "float" = torch::torch_float(),
+                  "double" = torch::torch_double())
 
   # Get noise function
-  noise_fun <- function(x) add_noise(x, exp$input_data, noise_level)
+  noise_fun <- function(x) add_noise(x, exp$input_data, noise_level, dtype)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -103,14 +121,16 @@ surv_smoothgrad.explainer_coxtime <- function(exp, target = "survival", instance
                         remove_time = !include_time,
                         batch_size = batch_size,
                         times_input = times_input,
-                        target = target)
+                        target = target,
+                        dtype = dtype)
 
   result <- append(result, list(
     model_class = "CoxTime",
     method = "Surv_SmoothGrad",
     method_args = list(
       target = target, instance = instance, times_input = times_input,
-      include_time = include_time, n = n, noise_level = noise_level
+      include_time = include_time, n = n, noise_level = noise_level,
+      dtype = dtype_name
     )
   ))
   class(result) <- c("surv_result", class(result))
@@ -125,7 +145,8 @@ surv_smoothgrad.explainer_coxtime <- function(exp, target = "survival", instance
 #' @export
 surv_smoothgrad.explainer_deephit <- function(exp, target = "survival", instance = 1,
                                               times_input = FALSE, batch_size = 50,
-                                              n = 10, noise_level = 0.1, ...) {
+                                              n = 10, noise_level = 0.1,
+                                              dtype = "float", ...) {
 
   # Check arguments
   assertClass(exp, "explainer_deephit")
@@ -135,9 +156,16 @@ surv_smoothgrad.explainer_deephit <- function(exp, target = "survival", instance
   assertNumeric(noise_level, lower = 0)
   assertIntegerish(batch_size, lower = 1)
   assertLogical(times_input)
+  assertChoice(dtype, c("float", "double"))
+
+  # Set dtype of all tensors
+  dtype_name <- dtype
+  dtype <- switch(dtype_name,
+                  "float" = torch::torch_float(),
+                  "double" = torch::torch_double())
 
   # Get noise function
-  noise_fun <- function(x) add_noise(x, exp$input_data, noise_level)
+  noise_fun <- function(x) add_noise(x, exp$input_data, noise_level, dtype)
 
   result <- base_method(exp = exp,
                         instance = instance,
@@ -151,20 +179,45 @@ surv_smoothgrad.explainer_deephit <- function(exp, target = "survival", instance
                         remove_time = FALSE,
                         batch_size = batch_size,
                         times_input = times_input,
-                        target = target)
+                        target = target,
+                        dtype = dtype)
 
   result <- append(result, list(
     model_class = "DeepHit",
     method = "Surv_SmoothGrad",
     method_args = list(
       target = target, instance = instance, times_input = times_input,
-      n = n, noise_level = noise_level
+      n = n, noise_level = noise_level, dtype = dtype_name
     )
   ))
   class(result) <- c("surv_result", class(result))
 
   result
 
+}
+
+########################## Utility functions ###################################
+
+# Add noise --------------------------------------------------------------------
+add_noise <- function(inputs, orig_data, noise_level, dtype = torch_float()) {
+  # Make sure both are lists
+  if (!is.list(inputs)) inputs <- list(inputs)
+  if (!is.list(orig_data)) orig_data <- list(orig_data)
+
+  lapply(seq_along(inputs), function(i) {
+    orig <- orig_data[[i]]
+    names(orig) <- NULL
+
+    # Calculate standard deviation
+    std <- torch::torch_tensor(apply(orig, seq_along(dim(orig))[-1], sd), dtype = dtype)$unsqueeze(1)
+
+    # Generate noise
+    noise <- torch::torch_tensor(array(rnorm(prod(dim(inputs[[i]]))), dim = dim(inputs[[i]])), dtype = dtype)
+    noise <- noise * noise_level *std
+
+    # Add noise
+    inputs[[i]] + noise
+  })
 }
 
 

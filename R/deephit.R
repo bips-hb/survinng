@@ -8,7 +8,9 @@ DeepHit <- torch::nn_module(
   classname = "DeepHit",
   initialize = function(net, time_bins, preprocess_fun = NULL,
                         postprocess_fun = NULL) {
+    net$to(torch_float())
     self$net <- net
+    self$dtype <- torch_float()
     self$time_bins <- time_bins
 
     if (is.null(preprocess_fun)) {
@@ -51,7 +53,7 @@ DeepHit <- torch::nn_module(
     out_shape <- dim(out)
     out <- torch::torch_cat(
       list(out$view(c(out_shape[1], -1)),
-           torch::torch_zeros(out_shape[1], 1)),
+           torch::torch_zeros(out_shape[1], 1, dtype = self$dtype)),
       dim = 2)
     out <- out$softmax(dim = 2)[, seq_len(dim(out)[2] - 1)]$view(out_shape)
 
@@ -102,5 +104,10 @@ DeepHit <- torch::nn_module(
     if (!return_out) output <- NULL
 
     list(grads = grads, outs = output)
+  },
+
+  set_dtype = function(dtype) {
+    self$dtype <- dtype
+    self$net <- self$net$to(dtype)
   }
 )

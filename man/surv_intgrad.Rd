@@ -15,6 +15,7 @@ surv_intgrad(
   batch_size = 50,
   n = 10,
   x_ref = NULL,
+  dtype = "float",
   include_time = FALSE
 )
 
@@ -26,6 +27,7 @@ surv_intgrad(
   batch_size = 50,
   n = 10,
   x_ref = NULL,
+  dtype = "float",
   ...
 )
 
@@ -37,6 +39,7 @@ surv_intgrad(
   batch_size = 50,
   n = 10,
   x_ref = NULL,
+  dtype = "float",
   include_time = FALSE
 )
 
@@ -48,6 +51,7 @@ surv_intgrad(
   batch_size = 50,
   n = 10,
   x_ref = NULL,
+  dtype = dtype,
   ...
 )
 }

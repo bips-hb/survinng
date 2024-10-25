@@ -7,9 +7,11 @@ DeepSurv <- torch::nn_module(
   initialize = function(net, base_hazard,
                         preprocess_fun = NULL,
                         postprocess_fun = NULL) {
+    net$to(torch_float())
     self$net <- net
+    self$dtype <- torch_float()
     self$base_hazard <- base_hazard
-    self$t <- torch::torch_tensor(base_hazard$time, dtype = torch_double())
+    self$t <- torch::torch_tensor(base_hazard$time)
     self$t_orig <- self$base_hazard$time
 
     if (is.null(preprocess_fun)) {
@@ -47,7 +49,7 @@ DeepSurv <- torch::nn_module(
 
     # Get baseline hazards
     if (use_base_hazard) {
-      base_hazard <- torch::torch_tensor(self$base_hazard$hazard, dtype = torch_double())$reshape(c(rep(1, out$dim()), -1))
+      base_hazard <- torch::torch_tensor(self$base_hazard$hazard, dtype = self$dtype)$reshape(c(rep(1, out$dim()), -1))
     } else {
       base_hazard <- 1
     }
@@ -101,6 +103,12 @@ DeepSurv <- torch::nn_module(
     if (!return_out) output <- NULL
 
     list(grads = grads, outs = output)
+  },
+
+  set_dtype = function(dtype) {
+    self$dtype <- dtype
+    self$net <- self$net$to(dtype)
+    self$t <- self$t$to(dtype)
   }
 )
 
@@ -110,9 +118,12 @@ CoxTime <- torch::nn_module(
                         labtrans = NULL,
                         preprocess_fun = NULL,
                         postprocess_fun = NULL) {
+    net$to(torch_float())
+    self$net <- net
+    self$dtype <- torch_float()
     self$net <- net
     self$base_hazard <- base_hazard
-    self$t <- torch::torch_tensor(base_hazard$time, dtype = torch_double())
+    self$t <- torch::torch_tensor(base_hazard$time)
 
     if (!is.null(labtrans)) {
       if (!is.function(labtrans$transform) || !is.function(labtrans$inv_transform)) {
@@ -169,7 +180,7 @@ CoxTime <- torch::nn_module(
 
     # Get baseline hazards
     if (use_base_hazard) {
-      base_hazard <- torch::torch_tensor(self$base_hazard$hazard, dtype = torch_double())$unsqueeze(1)$unsqueeze(1)$unsqueeze(1)
+      base_hazard <- torch::torch_tensor(self$base_hazard$hazard, dtype = self$dtype)$unsqueeze(1)$unsqueeze(1)$unsqueeze(1)
     } else {
       base_hazard <- 1
     }
@@ -220,6 +231,12 @@ CoxTime <- torch::nn_module(
     if (!return_out) output <- NULL
 
     list(grads = grads, outs = output)
+  },
+
+  set_dtype = function(dtype) {
+    self$dtype <- dtype
+    self$net <- self$net$to(dtype)
+    self$t <- self$t$to(dtype)
   }
 )
 
