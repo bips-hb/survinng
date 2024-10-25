@@ -38,9 +38,9 @@ generate_survival_data <- function(n, p_cont, p_binary = 0, seed = 1) {
 
 # Generate a sequential neural network module (1D input)
 seq_model_1D <- nn_module(
-  initialize = function(num_inputs, num_outtputs = 1, last_act = "none") {
+  initialize = function(num_inputs, num_outputs = 1, last_act = "none") {
     self$fc1 <- nn_linear(num_inputs, 20)
-    self$fc2 <- nn_linear(20, 1)
+    self$fc2 <- nn_linear(20, num_outputs)
     self$last_act <- last_act
   },
   forward = function(input) {
