@@ -47,6 +47,7 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
   }
 
   # Repeat reference value
+  if (!is.list(x_ref)) x_ref <- list(x_ref)
   x_ref <- lapply(x_ref, function(x) {
     x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
   })
@@ -122,6 +123,7 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
   }
 
   # Repeat reference value
+  if (!is.list(x_ref)) x_ref <- list(x_ref)
   x_ref <- lapply(x_ref, function(x) {
     x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
   })
@@ -193,6 +195,7 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
                     })
   }
   # Repeat reference value
+  if (!is.list(x_ref)) x_ref <- list(x_ref)
   x_ref <- lapply(x_ref, function(x) {
     x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
   })
