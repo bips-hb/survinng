@@ -143,7 +143,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
 
   # Calculate the outcomes -----------------------------------------------------
   # Calculate the predictions
-  outs <- to_tensor(exp$input_data, instance, repeats = 1) |>
+  outs <- to_tensor(exp$input_data, instance, repeats = 1, dtype = dtype) |>
     lapply(FUN = exp$model$preprocess_fun) |>
     exp$model$forward(target = target, use_base_hazard = TRUE) |>
     lapply(FUN = torch::torch_squeeze, dim = c(2, 3))
@@ -159,7 +159,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
       idx <- 1
       add_quantiles <- FALSE
     }
-    outs_ref <- to_tensor(data_ref, idx, repeats = 1) |>
+    outs_ref <- to_tensor(data_ref, idx, repeats = 1, dtype = dtype) |>
       lapply(FUN = exp$model$preprocess_fun) |>
       exp$model$forward(target = target, use_base_hazard = TRUE) |>
       lapply(FUN = function(a) {

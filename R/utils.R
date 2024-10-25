@@ -97,7 +97,7 @@ to_tensor <- function(x, instance, repeats = 1, dtype = torch::torch_float()) {
 
   lapply(x, function(i) {
     if (inherits(i, "torch_tensor")) {
-      res <- i[instance,, drop = FALSE]
+      res <- i[instance,, drop = FALSE]$to(dtype = dtype)
     } else {
       res <- torch::torch_tensor(as.matrix(i[instance,,drop = FALSE]), dtype = dtype)
     }
