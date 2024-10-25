@@ -22,6 +22,7 @@ explain <- function(model,
                     model_type = NULL,
                     baseline_hazard = NULL,
                     labtrans = NULL,
+                    time_bins = NULL,
                     preprocess_fun = NULL,
                     postprocess_fun = NULL,
                     predict_fun = NULL) {
@@ -35,6 +36,7 @@ explain <- function(model,
 explain.nn_module <- function(model, data, model_type,
                               baseline_hazard = NULL,
                               labtrans = NULL,
+                              time_bins = NULL,
                               preprocess_fun = NULL,
                               postprocess_fun = NULL,
                               predict_fun = NULL) {
@@ -46,27 +48,40 @@ explain.nn_module <- function(model, data, model_type,
   assertArgData(data)
   assertCharacter(model_type)
   model_type <- tolower(model_type)
-  assertChoice(model_type, c("coxtime", "deephit"))
+  assertChoice(model_type, c("coxtime", "deephit", "deepsurv"))
   assertFunction(predict_fun, null.ok = TRUE)
   assertFunction(preprocess_fun, null.ok = TRUE)
   assertFunction(postprocess_fun, null.ok = TRUE)
-  assertDataFrame(baseline_hazard)
-  assertSubset(c("time", "hazard"), colnames(baseline_hazard))
-  assertList(labtrans, null.ok = TRUE)
-  if (is.list(labtrans)) {
-    assertSubset(c("transform", "transform_inv"), names(labtrans))
-  }
 
   # Create Survival model
   if (model_type == "coxtime") {
+    assertDataFrame(baseline_hazard)
+    assertSubset(c("time", "hazard"), colnames(baseline_hazard))
+    assertList(labtrans, null.ok = TRUE)
+    if (is.list(labtrans)) {
+      assertSubset(c("transform", "transform_inv"), names(labtrans))
+    }
+
     model <- CoxTime(model,
                      base_hazard = baseline_hazard,
                      labtrans = labtrans,
                      preprocess_fun = preprocess_fun,
                      postprocess_fun = postprocess_fun)
   } else if (model_type == "deephit") {
-    print("TODO")
-    model <- NULL
+    assertNumeric(time_bins)
+    model <- DeepHit(model, time_bins)
+  } else if (model_type == "deepsurv") {
+    assertDataFrame(baseline_hazard)
+    assertSubset(c("time", "hazard"), colnames(baseline_hazard))
+    assertList(labtrans, null.ok = TRUE)
+    if (is.list(labtrans)) {
+      assertSubset(c("transform", "transform_inv"), names(labtrans))
+    }
+
+    model <- DeepSurv(model,
+                      base_hazard = baseline_hazard,
+                      preprocess_fun = preprocess_fun,
+                      postprocess_fun = postprocess_fun)
   } else {
     stop("Unknown model type: '", model_type, "'")
   }
@@ -121,7 +136,7 @@ explain.extracted_survivalmodels_coxtime <- function(model, data, ...) {
   net$eval()
 
   # Create CoxTime module
-  coxtime <- CoxTime$new(net, model$base_hazard, model$labtrans)
+  coxtime <- CoxTime(net, model$base_hazard, model$labtrans)
 
   # Create input data
   # TODO some checks here
@@ -172,7 +187,7 @@ explain.extracted_survivalmodels_deephit <- function(model, data, ...) {
   net$eval()
 
   # Create CoxTime module
-  deephit <- DeepHit$new(net, model$time_bins)
+  deephit <- DeepHit(net, model$time_bins)
 
   # Create input data
   # TODO some checks here
@@ -224,7 +239,7 @@ explain.extracted_survivalmodels_deepsurv <- function(model, data, ...) {
   net$eval()
 
   # Create CoxTime module
-  deepsurv <- DeepSurv$new(net, model$base_hazard, NULL)
+  deepsurv <- DeepSurv(net, model$base_hazard, NULL)
 
   # Create input data
   # TODO some checks here
