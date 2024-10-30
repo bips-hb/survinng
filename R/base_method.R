@@ -5,7 +5,8 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
                         n_timepoints = 1, return_out = FALSE,
                         times_input = FALSE, remove_time = TRUE,
                         batch_size = 10, target = "survival",
-                        num_samples = 1, dtype = torch::torch_float()) {
+                        num_samples = 1, dtype = torch::torch_float(),
+                        second_order = FALSE) {
 
   # Preprocess inputs ----------------------------------------------------------
   inputs_ref_orig <- inputs_ref
@@ -44,36 +45,57 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
     grads <- exp$model$calc_gradients(batch$batch,
                                       target = target,
                                       return_out = return_out,
-                                      use_base_hazard = TRUE)
+                                      use_base_hazard = TRUE,
+                                      second_order = second_order)
     outs <- grads$outs[[1]]
+    grads_2 <- grads$grads_2
     grads <- grads$grads
 
     # Since we allow models with multiple input layers, we need to
     # iterate over the gradients of each input layer
     grads <- lapply(seq_along(grads), function(i) {
       grad <- grads[[i]]
+      grad_2 <- if (second_order) grads_2[[i]] else NULL
 
       # Model-dependent postprocessing
       if (model_class == "CoxTime") {
-        # Output (batch_size * t, out_features) -> (batch_size, out_features, 1, t)
-        grad <- grad$reshape(c(-1, length(exp$model$t), grad$size(-1), 1))$movedim(2, -1)
+        # Output (batch_size * t, in_features) -> (batch_size, in_features, 1, t)
+        grad <- grad$reshape(c(-1, length(exp$model$t), grad$size()[-1], 1))$movedim(2, -1)
+        if (second_order) {
+          # Output (batch_size * t, in_features, in_features) -> (batch_size, in_features, in_features, 1, t)
+          grad_2 <- grad_2$reshape(c(-1, length(exp$model$t), grad_2$size()[-1], 1))$movedim(2, -1)
+        }
 
         # Remove the time dimension (only possible for CoxTime models)
         if (remove_time) {
           grad <- grad[,seq_len(dim(grad)[2] - 1), , drop = FALSE]
+          if (second_order) {
+            grad_2 <- grad_2[, seq_len(dim(grad_2)[2] - 1), seq_len(dim(grad_2)[3] - 1), , drop = FALSE]
+          }
         }
 
         # Aggregate gradients for the cum. hazard or survival outcome
         # Note: This is allowed due to the linearity of the gradient operator
         if (target == "cum_hazard") {
           grad <- grad$cumsum(-1)
+          if (second_order) {
+            grad_2 <- grad_2$cumsum(-1)
+          }
         } else if (target == "survival") {
           grad <- -grad$cumsum(-1) * (-outs$cumsum(-1))$exp()
+          if (second_order) {
+            grad_2 <- -grad_2$cumsum(-1) * (-outs$cumsum(-1))$exp()$unsqueeze(2)
+          }
         }
       } else if (model_class == "DeepSurv") {
         # Reshape grads (batch_size, input_features) --> (batch_size, input_features, 1, t)
-        grad <- grad$unsqueeze(-1) * torch::torch_ones(c(dim(grad), length(exp$model$t)), dtype = dtype)
+        time_axis <- torch::torch_ones(c(dim(grad), length(exp$model$t)), dtype = dtype)
+        grad <- grad$unsqueeze(-1) * time_axis
         grad <- grad$unsqueeze(-2)
+        if (second_order) {
+          grad_2 <- grad_2$unsqueeze(-1) * time_axis$unsqueeze(3)
+          grad_2 <- grad_2$unsqueeze(-2)
+        }
 
         # The baseline hazard is not used in the DeepSurv model, so we need to
         # multiply the gradients and outputs with the baseline hazard
@@ -81,13 +103,22 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
         base_haz <- base_haz$reshape(c(rep(1, grad$dim() - 1), -1))
         grad <- grad * base_haz
         outs <- outs * base_haz
+        if (second_order) {
+          grad_2 <- grad_2 * base_haz$unsqueeze(2)
+        }
 
         # Aggregate gradients for the cum. hazard or survival outcome
         # Note: This is allowed due to the linearity of the gradient operator
         if (target == "cum_hazard") {
           grad <- grad$cumsum(-1)
+          if (second_order) {
+            grad_2 <- grad_2$cumsum(-1)
+          }
         } else if (target == "survival") {
           grad <- -grad$cumsum(-1) * (-outs$cumsum(-1))$exp()
+          if (second_order) {
+            grad_2 <- -grad_2$cumsum(-1) * (-outs$cumsum(-1))$exp()$unsqueeze(2)
+          }
         }
       } else if (model_class == "DeepHit") {
         # Nothing to do here :)
@@ -101,9 +132,26 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
         if (is.null(inputs_ref)) {
           grad <- grad * exp$model$postprocess_fun(batch$batch[[i]])[, feat_idx,, drop = FALSE]
         } else {
-          input_diff <- batch$inputs[[i]] - batch$inputs_ref[[i]]
-          grad <- grad * exp$model$postprocess_fun(input_diff)[, feat_idx,, drop = FALSE]
+          input_diff <- exp$model$postprocess_fun(batch$inputs[[i]] - batch$inputs_ref[[i]])[, feat_idx,, drop = FALSE]
+          grad <- grad * input_diff
+
+          if (second_order) {
+            input_diff <- input_diff$unsqueeze(2) * input_diff$unsqueeze(3)
+            scale <- get_scale(batches, c(length(batch$idx), rep(1, length(dim(grad_2)) - 1)),
+                               batch$idx, rep_time = FALSE)
+            grad_2 <- grad_2 * input_diff * scale
+          }
         }
+      }
+
+      # Add second order gradients to 'grad' as another feature
+      if (second_order) {
+        idx_diag <- torch::torch_where(torch::torch_eye(dim(grad)[2])$flatten() != 0)[[1]]
+        idx <- torch::torch_where((torch::torch_ones(dim(grad)[2], dim(grad)[2])$triu() -
+                                     torch::torch_eye(dim(grad)[2]))$flatten() != 0)[[1]]
+        grad_2_mixed <- 2 * grad_2$flatten(start_dim = 2L, end_dim = 3L)$index_select(2, idx)
+        grad_2_diag <- grad_2$flatten(start_dim = 2L, end_dim = 3L)$index_select(2, idx_diag)
+        grad <- torch::torch_cat(list(grad + grad_2_diag, grad_2_mixed), dim = 2)
       }
 
       # Take mean over repeated values
@@ -137,8 +185,21 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
   num_risks <- rev(dim(res[[1]][[1]][[1]]))[2]
   event_names <- paste0("Event ", seq_len(num_risks))
 
+  # Get input names
+  if (second_order) {
+    # TODO: Currently only implemented for single input layers and 1D inputs
+    feat_names <- list(list(c(
+      unlist(exp$input_names),
+      paste0(
+        apply(combn(unlist(exp$input_names), 2), 2, paste, collapse = " x ")
+      )
+    )))
+  } else {
+    feat_names <- exp$input_names
+  }
+
   # Combine the results of all batches
-  result <- combine_batch_grads(res, exp$input_names, timepoints, add_time,
+  result <- combine_batch_grads(res, feat_names, timepoints, add_time,
                                 event_names, n = n * num_samples)
 
   # Calculate the outcomes -----------------------------------------------------

@@ -62,6 +62,8 @@ Calculate the SmoothGrad values of the Survival Function
 Other Attribution Methods: 
 \code{\link{surv_gradSHAP}()},
 \code{\link{surv_grad}()},
-\code{\link{surv_intgrad}()}
+\code{\link{surv_hessian}()},
+\code{\link{surv_intgrad}()},
+\code{\link{surv_inthess}()}
 }
 \concept{Attribution Methods}

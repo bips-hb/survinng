@@ -100,8 +100,8 @@ setMethod("get_batch", "Surv_BatchLoader", function(object) {
     # Scale the inputs
     batch <- lapply(seq_along(inputs), function(i) {
       dim <- c(dim(inputs[[i]])[1], rep(1, length(dim(inputs[[i]])) - 1))
-      inputs_ref[[i]] + object@scale_fun(dim = dim, idx = idx) *
-        (inputs[[i]] - inputs_ref[[i]])
+      scale <- get_scale(object, dim, idx)
+      inputs_ref[[i]] + scale * (inputs[[i]] - inputs_ref[[i]])
     })
   } else {
     batch <- inputs
@@ -110,5 +110,21 @@ setMethod("get_batch", "Surv_BatchLoader", function(object) {
   # Get the instance indices for the current batch
   num <- data.frame(table((idx - 1) %/% object@n + 1, dnn = "instance_id"))
 
-  list(batch = batch, inputs = inputs, inputs_ref = inputs_ref, num = num)
+  list(batch = batch, inputs = inputs, inputs_ref = inputs_ref, num = num,
+       idx = idx)
+})
+
+setGeneric("get_scale", function(object, dim, idx, rep_time = TRUE) standardGeneric("get_scale"))
+
+setMethod("get_scale", "Surv_BatchLoader", function(object, dim, idx, rep_time = TRUE) {
+  if (!is.null(object@scale_fun)) {
+    n_timepoints <- if (rep_time) object@n_timepoints else 1
+    scale <- torch::torch_repeat_interleave(
+      object@scale_fun(n = object@n)[(idx - 1) %% object@n + 1],
+      repeats = as.integer(n_timepoints))$reshape(dim)
+  } else {
+    scale <- 1
+  }
+
+  scale
 })

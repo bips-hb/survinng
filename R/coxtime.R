@@ -71,7 +71,7 @@ DeepSurv <- torch::nn_module(
 
   # Calculate gradients of a CoxTime model
   calc_gradients = function(inputs, return_out = FALSE, use_base_hazard = TRUE,
-                            target = "hazard") {
+                            target = "hazard", second_order = FALSE) {
 
     # Clone tensor
     if (is.list(inputs)) {
@@ -95,14 +95,28 @@ DeepSurv <- torch::nn_module(
     if (!is.list(output)) output <- list(output)
 
     # Calculate gradients for each output layer
-    grads <- lapply(output, function(out) {
-      torch::autograd_grad(out$sum(), inputs)[[1]]
-    })
+    if (second_order) {
+      grads <- lapply(output, function(out) {
+        grads_1_order <- torch::autograd_grad(out$sum(), inputs, create_graph = TRUE)[[1]]
+        n_cols <- dim(grads_1_order)[2]
+        grads_2_order <- torch::torch_stack(lapply(1:n_cols, function(i) {
+          torch::autograd_grad(grads_1_order[, i]$sum(), inputs, create_graph = TRUE)[[1]]
+        }), dim = -1)
+        list(first_order = grads_1_order, second_order = grads_2_order)
+      })
+      grads_1_order <- lapply(grads, function(g) g$first_order)
+      grads_2_order <- lapply(grads, function(g) g$second_order)
+    } else {
+      grads_1_order <- lapply(output, function(out) {
+        torch::autograd_grad(out$sum(), inputs)[[1]]
+      })
+      grads_2_order <- NULL
+    }
 
     # Delete output if not required
     if (!return_out) output <- NULL
 
-    list(grads = grads, outs = output)
+    list(grads = grads_1_order, outs = output, grads_2 = grads_2_order)
   },
 
   set_dtype = function(dtype) {
@@ -199,7 +213,7 @@ CoxTime <- torch::nn_module(
 
   # Calculate gradients of a CoxTime model
   calc_gradients = function(inputs, return_out = FALSE, use_base_hazard = TRUE,
-                            target = "hazard") {
+                            target = "hazard", second_order = FALSE) {
 
     # Clone tensor
     if (is.list(inputs)) {
@@ -223,14 +237,28 @@ CoxTime <- torch::nn_module(
     if (!is.list(output)) output <- list(output)
 
     # Calculate gradients for each output layer
-    grads <- lapply(output, function(out) {
-      torch::autograd_grad(out$sum(), inputs)[[1]]
-    })
+    if (second_order) {
+      grads <- lapply(output, function(out) {
+        grads_1_order <- torch::autograd_grad(out$sum(), inputs, create_graph = TRUE)[[1]]
+        n_cols <- dim(grads_1_order)[2]
+        grads_2_order <- torch::torch_stack(lapply(1:n_cols, function(i) {
+          torch::autograd_grad(grads_1_order[, i]$sum(), inputs, create_graph = TRUE)[[1]]
+        }), dim = -1)
+        list(first_order = grads_1_order, second_order = grads_2_order)
+      })
+      grads_1_order <- lapply(grads, function(g) g$first_order)
+      grads_2_order <- lapply(grads, function(g) g$second_order)
+    } else {
+      grads_1_order <- lapply(output, function(out) {
+        torch::autograd_grad(out$sum(), inputs)[[1]]
+      })
+      grads_2_order <- NULL
+    }
 
     # Delete output if not required
     if (!return_out) output <- NULL
 
-    list(grads = grads, outs = output)
+    list(grads = grads_1_order, outs = output, grads_2 = grads_2_order)
   },
 
   set_dtype = function(dtype) {

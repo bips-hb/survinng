@@ -148,3 +148,17 @@ get_dimnames <- function(x) {
     dimnames(x)[-1]
   }
 }
+
+
+list_stack <- function(lst, dim = 1) {
+  res <- list()
+  for (name in names(lst[[1]])) {
+    if (is.null(lst[[1]][[name]])) {
+      res[[name]] <- c()
+    } else {
+      res[[name]] <- torch::torch_stack(lapply(lst, function(x) x[[name]]), dim = dim)
+    }
+  }
+
+  res
+}

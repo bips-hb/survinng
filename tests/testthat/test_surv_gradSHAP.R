@@ -166,7 +166,7 @@ test_that("Method 'surv_gradSHAP' with DeepHit (1D model)", {
   expect_error(surv_gradSHAP(exp_1d, n = "not a number"))
   expect_error(surv_gradSHAP(exp_1d, num_samples = "not a number"))
   expect_error(surv_gradSHAP(exp_1d, data_ref = "not an array"))
-  expect_error(surv_gradSHAP(exp_1d, data_ref = torch_randn(1, 5)))
+  expect_error(surv_gradSHAP(exp_1d, data_ref = torch_randn(1, 2)))
   expect_error(surv_gradSHAP(exp_1d, target = "wrong target"))
   expect_error(surv_gradSHAP(exp_1d, instance = "wrong instance"))
   expect_error(surv_gradSHAP(exp_1d, batch_size = "not integer"))

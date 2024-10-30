@@ -1,22 +1,22 @@
 ################################################################################
-#                       Survival IntegratedGradients
+#                       Survival IntegratedHessian
 ################################################################################
 
-#' Calculate the Integrated Gradients of the Survival Function
+#' Calculate the Integrated Hessian of the Survival Function
 #'
 #' @family Attribution Methods
 #' @export
-surv_intgrad <- function(exp, target = "survival", instance = 1,
-                         times_input = TRUE, batch_size = 50,
-                         n = 10, x_ref = NULL, dtype = "float", include_time = FALSE) {
-  UseMethod("surv_intgrad")
+surv_inthess<- function(exp, target = "survival", instance = 1,
+                        times_input = TRUE, batch_size = 50,
+                        n = 10, x_ref = NULL, dtype = "float", include_time = FALSE) {
+  UseMethod("surv_inthess")
 }
 
 # DeepSurv ----------------------------------------------------------------------
 
-#' @rdname surv_intgrad
+#' @rdname surv_inthess
 #' @export
-surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance = 1,
+surv_inthess.explainer_deepsurv <- function(exp, target = "survival", instance = 1,
                                             times_input = TRUE, batch_size = 50,
                                             n = 10, x_ref = NULL,
                                             dtype = "float", ...) {
@@ -49,17 +49,20 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
   # Repeat reference value
   if (!is.list(x_ref)) x_ref <- list(x_ref)
   x_ref <- lapply(x_ref, function(x) {
-    x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
+    x[rep(seq_len(dim(x)[1]), each = n * n * length(instance)), , drop = FALSE]
   })
 
   # Get scale tensor
   scale_fun <- function(n, ...) {
-    torch::torch_tensor(seq(1/n, 1, length.out = n), dtype = dtype)
+    scale_n <- as.integer(sqrt(n))
+    torch::torch_tensor((rep(seq(1/scale_n, 1, length.out = scale_n), each = scale_n) *
+                           rep(seq(1/scale_n, 1, length.out = scale_n), times = scale_n)),
+                        dtype = dtype)
   }
 
   result <- base_method(exp = exp,
                         instance = instance,
-                        n = n,
+                        n = n * n,
                         model_class = "DeepSurv",
                         inputs_ref = x_ref,
                         method_pre_fun = NULL,
@@ -70,11 +73,12 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
                         batch_size = batch_size,
                         times_input = times_input,
                         target = target,
-                        dtype = dtype)
+                        dtype = dtype,
+                        second_order = TRUE)
 
   result <- append(result, list(
     model_class = "DeepSurv",
-    method = "Surv_IntGrad",
+    method = "Surv_IntHessian",
     method_args = list(
       target = target, instance = instance, times_input = times_input,
       n = n, dtype = dtype_name
@@ -85,11 +89,12 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
   result
 }
 
+
 # CoxTime ----------------------------------------------------------------------
 
-#' @rdname surv_intgrad
+#' @rdname surv_inthess
 #' @export
-surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 1,
+surv_inthess.explainer_coxtime <- function(exp, target = "survival", instance = 1,
                                            times_input = TRUE, batch_size = 50,
                                            n = 10, x_ref = NULL,
                                            dtype = "float", include_time = FALSE) {
@@ -124,17 +129,20 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
   # Repeat reference value
   if (!is.list(x_ref)) x_ref <- list(x_ref)
   x_ref <- lapply(x_ref, function(x) {
-    x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
+    x[rep(seq_len(dim(x)[1]), each = n*n * length(instance)), , drop = FALSE]
   })
 
   # Get scale tensor
   scale_fun <- function(n, ...) {
-    torch::torch_tensor(seq(1/n, 1, length.out = n), dtype = dtype)
+    scale_n <- as.integer(sqrt(n))
+    torch::torch_tensor((rep(seq(1/scale_n, 1, length.out = scale_n), each = scale_n) *
+                           rep(seq(1/scale_n, 1, length.out = scale_n), times = scale_n)),
+                        dtype = dtype)
   }
 
   result <- base_method(exp = exp,
                         instance = instance,
-                        n = n,
+                        n = n * n,
                         model_class = "CoxTime",
                         inputs_ref = x_ref,
                         method_pre_fun = NULL,
@@ -145,11 +153,13 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
                         batch_size = batch_size,
                         times_input = times_input,
                         target = target,
-                        dtype = dtype)
+                        dtype = dtype,
+                        second_order = TRUE)
+
 
   result <- append(result, list(
     model_class = "CoxTime",
-    method = "Surv_IntGrad",
+    method = "Surv_IntHessian",
     method_args = list(
       target = target, instance = instance, times_input = times_input,
       n = n, include_time = include_time, dtype = dtype_name
@@ -159,11 +169,12 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
 
   result
 }
+
 # DeepHit ----------------------------------------------------------------------
 
-#' @rdname surv_intgrad
+#' @rdname surv_inthess
 #' @export
-surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 1,
+surv_inthess.explainer_deephit <- function(exp, target = "survival", instance = 1,
                                            times_input = TRUE, batch_size = 50,
                                            n = 10, x_ref = NULL,
                                            dtype = "float", ...) {
@@ -195,17 +206,20 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
   # Repeat reference value
   if (!is.list(x_ref)) x_ref <- list(x_ref)
   x_ref <- lapply(x_ref, function(x) {
-    x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
+    x[rep(seq_len(dim(x)[1]), each = n * n * length(instance)), , drop = FALSE]
   })
 
   # Get scale tensor
   scale_fun <- function(n, ...) {
-    torch::torch_tensor(seq(1/n, 1, length.out = n), dtype = dtype)
+    scale_n <- as.integer(sqrt(n))
+    torch::torch_tensor((rep(seq(1/scale_n, 1, length.out = scale_n), each = scale_n) *
+                           rep(seq(1/scale_n, 1, length.out = scale_n), times = scale_n)),
+                        dtype = dtype)
   }
 
   result <- base_method(exp = exp,
                         instance = instance,
-                        n = n,
+                        n = n * n,
                         model_class = "DeepHit",
                         inputs_ref = x_ref,
                         method_pre_fun = NULL,
@@ -216,11 +230,12 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
                         batch_size = batch_size,
                         times_input = times_input,
                         target = target,
-                        dtype = dtype)
+                        dtype = dtype,
+                        second_order = TRUE)
 
   result <- append(result, list(
     model_class = "DeepHit",
-    method = "Surv_IntGrad",
+    method = "Surv_IntHessian",
     method_args = list(
       target = target, instance = instance, times_input = times_input,
       n = n, dtype = dtype_name
@@ -230,3 +245,4 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
 
   result
 }
+
