@@ -198,7 +198,7 @@ as.data.frame.surv_result <- function(x, ..., stacked = FALSE) {
     abs_contributions <- df %>%
       arrange(.data$time, .data$feature) %>%
       group_by(.data$feature) %>%
-      summarize(means = mean(abs(.data$value), na.rm = TRUE), )
+      summarize(means = mean(abs(.data$value), na.rm = TRUE))
 
     # Order features by reverse order of mean of absolute attribution values
     custom_order <- as.character(abs_contributions[order(-abs_contributions$means), ]$feature)

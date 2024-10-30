@@ -97,7 +97,7 @@ to_tensor <- function(x, instance, repeats = 1, dtype = torch::torch_float()) {
 
   lapply(x, function(i) {
     if (inherits(i, "torch_tensor")) {
-      res <- i[instance,, drop = FALSE]
+      res <- i[instance,, drop = FALSE]$to(dtype = dtype)
     } else {
       res <- torch::torch_tensor(as.matrix(i[instance,,drop = FALSE]), dtype = dtype)
     }
@@ -106,39 +106,6 @@ to_tensor <- function(x, instance, repeats = 1, dtype = torch::torch_float()) {
     res <- res$repeat_interleave(repeats = as.integer(repeats), dim = 1)
 
     res
-  })
-}
-
-# Split tensor into batches ----------------------------------------------------
-split_batches <- function(inputs, batch_size, n_timepoints, n = 1) {
-  # Calculate batch size
-  batch_size <- max(1, batch_size) * n_timepoints
-  rows_per_instance <- n * n_timepoints
-
-  # Split inputs into batches
-  total_rows <- if (is.list(inputs)) inputs[[1]]$shape[1] else inputs$shape[1]
-  idx <- lapply(seq(1, total_rows, by = batch_size), function(i) {
-    c(i, min(i + batch_size - 1, total_rows))
-  })
-  instance_idx <- rep(seq_len(total_rows %/% rows_per_instance), each = n)
-  lapply(idx, function(i) {
-    if (is.list(inputs)) {
-      list(
-        batch = lapply(inputs, function(x) x[i[1]:i[2],,drop = FALSE]),
-        num = data.frame(table(
-          instance_idx[(((i[1] - 1) %/% n_timepoints) + 1):(i[2] %/% n_timepoints)],
-          dnn = "instance_id")),
-        idx = i
-      )
-    } else {
-      list(
-        batch = inputs[i[1]:i[2],,drop = FALSE],
-        num = data.frame(table(
-          instance_idx[(((i[1] - 1) %/% n_timepoints) + 1):(i[2] %/% n_timepoints)],
-          dnn = "instance_id")),
-        idx = i
-      )
-    }
   })
 }
 
@@ -180,4 +147,18 @@ get_dimnames <- function(x) {
   } else {
     dimnames(x)[-1]
   }
+}
+
+
+list_stack <- function(lst, dim = 1) {
+  res <- list()
+  for (name in names(lst[[1]])) {
+    if (is.null(lst[[1]][[name]])) {
+      res[[name]] <- c()
+    } else {
+      res[[name]] <- torch::torch_stack(lapply(lst, function(x) x[[name]]), dim = dim)
+    }
+  }
+
+  res
 }

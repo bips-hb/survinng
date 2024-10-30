@@ -51,7 +51,7 @@ surv_intgrad(
   batch_size = 50,
   n = 10,
   x_ref = NULL,
-  dtype = dtype,
+  dtype = "float",
   ...
 )
 }
@@ -62,6 +62,8 @@ Calculate the Integrated Gradients of the Survival Function
 Other Attribution Methods: 
 \code{\link{surv_gradSHAP}()},
 \code{\link{surv_grad}()},
+\code{\link{surv_hessian}()},
+\code{\link{surv_inthess}()},
 \code{\link{surv_smoothgrad}()}
 }
 \concept{Attribution Methods}

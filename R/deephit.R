@@ -70,7 +70,8 @@ DeepHit <- torch::nn_module(
   },
 
   # Calculate the gradients
-  calc_gradients = function(inputs, target, return_out = FALSE, use_base_hazard = FALSE) {
+  calc_gradients = function(inputs, target, return_out = FALSE, use_base_hazard = FALSE,
+                            second_order = FALSE) {
     # Clone tensor
     if (is.list(inputs)) {
       inputs <- lapply(inputs, function(i) torch::torch_clone(i))
@@ -95,15 +96,26 @@ DeepHit <- torch::nn_module(
     grads <- lapply(output, function(out) {
       lapply(seq_len(out$shape[2]), function(i_risk) {
         lapply(seq_len(out$shape[3]), function(i_time) {
-          torch::autograd_grad(out[, i_risk, i_time]$sum(), inputs, retain_graph = TRUE)[[1]]
-        }) |> torch::torch_stack(dim = -1)
-      }) |> torch::torch_stack(dim = -2)
+          if (second_order) {
+            grads_1_order <- torch::autograd_grad(out[, i_risk, i_time]$sum(), inputs, create_graph = TRUE)[[1]]
+            n_cols <- dim(grads_1_order)[2]
+            grads_2_order <- torch::torch_stack(lapply(1:n_cols, function(i) {
+              torch::autograd_grad(grads_1_order[, i]$sum(), inputs, create_graph = TRUE)[[1]]
+            }), dim = -1)
+          } else {
+            grads_1_order <- torch::autograd_grad(out[, i_risk, i_time]$sum(), inputs, retain_graph = TRUE)[[1]]
+            grads_2_order <- NULL
+          }
+          list(grads = grads_1_order, grads_2 = grads_2_order)
+        }) |> list_stack(dim = -1)
+      }) |> list_stack(dim = -2)
     })
 
     # Delete output if not required
     if (!return_out) output <- NULL
 
-    list(grads = grads, outs = output)
+    list(grads = lapply(grads, function(x) x$grads), outs = output,
+         grads_2 = lapply(grads, function(x) x$grads_2))
   },
 
   set_dtype = function(dtype) {

@@ -14,6 +14,7 @@ explain(
   model_type = NULL,
   baseline_hazard = NULL,
   labtrans = NULL,
+  time_bins = NULL,
   preprocess_fun = NULL,
   postprocess_fun = NULL,
   predict_fun = NULL
@@ -25,6 +26,7 @@ explain(
   model_type,
   baseline_hazard = NULL,
   labtrans = NULL,
+  time_bins = NULL,
   preprocess_fun = NULL,
   postprocess_fun = NULL,
   predict_fun = NULL
