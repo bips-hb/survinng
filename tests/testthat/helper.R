@@ -58,6 +58,42 @@ seq_model_1D <- nn_module(
   }
 )
 
+# Generate multi-modal model (tabular + image data)
+# Inputs: tabular data (numeric), image data (3x10x10)
+multi_modal_model <- nn_module(
+  initialize = function(num_tabular_inputs = 4, num_outputs = 1, add_time = FALSE) {
+    if (add_time) {
+      num_tabular_inputs <- num_tabular_inputs + 1
+    }
+
+    self$tabular_model <- nn_sequential(
+      nn_linear(num_tabular_inputs, 20),
+      nn_relu(),
+      nn_linear(20, 10)
+    )
+
+    self$image_model <- nn_sequential(
+      nn_conv2d(3, 10, kernel_size = 3),
+      nn_relu(),
+      nn_avg_pool2d(kernel_size = 2),
+      nn_flatten(),
+      nn_linear(160, 10)
+    )
+
+    self$fc1 <- nn_linear(10 + 10, 20)
+    self$fc2 <- nn_linear(20, num_outputs)
+  },
+  forward = function(input) {
+    image_input <- self$image_model(input[[1]])
+    tabular_input <- self$tabular_model(input[[2]])
+
+    input <- torch_cat(list(tabular_input, image_input), dim = -1)
+    input <- self$fc1(input)
+    input <- nnf_relu(input)
+    input <- self$fc2(input)
+    input
+  }
+)
 
 get_base_hazard <- function(n) {
   # Generate baseline hazard

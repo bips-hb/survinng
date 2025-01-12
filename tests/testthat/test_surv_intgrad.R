@@ -68,6 +68,46 @@ test_that("Method 'surv_intgrad' with CoxTime (1D model)", {
 })
 
 
+
+test_that("Method 'surv_intgrad' with CoxTime (Multi-modal model)", {
+  # Preparation ----------------------------------------------------------------
+  model_mm <- multi_modal_model(num_tabular_inputs = 4, num_outputs = 1, add_time = TRUE)
+  data <- list(torch_randn(4, 3, 10, 10), torch_randn(4, 4))
+  base_hazard <- get_base_hazard(12)
+
+  # Define preprocess function to handle the time axis
+  preprocess_fun <- function(x) {
+    # x is a list with two tensors: image data and tabular data
+    batch_size <- x[[1]]$size(1)
+
+    # Input (batch_size, in_features) -> (batch_size * t, in_features) (replicate each row t times)
+    res <- lapply(x, function(a) a$repeat_interleave(12L, dim = 1))
+
+    # Add time to tabular input
+    time <- torch::torch_vstack(replicate(batch_size, torch_tensor(base_hazard$time)$unsqueeze(-1)))
+    list(res[[1]], torch::torch_cat(list(res[[2]], time), dim = -1))
+  }
+
+  exp_mm <- explain(model_mm, data = data, model_type = "coxtime",
+                    baseline_hazard = base_hazard, preprocess_fun = preprocess_fun)
+
+  # Check ----------------------------------------------------------------------
+  expect_warning(expect_warning(expect_warning(
+    res <- surv_intgrad(exp_mm, n = 5, batch_size = 200)
+  )))
+  expect_warning(expect_warning(expect_warning(
+    res <- surv_smoothgrad(exp_mm, instance = c(1, 3), n = 5, batch_size = 200)
+  )))
+  expect_s3_class(res, "surv_result")
+
+  # Test multi-modal model with times_input = TRUE ------------------------------
+  expect_warning(expect_warning(expect_warning(
+    res <- surv_smoothgrad(exp_mm, instance = c(1, 3), times_input = TRUE,
+                           n = 5, batch_size = 200)
+  )))
+  expect_s3_class(res, "surv_result")
+})
+
 ################################################################################
 #                          surv_intgrad: DeepSurv                              #
 ################################################################################
@@ -136,6 +176,28 @@ test_that("Method 'surv_intgrad' with DeepSurv (1D model)", {
 })
 
 
+test_that("Method 'surv_intgrad' with DeepSurv (Multi-modal model)", {
+  # Preparation ----------------------------------------------------------------
+  model_mm <- multi_modal_model(num_tabular_inputs = 5, num_outputs = 1)
+  data <- list(torch_randn(4, 3, 10, 10), torch_randn(4, 5))
+  base_hazard <- get_base_hazard(12)
+  exp_mm <- explain(model_mm, data = data, model_type = "deepsurv",
+                    baseline_hazard = base_hazard)
+
+  # Check ----------------------------------------------------------------------
+  res <- surv_intgrad(exp_mm, n = 5, batch_size = 200)
+  res <- surv_intgrad(exp_mm, instance = c(1, 3), n = 5, batch_size = 200)
+  expect_s3_class(res, "surv_result")
+
+  # Test multi-modal model custom reference value ------------------------------
+  x_ref <- list(torch_randn(1, 3, 10, 10), torch_randn(1, 5))
+  res <- surv_intgrad(exp_mm, instance = c(1, 3), x_ref = x_ref,
+                      n = 5, batch_size = 200)
+  expect_s3_class(res, "surv_result")
+})
+
+
+
 ################################################################################
 #                          surv_intgrad: DeepHit                               #
 ################################################################################
@@ -201,4 +263,24 @@ test_that("Method 'surv_intgrad' with Deephit (1D model)", {
   expect_equal(dim(res$res), c(2, 5, 20))
   expect_equal(dim(res$pred), c(2, 20))
   expect_equal(length(res$time), 20)
+})
+
+
+
+test_that("Method 'surv_intgrad' with DeepHit (Multi-modal model)", {
+  # Preparation ----------------------------------------------------------------
+  model_mm <- multi_modal_model(num_tabular_inputs = 5, num_outputs = 10)
+  data <- list(torch_randn(4, 3, 10, 10), torch_randn(4, 5))
+  exp_mm <- explain(model_mm, data = data, model_type = "deephit",
+                    time_bins = seq(0, 15, length.out = 10))
+
+  # Check ----------------------------------------------------------------------
+  res <- surv_intgrad(exp_mm)
+  res <- surv_intgrad(exp_mm, instance = c(1, 3))
+  expect_s3_class(res, "surv_result")
+
+  # Test multi-modal model with custom reference value -------------------------
+  x_ref <- list(torch_randn(1, 3, 10, 10), torch_randn(1, 5))
+  res <- surv_intgrad(exp_mm, instance = c(1, 3), x_ref = x_ref)
+  expect_s3_class(res, "surv_result")
 })

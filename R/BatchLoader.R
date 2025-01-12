@@ -27,15 +27,15 @@ Surv_BatchLoader <- function(inputs, inputs_ref, method_pre_fun, model_pre_fun,
   }
 
   new("Surv_BatchLoader",
-      inputs = inputs,
-      inputs_ref = inputs_ref,
+      inputs = if (!is.list(inputs)) list(inputs) else inputs,
+      inputs_ref = if (!is.list(inputs_ref) && !is.null(inputs_ref)) list(inputs_ref) else inputs_ref,
       method_pre_fun = if (is.null(method_pre_fun)) identity else method_pre_fun,
       model_pre_fun = model_pre_fun,
       scale_fun = scale_fun,
       batch_size = batch_size,
       n_timepoints = n_timepoints,
       n = n,
-      total_batches = dim(inputs[[1]])[1] * n_timepoints / batch_size,
+      total_batches = ceiling(dim(inputs[[1]])[1] * n_timepoints / batch_size),
       current_index = 0,
       max_index = dim(inputs[[1]])[1]
   )
@@ -86,9 +86,9 @@ setMethod("get_batch", "Surv_BatchLoader", function(object) {
   }
 
   # Preprocess inputs (e.g. add the time dimension for CoxTime models)
-  inputs <- lapply(inputs, object@model_pre_fun)
+  inputs <- object@model_pre_fun(inputs) #lapply(inputs,)
   if (!is.null(inputs_ref)) {
-    inputs_ref <- lapply(inputs_ref, object@model_pre_fun)
+    inputs_ref <- object@model_pre_fun(inputs_ref) #lapply(inputs_ref, object@model_pre_fun)
   }
 
   # Combine inputs and inputs_ref according to the method
