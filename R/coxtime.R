@@ -15,23 +15,31 @@ DeepSurv <- torch::nn_module(
     self$t_orig <- self$base_hazard$time
 
     if (is.null(preprocess_fun)) {
-      self$preprocess_fun <- function(x) {
-        if (is.list(x) && length(x) == 1) {
-          x <- x[[1]]
-        } else if (is.list(x)) {
-          stop("Currently, only one input layer is supported!")
-        }
-
-        x
-      }
+      self$preprocess_fun <- identity
     } else {
       self$preprocess_fun <- preprocess_fun
     }
 
     if (is.null(postprocess_fun)) {
       self$postprocess_fun <- function(x) {
-        x <- x$unsqueeze(-1) * torch_ones(c(dim(x), length(self$t)))
-        x$unsqueeze(-2)
+        if (is.list(x) && length(x) == 1) {
+          x <- x[[1]]
+          # Output (batch_size, features) -> (batch_size, features, 1, t)
+          x <- x$unsqueeze(-1) * torch_ones(c(dim(x), length(self$t)))
+          x <- x$unsqueeze(-2)
+        } else if (is.list(x)) {
+          x <- lapply(x, function(k) {
+            # Output (batch_size, features) -> (batch_size, features, 1, t)
+            k <- k$unsqueeze(-1) * torch_ones(c(dim(k), length(self$t)))
+            k$unsqueeze(-2)
+          })
+        } else {
+          # Output (batch_size, features) -> (batch_size, features, 1, t)
+          x <- x$unsqueeze(-1) * torch_ones(c(dim(x), length(self$t)))
+          x <- x$unsqueeze(-2)
+        }
+
+        x
       }
     } else {
       self$postprocess_fun <- postprocess_fun
@@ -108,7 +116,7 @@ DeepSurv <- torch::nn_module(
       grads_2_order <- lapply(grads, function(g) g$second_order)
     } else {
       grads_1_order <- lapply(output, function(out) {
-        torch::autograd_grad(out$sum(), inputs)[[1]]
+        torch::autograd_grad(out$sum(), inputs)
       })
       grads_2_order <- NULL
     }
@@ -138,6 +146,7 @@ CoxTime <- torch::nn_module(
     self$net <- net
     self$base_hazard <- base_hazard
     self$t <- torch::torch_tensor(base_hazard$time)
+    self$default_preprocess <- if (is.null(preprocess_fun)) TRUE else FALSE
 
     if (!is.null(labtrans)) {
       if (!is.function(labtrans$transform) || !is.function(labtrans$inv_transform)) {
@@ -166,7 +175,7 @@ CoxTime <- torch::nn_module(
 
         # Add time to input
         time <- torch::torch_vstack(replicate(batch_size, self$t$unsqueeze(-1)))
-        torch::torch_cat(list(res, time), dim = -1)
+        list(torch::torch_cat(list(res, time), dim = -1))
       }
     } else {
       self$preprocess_fun <- preprocess_fun
@@ -174,8 +183,21 @@ CoxTime <- torch::nn_module(
 
     if (is.null(postprocess_fun)) {
       self$postprocess_fun <- function(x) {
-        # Output (batch_size * t, out_features) -> (batch_size, out_features, 1, t)
-        x$reshape(c(-1, length(self$t), x$size(-1), 1))$movedim(2, -1)
+        if (is.list(x) && length(x) == 1) {
+          x <- x[[1]]
+          # Output (batch_size * t, features) -> (batch_size, features, 1, t)
+          x <- x$reshape(c(-1, length(self$t), x$shape[-1], 1))$movedim(2, -1)
+        } else if (is.list(x)) {
+          x <- lapply(x, function(k) {
+            # Output (batch_size * t, features) -> (batch_size, features, 1, t)
+            k$reshape(c(-1, length(self$t), k$shape[-1], 1))$movedim(2, -1)
+          })
+        } else {
+          # Output (batch_size * t, features) -> (batch_size, features, 1, t)
+          x <- x$reshape(c(-1, length(self$t), x$shape[-1], 1))$movedim(2, -1)
+        }
+
+        x
       }
     } else {
       self$postprocess_fun <- postprocess_fun
@@ -250,7 +272,7 @@ CoxTime <- torch::nn_module(
       grads_2_order <- lapply(grads, function(g) g$second_order)
     } else {
       grads_1_order <- lapply(output, function(out) {
-        torch::autograd_grad(out$sum(), inputs)[[1]]
+        torch::autograd_grad(out$sum(), inputs)
       })
       grads_2_order <- NULL
     }

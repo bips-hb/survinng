@@ -14,14 +14,7 @@ DeepHit <- torch::nn_module(
     self$time_bins <- time_bins
 
     if (is.null(preprocess_fun)) {
-      self$preprocess_fun <- function(x) {
-        if (is.list(x) && length(x) == 1) {
-          x <- x[[1]]
-        } else if (is.list(x)) {
-          stop("Currently, only one input layer is supported!")
-        }
-        x
-      }
+      self$preprocess_fun <- identity
     } else {
       self$preprocess_fun <- preprocess_fun
     }
@@ -97,15 +90,16 @@ DeepHit <- torch::nn_module(
       lapply(seq_len(out$shape[2]), function(i_risk) {
         lapply(seq_len(out$shape[3]), function(i_time) {
           if (second_order) {
-            grads_1_order <- torch::autograd_grad(out[, i_risk, i_time]$sum(), inputs, create_graph = TRUE)[[1]]
+            grads_1_order <- torch::autograd_grad(out[, i_risk, i_time]$sum(), inputs, create_graph = TRUE)
             n_cols <- dim(grads_1_order)[2]
             grads_2_order <- torch::torch_stack(lapply(1:n_cols, function(i) {
               torch::autograd_grad(grads_1_order[, i]$sum(), inputs, create_graph = TRUE)[[1]]
             }), dim = -1)
           } else {
-            grads_1_order <- torch::autograd_grad(out[, i_risk, i_time]$sum(), inputs, retain_graph = TRUE)[[1]]
+            grads_1_order <- torch::autograd_grad(out[, i_risk, i_time]$sum(), inputs, retain_graph = TRUE)
             grads_2_order <- NULL
           }
+          # Both grads and grads_2 are lists of tensors
           list(grads = grads_1_order, grads_2 = grads_2_order)
         }) |> list_stack(dim = -1)
       }) |> list_stack(dim = -2)

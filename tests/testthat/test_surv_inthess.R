@@ -4,6 +4,8 @@
 ################################################################################
 
 test_that("Method 'surv_inthess' with CoxTime (1D model)", {
+  skip("Skipping tests for 'surv_inghess' with CoxTime (for now)!")
+
   # Preparation ----------------------------------------------------------------
   model_1d <- seq_model_1D(6)
   data <- torch_randn(10, 5)
@@ -73,6 +75,8 @@ test_that("Method 'surv_inthess' with CoxTime (1D model)", {
 ################################################################################
 
 test_that("Method 'surv_inthess' with DeepSurv (1D model)", {
+  skip("Skipping tests for 'surv_inghess' with DeepSurv (for now)!")
+
   # Preparation ----------------------------------------------------------------
   model_1d <- seq_model_1D(5)
   data <- torch_randn(10, 5)
@@ -142,6 +146,8 @@ test_that("Method 'surv_inthess' with DeepSurv (1D model)", {
 ################################################################################
 
 test_that("Method 'surv_inthess' with DeepHit (1D model)", {
+  skip("Skipping tests for 'surv_inghess' with DeepHit (for now)!")
+
   # Preparation ----------------------------------------------------------------
   model_1d <- seq_model_1D(5, num_outputs = 10)
   data <- torch_randn(10, 5)

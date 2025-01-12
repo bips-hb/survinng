@@ -66,6 +66,7 @@ assertArgData <- function(data, null.ok = FALSE) {
 
 combine_batch_grads <- function(res, feat_names, timepoints, include_time = FALSE,
                                 event_names = NULL, n = 1) {
+
   combine_same_instance <- function(a) {
     a <- unlist(a, recursive = FALSE)
     lapply(unique(names(a)), function(instance_id) {
@@ -87,6 +88,22 @@ combine_batch_grads <- function(res, feat_names, timepoints, include_time = FALS
   grads
 }
 
+# Indexing along first dimension with unknown length ---------------------------
+list_index <- function(x, idx) {
+  if (is.list(x)) {
+    res <- lapply(x, list_index, idx = idx)
+  } else {
+    if (inherits(x, "torch_tensor")) {
+      res <- x$index_select(dim = 1, index = as.integer(idx))
+    } else {
+      empty_dims <- rep(list(TRUE), length(dim(x)) - 1)
+      res <- do.call('[', c(list(x, idx), empty_dims, drop = FALSE))
+    }
+  }
+
+  res
+}
+
 
 # Convert to torch tensor and repeat rows --------------------------------------
 to_tensor <- function(x, instance, repeats = 1, dtype = torch::torch_float()) {
@@ -97,9 +114,9 @@ to_tensor <- function(x, instance, repeats = 1, dtype = torch::torch_float()) {
 
   lapply(x, function(i) {
     if (inherits(i, "torch_tensor")) {
-      res <- i[instance,, drop = FALSE]$to(dtype = dtype)
+      res <- list_index(i, instance)$to(dtype = dtype)
     } else {
-      res <- torch::torch_tensor(as.matrix(i[instance,,drop = FALSE]), dtype = dtype)
+      res <- torch::torch_tensor(as.array(list_index(i, instance)), dtype = dtype)
     }
 
     # Convert to tensor and repeat rows
@@ -121,7 +138,7 @@ set_names <- function(arr, feat_names, timepoints, include_time = FALSE,
     dim(arr) <- rev(rev(dim(arr))[-2])
   }
 
-  # Add time if required
+  # Add time if required (assuming tabular data)
   feat_names <- lapply(feat_names, function(a) {
     a <- if (include_time) c(a, "time") else a
     a
@@ -130,11 +147,31 @@ set_names <- function(arr, feat_names, timepoints, include_time = FALSE,
 
   # Set dimnames
   if (!is.null(event_names)) {
-    dimnames(arr) <- list(NULL, unlist(feat_names, recursive = FALSE),
-                          event_names, time_labels)
+    dim_names <- list(NULL, unlist(feat_names, recursive = FALSE),
+                      event_names, time_labels)
   } else {
-    dimnames(arr) <- list(NULL, unlist(feat_names, recursive = FALSE), time_labels)
+    dim_names <- append(list(NULL, time_labels), feat_names, after = 1)
   }
+
+  # Check dimnames
+  dims_n <- unlist(lapply(dim_names, length))
+  dims_arr <- dim(arr)
+  for (i in seq(2, length(dim(arr)))) {
+    if (dims_n[i] != dims_arr[i]) {
+      # If just one dimension is missing, we assume it is the time axis
+      if (dims_arr[i] - dims_n[i] == 1) {
+        warning("Found one dimension less in the dimnames. Assuming it is the ",
+                "time axis.", call. = FALSE)
+        dim_names[[i]] <- c(dim_names[[i]], "time")
+      } else {
+        stop("Number of dimnames does not match the number of dimensions",
+             " in the result array.", call. = FALSE)
+      }
+    }
+  }
+
+  # Set dimnames
+  dimnames(arr) <- dim_names
 
   arr
 }
@@ -156,7 +193,14 @@ list_stack <- function(lst, dim = 1) {
     if (is.null(lst[[1]][[name]])) {
       res[[name]] <- c()
     } else {
-      res[[name]] <- torch::torch_stack(lapply(lst, function(x) x[[name]]), dim = dim)
+      if (inherits(lst[[1]][[name]], "torch_tensor")) {
+        res[[name]] <- torch::torch_stack(lapply(lst, function(x) x[[name]]), dim = dim)
+      } else {
+        num_sub_lists <- length(lst[[1]][[name]])
+        res[[name]] <- lapply(seq_len(num_sub_lists), function(i) {
+          torch::torch_stack(lapply(lst, function(x) x[[name]][[i]]), dim = dim)
+        })
+      }
     }
   }
 

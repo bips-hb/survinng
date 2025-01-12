@@ -38,7 +38,6 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
     batch <- get_batch(batches)
     batches <<- update(batches)
 
-
     # Calculate the gradients
     # Note: For all targets, the gradients are w.r.t. the hazard and
     # will be transformed to the target of interest afterwards
@@ -51,6 +50,12 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
     grads_2 <- grads$grads_2
     grads <- grads$grads
 
+    if (length(grads) > 1) {
+      stop("Calculated gradient 'grads' has more than one element. Please ",
+           "create an GitHub issue")
+    }
+    grads <- grads[[1]]
+
     # Since we allow models with multiple input layers, we need to
     # iterate over the gradients of each input layer
     grads <- lapply(seq_along(grads), function(i) {
@@ -61,6 +66,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
       if (model_class == "CoxTime") {
         # Output (batch_size * t, in_features) -> (batch_size, in_features, 1, t)
         grad <- grad$reshape(c(-1, length(exp$model$t), grad$size()[-1], 1))$movedim(2, -1)
+        out <- outs$reshape(c(outs$shape[1], rep(1, grad$dim() - outs$dim()), outs$shape[-1]))
         if (second_order) {
           # Output (batch_size * t, in_features, in_features) -> (batch_size, in_features, in_features, 1, t)
           grad_2 <- grad_2$reshape(c(-1, length(exp$model$t), grad_2$size()[-1], 1))$movedim(2, -1)
@@ -68,9 +74,14 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
 
         # Remove the time dimension (only possible for CoxTime models)
         if (remove_time) {
-          grad <- grad[,seq_len(dim(grad)[2] - 1), , drop = FALSE]
-          if (second_order) {
-            grad_2 <- grad_2[, seq_len(dim(grad_2)[2] - 1), seq_len(dim(grad_2)[3] - 1), , drop = FALSE]
+          if (!exp$model$default_preprocess) {
+            warning("The model does not use the default preprocessing function. ",
+                    "The time dimension will not be removed.", call. = FALSE)
+          } else {
+            grad <- grad[,seq_len(dim(grad)[2] - 1), , drop = FALSE]
+            if (second_order) {
+              grad_2 <- grad_2[, seq_len(dim(grad_2)[2] - 1), seq_len(dim(grad_2)[3] - 1), , drop = FALSE]
+            }
           }
         }
 
@@ -82,9 +93,9 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
             grad_2 <- grad_2$cumsum(-1)
           }
         } else if (target == "survival") {
-          grad <- -grad$cumsum(-1) * (-outs$cumsum(-1))$exp()
+          grad <- -grad$cumsum(-1) * (-out$cumsum(-1))$exp()
           if (second_order) {
-            grad_2 <- -grad_2$cumsum(-1) * (-outs$cumsum(-1))$exp()$unsqueeze(2)
+            grad_2 <- -grad_2$cumsum(-1) * (-out$cumsum(-1))$exp()$unsqueeze(2)
           }
         }
       } else if (model_class == "DeepSurv") {
@@ -101,8 +112,9 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
         # multiply the gradients and outputs with the baseline hazard
         base_haz <- torch::torch_tensor(exp$model$base_hazard$hazard, dtype = dtype)
         base_haz <- base_haz$reshape(c(rep(1, grad$dim() - 1), -1))
+        out <- outs$reshape(c(outs$shape[1], rep(1, grad$dim() - outs$dim()), outs$shape[-1]))
         grad <- grad * base_haz
-        outs <- outs * base_haz
+        out <- out * base_haz
         if (second_order) {
           grad_2 <- grad_2 * base_haz$unsqueeze(2)
         }
@@ -115,9 +127,9 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
             grad_2 <- grad_2$cumsum(-1)
           }
         } else if (target == "survival") {
-          grad <- -grad$cumsum(-1) * (-outs$cumsum(-1))$exp()
+          grad <- -grad$cumsum(-1) * (-out$cumsum(-1))$exp()
           if (second_order) {
-            grad_2 <- -grad_2$cumsum(-1) * (-outs$cumsum(-1))$exp()$unsqueeze(2)
+            grad_2 <- -grad_2$cumsum(-1) * (-out$cumsum(-1))$exp()$unsqueeze(2)
           }
         }
       } else if (model_class == "DeepHit") {
@@ -126,13 +138,20 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
 
       # Multiply the gradients with the inputs
       if (times_input) {
-        # Remove the time dimension (only possible for CoxTime models)
-        feat_idx <- seq_len(dim(grad)[2])
-
         if (is.null(inputs_ref)) {
-          grad <- grad * exp$model$postprocess_fun(batch$batch[[i]])[, feat_idx,, drop = FALSE]
+          input <- exp$model$postprocess_fun(batch$batch[[i]])
+          if (model_class == "CoxTime" && exp$model$default_preprocess) {
+            # Assuming tabular input
+            feat_idx <- seq_len(dim(grad)[2])
+            input <- input[, feat_idx,, drop = FALSE]
+          }
+          grad <- grad * input
         } else {
-          input_diff <- exp$model$postprocess_fun(batch$inputs[[i]] - batch$inputs_ref[[i]])[, feat_idx,, drop = FALSE]
+          input_diff <- exp$model$postprocess_fun(batch$inputs[[i]] - batch$inputs_ref[[i]])
+          if (model_class == "CoxTime" && exp$model$default_preprocess) {
+            feat_idx <- seq_len(dim(grad)[2])
+            input_diff <- input_diff[, feat_idx,, drop = FALSE]
+          }
           grad <- grad * input_diff
 
           if (second_order) {
@@ -205,7 +224,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
   # Calculate the outcomes -----------------------------------------------------
   # Calculate the predictions
   outs <- to_tensor(exp$input_data, instance, repeats = 1, dtype = dtype) |>
-    lapply(FUN = exp$model$preprocess_fun) |>
+    exp$model$preprocess_fun() |>
     exp$model$forward(target = target, use_base_hazard = TRUE) |>
     lapply(FUN = torch::torch_squeeze, dim = c(2, 3))
 
@@ -221,7 +240,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
       add_quantiles <- FALSE
     }
     outs_ref <- to_tensor(data_ref, idx, repeats = 1, dtype = dtype) |>
-      lapply(FUN = exp$model$preprocess_fun) |>
+      exp$model$preprocess_fun() |>
       exp$model$forward(target = target, use_base_hazard = TRUE) |>
       lapply(FUN = function(a) {
         a <- a$squeeze(dim = c(2, 3))

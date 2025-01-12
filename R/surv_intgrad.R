@@ -41,16 +41,16 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
     x_ref <- lapply(exp$input_data,
                     function(x) {
                       res <- apply(x, seq_along(dim(x))[-1], mean, simplify = TRUE)
-                      if (is.null(dim(res))) dim(res) <- c(1, length(res))
+                      dim(res) <- c(1, if (is.null(dim(res))) length(res) else dim(res))
                       res
                     })
   }
 
   # Repeat reference value
   if (!is.list(x_ref)) x_ref <- list(x_ref)
-  x_ref <- lapply(x_ref, function(x) {
-    x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
-  })
+  x_ref <- lapply(x_ref, list_index,
+                  idx = rep(seq_len(dim(x_ref[[1]])[1]), each = n * length(instance)))
+
 
   # Get scale tensor
   scale_fun <- function(n, ...) {
@@ -116,16 +116,15 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
     x_ref <- lapply(exp$input_data,
                     function(x) {
                       res <- apply(x, seq_along(dim(x))[-1], mean, simplify = TRUE)
-                      if (is.null(dim(res))) dim(res) <- c(1, length(res))
+                      dim(res) <- c(1, if (is.null(dim(res))) length(res) else dim(res))
                       res
                     })
   }
 
   # Repeat reference value
   if (!is.list(x_ref)) x_ref <- list(x_ref)
-  x_ref <- lapply(x_ref, function(x) {
-    x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
-  })
+  x_ref <- lapply(x_ref, list_index,
+                  idx = rep(seq_len(dim(x_ref[[1]])[1]), each = n * length(instance)))
 
   # Get scale tensor
   scale_fun <- function(n, ...) {
@@ -188,15 +187,15 @@ surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 
     x_ref <- lapply(exp$input_data,
                     function(x) {
                       res <- apply(x, seq_along(dim(x))[-1], mean, simplify = TRUE)
-                      if (is.null(dim(res))) dim(res) <- c(1, length(res))
+                      dim(res) <- c(1, if (is.null(dim(res))) length(res) else dim(res))
                       res
                     })
   }
+
   # Repeat reference value
   if (!is.list(x_ref)) x_ref <- list(x_ref)
-  x_ref <- lapply(x_ref, function(x) {
-    x[rep(seq_len(dim(x)[1]), each = n * length(instance)), , drop = FALSE]
-  })
+  x_ref <- lapply(x_ref, list_index,
+                  idx = rep(seq_len(dim(x_ref[[1]])[1]), each = n * length(instance)))
 
   # Get scale tensor
   scale_fun <- function(n, ...) {

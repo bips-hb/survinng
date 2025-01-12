@@ -24,7 +24,7 @@ test_that("Method 'surv_grad' with CoxTime (1D model)", {
   expect_error(surv_grad(exp_1d, dtype = "wrong dtype"))
 
   # Test sequential 1D model ---------------------------------------------------
-  res <- surv_grad(exp_1d, instance = c(1, 3))
+  res <- surv_grad(exp_1d, instance = c(1, 3, 4))
   expect_s3_class(res, "surv_result")
   checkmate::expect_names(names(res), subset.of = c("res", "pred", "time", "method", "method_args", "competing_risks", "model_class"))
   expect_equal(res$method, "Surv_Gradient")
@@ -33,21 +33,21 @@ test_that("Method 'surv_grad' with CoxTime (1D model)", {
   expect_equal(res$method_args$target, "survival")
   expect_equal(res$method_args$dtype, "float")
   expect_equal(res$method_args$times_input, FALSE)
-  expect_equal(dim(res$res), c(2, 5, 20))
-  expect_equal(dim(res$pred), c(2, 20))
+  expect_equal(dim(res$res), c(3, 5, 20))
+  expect_equal(dim(res$pred), c(3, 20))
   expect_equal(length(res$time), 20)
   checkmate::expect_array(res$res)
   checkmate::expect_array(res$pred)
   expect_vector(res$time)
 
   # Test sequential 1D model with times_input = TRUE ---------------------------
-  res <- surv_grad(exp_1d, instance = c(1, 3), times_input = TRUE)
+  res <- surv_grad(exp_1d, instance = c(1, 3, 4), times_input = TRUE)
   expect_equal(res$method_args$times_input, TRUE)
   expect_equal(res$competing_risks, FALSE)
   expect_equal(res$method_args$target, "survival")
   expect_equal(res$method_args$dtype, "float")
-  expect_equal(dim(res$res), c(2, 5, 20))
-  expect_equal(dim(res$pred), c(2, 20))
+  expect_equal(dim(res$res), c(3, 5, 20))
+  expect_equal(dim(res$pred), c(3, 20))
   expect_equal(length(res$time), 20)
   checkmate::expect_array(res$res)
   checkmate::expect_array(res$pred)
@@ -84,6 +84,43 @@ test_that("Method 'surv_grad' with CoxTime (1D model)", {
   expect_equal(dim(res$res), c(2, 5, 20))
   expect_equal(dim(res$pred), c(2, 20))
   expect_equal(length(res$time), 20)
+})
+
+
+test_that("Method 'surv_grad' with CoxTime (Multi-modal model)", {
+  # Preparation ----------------------------------------------------------------
+  model_mm <- multi_modal_model(num_tabular_inputs = 4, num_outputs = 1, add_time = TRUE)
+  data <- list(torch_randn(4, 3, 10, 10), torch_randn(4, 4))
+  base_hazard <- get_base_hazard(12)
+
+  # Define preprocess function to handle the time axis
+  preprocess_fun <- function(x) {
+    # x is a list with two tensors: image data and tabular data
+    batch_size <- x[[1]]$size(1)
+
+    # Input (batch_size, in_features) -> (batch_size * t, in_features) (replicate each row t times)
+    res <- lapply(x, function(a) a$repeat_interleave(12L, dim = 1))
+
+    # Add time to tabular input
+    time <- torch::torch_vstack(replicate(batch_size, torch_tensor(base_hazard$time)$unsqueeze(-1)))
+    list(res[[1]], torch::torch_cat(list(res[[2]], time), dim = -1))
+  }
+
+  exp_mm <- explain(model_mm, data = data, model_type = "coxtime",
+                    baseline_hazard = base_hazard, preprocess_fun = preprocess_fun)
+
+  # Check ----------------------------------------------------------------------
+  expect_warning(expect_warning(expect_warning(res <- surv_grad(exp_mm))))
+  expect_warning(expect_warning(expect_warning(
+    res <- surv_grad(exp_mm, instance = c(1, 3))
+  )))
+  expect_s3_class(res, "surv_result")
+
+  # Test multi-modal model with times_input = TRUE ------------------------------
+  expect_warning(expect_warning(expect_warning(
+    res <- surv_grad(exp_mm, instance = c(1, 3), times_input = TRUE)
+  )))
+  expect_s3_class(res, "surv_result")
 })
 
 
@@ -112,7 +149,7 @@ test_that("Method 'surv_grad' with DeepSurv (1D model)", {
   expect_error(surv_grad(exp_1d, dtype = "wrong dtype"))
 
   # Test sequential 1D model ---------------------------------------------------
-  res <- surv_grad(exp_1d, instance = c(1, 3))
+  res <- surv_grad(exp_1d, instance = c(1, 3, 4))
   expect_s3_class(res, "surv_result")
   checkmate::expect_names(names(res), subset.of = c("res", "pred", "time", "method", "method_args", "competing_risks", "model_class"))
   expect_equal(res$method, "Surv_Gradient")
@@ -121,8 +158,8 @@ test_that("Method 'surv_grad' with DeepSurv (1D model)", {
   expect_equal(res$method_args$target, "survival")
   expect_equal(res$method_args$dtype, "float")
   expect_equal(res$method_args$times_input, FALSE)
-  expect_equal(dim(res$res), c(2, 5, 20))
-  expect_equal(dim(res$pred), c(2, 20))
+  expect_equal(dim(res$res), c(3, 5, 20))
+  expect_equal(dim(res$pred), c(3, 20))
   expect_equal(length(res$time), 20)
   checkmate::expect_array(res$res)
   checkmate::expect_array(res$pred)
@@ -174,6 +211,25 @@ test_that("Method 'surv_grad' with DeepSurv (1D model)", {
   expect_equal(length(res$time), 20)
 })
 
+
+
+test_that("Method 'surv_grad' with DeepSurv (Multi-modal model)", {
+  # Preparation ----------------------------------------------------------------
+  model_mm <- multi_modal_model(num_tabular_inputs = 5, num_outputs = 1)
+  data <- list(torch_randn(4, 3, 10, 10), torch_randn(4, 5))
+  base_hazard <- get_base_hazard(12)
+  exp_mm <- explain(model_mm, data = data, model_type = "deepsurv",
+                    baseline_hazard = base_hazard)
+
+  # Check ----------------------------------------------------------------------
+  res <- surv_grad(exp_mm)
+  res <- surv_grad(exp_mm, instance = c(1, 3))
+  expect_s3_class(res, "surv_result")
+
+  # Test multi-modal model with times_input = TRUE ------------------------------
+  res <- surv_grad(exp_mm, instance = c(1, 3), times_input = TRUE)
+  expect_s3_class(res, "surv_result")
+})
 
 
 ################################################################################
@@ -260,3 +316,23 @@ test_that("Method 'surv_grad' with DeepHit (1D model)", {
   expect_equal(dim(res$pred), c(2, 20))
   expect_equal(length(res$time), 20)
 })
+
+
+
+test_that("Method 'surv_grad' with DeepHit (Multi-modal model)", {
+  # Preparation ----------------------------------------------------------------
+  model_mm <- multi_modal_model(num_tabular_inputs = 5, num_outputs = 10)
+  data <- list(torch_randn(4, 3, 10, 10), torch_randn(4, 5))
+  exp_mm <- explain(model_mm, data = data, model_type = "deephit",
+                    time_bins = seq(0, 15, length.out = 10))
+
+  # Check ----------------------------------------------------------------------
+  res <- surv_grad(exp_mm)
+  res <- surv_grad(exp_mm, instance = c(1, 3))
+  expect_s3_class(res, "surv_result")
+
+  # Test multi-modal model with times_input = TRUE ------------------------------
+  res <- surv_grad(exp_mm, instance = c(1, 3), times_input = TRUE)
+  expect_s3_class(res, "surv_result")
+})
+
