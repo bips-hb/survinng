@@ -7,13 +7,13 @@
 \alias{extract_model.deepsurv}
 \title{Extract model information from a \code{survivalmodels} object}
 \usage{
-extract_model(x, path = NULL)
+extract_model(x, path = NULL, num_basehazard = 200L)
 
-\method{extract_model}{coxtime}(x, path = NULL)
+\method{extract_model}{coxtime}(x, path = NULL, num_basehazard = 200L)
 
-\method{extract_model}{deephit}(x, path = NULL)
+\method{extract_model}{deephit}(x, path = NULL, ...)
 
-\method{extract_model}{deepsurv}(x, path = NULL)
+\method{extract_model}{deepsurv}(x, path = NULL, num_basehazard = 200L)
 }
 \description{
 Extract model information from a \code{survivalmodels} object

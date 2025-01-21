@@ -4,14 +4,15 @@
 #'
 #' @rdname extract_model
 #' @export
-extract_model <- function(x, path = NULL) {
+extract_model <- function(x, path = NULL, num_basehazard = 200L) {
   UseMethod("extract_model")
 }
 
 # CoxTime model ----------------------------------------------------------------
 #' @rdname extract_model
 #' @export
-extract_model.coxtime <- function(x, path = NULL) {
+extract_model.coxtime <- function(x, path = NULL, num_basehazard = 200L) {
+  assertIntegerish(num_basehazard)
 
   # Extract model information
   res <- list(
@@ -25,7 +26,7 @@ extract_model.coxtime <- function(x, path = NULL) {
   )
 
   # Get baseline hazard
-  baseline_hazard <- x$model$compute_baseline_hazards(sample = 200L)
+  baseline_hazard <- x$model$compute_baseline_hazards(sample = as.integer(num_basehazard))
   base_hazard <- data.frame(time = as.numeric(names(baseline_hazard)),
                             hazard = as.numeric(baseline_hazard))
 
@@ -66,7 +67,7 @@ extract_model.coxtime <- function(x, path = NULL) {
 # DeepHit model ----------------------------------------------------------------
 #' @rdname extract_model
 #' @export
-extract_model.deephit <- function(x, path = NULL) {
+extract_model.deephit <- function(x, path = NULL, ...) {
 
   # Extract model information
   res <- list(
@@ -94,7 +95,8 @@ extract_model.deephit <- function(x, path = NULL) {
 # DeepSurv model ----------------------------------------------------------------
 #' @rdname extract_model
 #' @export
-extract_model.deepsurv <- function(x, path = NULL) {
+extract_model.deepsurv <- function(x, path = NULL, num_basehazard = 200L) {
+  assertIntegerish(num_basehazard)
 
   # Extract model information
   res <- list(
@@ -108,7 +110,7 @@ extract_model.deepsurv <- function(x, path = NULL) {
   )
 
   # Get baseline hazard
-  baseline_hazard <- x$model$compute_baseline_hazards()
+  baseline_hazard <- x$model$compute_baseline_hazards(sample = as.integer(num_basehazard))
   base_hazard <- data.frame(time = as.numeric(names(baseline_hazard)),
                             hazard = as.numeric(baseline_hazard))
 
