@@ -14,15 +14,22 @@ extract_model <- function(x, path = NULL, num_basehazard = 200L) {
 extract_model.coxtime <- function(x, path = NULL, num_basehazard = 200L) {
   assertIntegerish(num_basehazard)
 
+  symbol_to_value <- function(a) {
+    if (is.symbol(a)) {
+      a <- eval.parent(a, n = 2)
+    }
+    a
+  }
+
   # Extract model information
   res <- list(
     input_shape = list(ncol(x$x)),
     input_names = list(x$xnames),
     state_dict =  lapply(x$model$net$state_dict(), function(a) a$data$numpy()),
-    activation =  if (is.null(x$call$activation)) "relu" else x$call$activation,
-    num_nodes = if (is.null(x$call$num_nodes)) c(32L, 32L) else x$call$num_nodes,
-    batch_norm = if (is.null(x$call$batch_norm)) TRUE else x$call$batch_norm,
-    dropout = if (is.null(x$call$dropout)) 0 else x$call$dropout
+    activation =  if (is.null(x$call$activation)) "relu" else symbol_to_value(x$call$activation),
+    num_nodes = if (is.null(x$call$num_nodes)) c(32L, 32L) else symbol_to_value(x$call$num_nodes),
+    batch_norm = if (is.null(x$call$batch_norm)) TRUE else symbol_to_value(x$call$batch_norm),
+    dropout = if (is.null(x$call$dropout)) 0 else symbol_to_value(x$call$dropout)
   )
 
   # Get baseline hazard
@@ -69,15 +76,22 @@ extract_model.coxtime <- function(x, path = NULL, num_basehazard = 200L) {
 #' @export
 extract_model.deephit <- function(x, path = NULL, ...) {
 
+  symbol_to_value <- function(a) {
+    if (is.symbol(a)) {
+      a <- eval.parent(a, n = 2)
+    }
+    a
+  }
+
   # Extract model information
   res <- list(
     input_shape = list(ncol(x$x)),
     input_names = list(x$xnames),
     state_dict =  lapply(x$model$net$state_dict(), function(a) a$data$numpy()),
-    activation =  if (is.null(x$call$activation)) "relu" else x$call$activation,
-    num_nodes = if (is.null(x$call$num_nodes)) c(32L, 32L) else x$call$num_nodes,
-    batch_norm = if (is.null(x$call$batch_norm)) TRUE else x$call$batch_norm,
-    dropout = if (is.null(x$call$dropout)) 0 else x$call$dropout,
+    activation =  if (is.null(x$call$activation)) "relu" else symbol_to_value(x$call$activation),
+    num_nodes = if (is.null(x$call$num_nodes)) c(32L, 32L) else symbol_to_value(x$call$num_nodes),
+    batch_norm = if (is.null(x$call$batch_norm)) TRUE else symbol_to_value(x$call$batch_norm),
+    dropout = if (is.null(x$call$dropout)) 0 else symbol_to_value(x$call$dropout),
     time_bins = x$model$duration_index
   )
 
@@ -98,15 +112,22 @@ extract_model.deephit <- function(x, path = NULL, ...) {
 extract_model.deepsurv <- function(x, path = NULL, num_basehazard = 200L) {
   assertIntegerish(num_basehazard)
 
+  symbol_to_value <- function(a) {
+    if (is.symbol(a)) {
+      a <- eval.parent(a, n = 2)
+    }
+    a
+  }
+
   # Extract model information
   res <- list(
     input_shape = list(ncol(x$x)),
     input_names = list(x$xnames),
     state_dict =  lapply(x$model$net$state_dict(), function(a) a$data$numpy()),
-    activation =  if (is.null(x$call$activation)) "relu" else x$call$activation,
-    num_nodes = if (is.null(x$call$num_nodes)) c(32L, 32L) else x$call$num_nodes,
-    batch_norm = if (is.null(x$call$batch_norm)) TRUE else x$call$batch_norm,
-    dropout = if (is.null(x$call$dropout)) 0 else x$call$dropout
+    activation =  if (is.null(x$call$activation)) "relu" else symbol_to_value(x$call$activation),
+    num_nodes = if (is.null(x$call$num_nodes)) c(32L, 32L) else symbol_to_value(x$call$num_nodes),
+    batch_norm = if (is.null(x$call$batch_norm)) TRUE else symbol_to_value(x$call$batch_norm),
+    dropout = if (is.null(x$call$dropout)) 0 else symbol_to_value(x$call$dropout)
   )
 
   # Get baseline hazard

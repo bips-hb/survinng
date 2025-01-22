@@ -84,6 +84,28 @@ test_that("Method 'surv_grad' with CoxTime (1D model)", {
   expect_equal(dim(res$res), c(2, 5, 20))
   expect_equal(dim(res$pred), c(2, 20))
   expect_equal(length(res$time), 20)
+
+
+  # Other Checks ---------------------------------------------------------------
+  # Test array as 'data' argument
+  exp_1d <- explain(model_1d, data = as.array(data), model_type = "coxtime",
+                    baseline_hazard = base_hazard)
+  res <- surv_grad(exp_1d, instance = c(1, 3, 4))
+
+  # Test as.data.frame and as.data.table
+  df_res <- as.data.frame(res)
+  dt_res <- data.table::as.data.table(res)
+
+  # Test data.frame as 'data' argument
+  exp_1d <- explain(model_1d, data = as.data.frame(as.array(data)), model_type = "coxtime",
+                    baseline_hazard = base_hazard)
+  res <- surv_grad(exp_1d, instance = c(1, 3, 4))
+
+  # Test as.data.frame and as.data.table
+  df_res <- as.data.frame(res)
+  dt_res <- data.table::as.data.table(res)
+
+
 })
 
 
@@ -121,6 +143,31 @@ test_that("Method 'surv_grad' with CoxTime (Multi-modal model)", {
     res <- surv_grad(exp_mm, instance = c(1, 3), times_input = TRUE)
   )))
   expect_s3_class(res, "surv_result")
+
+  # Other Checks ---------------------------------------------------------------
+  # Test array as 'data' argument
+  exp_mm <- explain(model_mm, data = lapply(data, as.array), model_type = "coxtime",
+                    baseline_hazard = base_hazard, preprocess_fun = preprocess_fun)
+  expect_warning(expect_warning(expect_warning(
+    res <- surv_grad(exp_mm, instance = c(1, 3, 4))
+  )))
+
+  # Test as.data.frame and as.data.table
+  df_res <- as.data.frame(res)
+  dt_res <- data.table::as.data.table(res)
+
+  # Test data.frame as 'data' argument
+  # Test array as 'data' argument
+  exp_mm <- explain(model_mm, data = list(data[[1]], as.data.frame(as.matrix(data[[2]]))),
+                    model_type = "coxtime",
+                    baseline_hazard = base_hazard, preprocess_fun = preprocess_fun)
+  expect_warning(expect_warning(expect_warning(
+    res <- surv_grad(exp_mm, instance = c(1, 3, 4))
+  )))
+
+  # Test as.data.frame and as.data.table
+  df_res <- as.data.frame(res)
+  dt_res <- data.table::as.data.table(res)
 })
 
 
