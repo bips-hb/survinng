@@ -10,7 +10,7 @@
 surv_gradSHAP <- function(exp, target = "survival", instance = 1,
                          times_input = TRUE, batch_size = 50,
                          n = 50, num_samples = 10, data_ref = NULL,
-                         dtype = "float", include_time = FALSE) {
+                         dtype = "float", replace = TRUE, include_time = FALSE) {
   UseMethod("surv_gradSHAP")
 }
 
@@ -22,6 +22,7 @@ surv_gradSHAP.explainer_deepsurv <- function(exp, target = "survival", instance 
                                              times_input = TRUE, batch_size = 50,
                                              n = 50, num_samples = 10,
                                              data_ref = NULL, dtype = "float",
+                                             replace = TRUE,
                                              ...) {
   # Check arguments
   assertClass(exp, "explainer_deepsurv")
@@ -32,6 +33,7 @@ surv_gradSHAP.explainer_deepsurv <- function(exp, target = "survival", instance 
   assertIntegerish(batch_size, lower = 1)
   assertArgData(data_ref, null.ok = TRUE)
   assertChoice(dtype, c("float", "double"))
+  assertLogical(replace)
 
   # Set dtype of all tensors
   dtype_name <- dtype
@@ -46,7 +48,7 @@ surv_gradSHAP.explainer_deepsurv <- function(exp, target = "survival", instance 
   if (!is.list(data_ref)) data_ref <- list(data_ref)
 
   # Sample from baseline distribution
-  idx <- rep(sample.int(dim(data_ref[[1]])[1], num_samples, replace = TRUE),
+  idx <- rep(sample.int(dim(data_ref[[1]])[1], num_samples, replace = replace),
              times = length(instance), each = n)
   data_ref <- lapply(data_ref, function(x) x[idx, , drop = FALSE])
 
@@ -89,7 +91,8 @@ surv_gradSHAP.explainer_deepsurv <- function(exp, target = "survival", instance 
 surv_gradSHAP.explainer_coxtime <- function(exp, target = "survival", instance = 1,
                                             times_input = TRUE, batch_size = 50,
                                             n = 50, num_samples = 10, data_ref = NULL,
-                                            dtype = "float", include_time = FALSE) {
+                                            dtype = "float", replace = TRUE,
+                                            include_time = FALSE) {
   # Check arguments
   assertClass(exp, "explainer_coxtime")
   assertChoice(target, c("survival", "cum_hazard", "hazard"))
@@ -99,6 +102,7 @@ surv_gradSHAP.explainer_coxtime <- function(exp, target = "survival", instance =
   assertIntegerish(batch_size, lower = 1)
   assertArgData(data_ref, null.ok = TRUE)
   assertChoice(dtype, c("float", "double"))
+  assertLogical(replace)
 
   # Set dtype of all tensors
   dtype_name <- dtype
@@ -114,7 +118,8 @@ surv_gradSHAP.explainer_coxtime <- function(exp, target = "survival", instance =
 
   # Sample from baseline distribution (same for each timepoint and instance)
   num_samples <- min(num_samples, dim(data_ref[[1]])[1])
-  idx <- rep(sample.int(dim(data_ref[[1]])[1], num_samples), times = length(instance), each = n)
+  idx <- rep(sample.int(dim(data_ref[[1]])[1], num_samples, replace = replace),
+             times = length(instance), each = n)
   data_ref <- lapply(data_ref, function(x) x[idx, , drop = FALSE])
 
   # Sample value between 0 and 1 (same for each timepoint and instance)
@@ -158,7 +163,7 @@ surv_gradSHAP.explainer_coxtime <- function(exp, target = "survival", instance =
 surv_gradSHAP.explainer_deephit <- function(exp, target = "survival", instance = 1,
                                             times_input = TRUE, batch_size = 50,
                                             n = 50, num_samples = 10, data_ref = NULL,
-                                            dtype = "float", ...) {
+                                            dtype = "float", replace = TRUE, ...) {
   # Check arguments
   assertClass(exp, "explainer_deephit")
   assertChoice(target, c("survival", "pmf", "cif"))
@@ -168,6 +173,7 @@ surv_gradSHAP.explainer_deephit <- function(exp, target = "survival", instance =
   assertIntegerish(batch_size, lower = 1)
   assertArgData(data_ref, null.ok = TRUE)
   assertChoice(dtype, c("float", "double"))
+  assertLogical(replace)
 
   # Set dtype of all tensors
   dtype_name <- dtype
@@ -182,7 +188,7 @@ surv_gradSHAP.explainer_deephit <- function(exp, target = "survival", instance =
   if (!is.list(data_ref)) data_ref <- list(data_ref)
 
   # Sample from baseline distribution
-  idx <- rep(sample.int(dim(data_ref[[1]])[1], num_samples, replace = TRUE),
+  idx <- rep(sample.int(dim(data_ref[[1]])[1], num_samples, replace = replace),
              times = length(instance), each = n)
   data_ref <- lapply(data_ref, function(x) x[idx, , drop = FALSE])
 

@@ -45,7 +45,7 @@ assertTensorDim <- function(t1, t2, n1, n2) {
 }
 
 assertArgData <- function(data, null.ok = FALSE) {
-  if (!is.list(data)) {
+  if (!is.list(data) | is.data.frame(data)) {
     data_list <- list(data)
   } else {
     data_list <- data
@@ -83,20 +83,22 @@ combine_batch_grads <- function(res, feat_names, timepoints, include_time = FALS
                 event_names = event_names,
                 timepoints = timepoints)
   })
-  if (length(grads) == 1) grads <- grads[[1]]
 
   grads
 }
 
 # Indexing along first dimension with unknown length ---------------------------
 list_index <- function(x, idx) {
-  if (is.list(x)) {
+  if (is.list(x) & !is.data.frame(x)) {
     res <- lapply(x, list_index, idx = idx)
   } else {
     if (inherits(x, "torch_tensor")) {
       res <- x$index_select(dim = 1, index = as.integer(idx))
+    } else if (is.data.frame(x)) {
+      res <- as.matrix(x[idx, , drop = FALSE])
     } else {
-      empty_dims <- rep(list(TRUE), length(dim(x)) - 1)
+      times <- if (is.null(dim(x))) 0 else length(dim(x)) - 1
+      empty_dims <- rep(list(TRUE), times)
       res <- do.call('[', c(list(x, idx), empty_dims, drop = FALSE))
     }
   }
@@ -108,7 +110,7 @@ list_index <- function(x, idx) {
 # Convert to torch tensor and repeat rows --------------------------------------
 to_tensor <- function(x, instance, repeats = 1, dtype = torch::torch_float()) {
   # Convert to list if not already
-  if (!is.list(x)) {
+  if (!is.list(x) | is.data.frame(x)) {
     x <- list(x)
   }
 

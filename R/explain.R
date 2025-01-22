@@ -87,7 +87,7 @@ explain.nn_module <- function(model, data, model_type,
   }
 
   # Create input data
-  if (is.list(data)) {
+  if (is.list(data) & !is.data.frame(data)) {
     input_data <- data
     input_shape <- lapply(data, function(x) dim(x)[-1])
     input_names <- lapply(data, function(x) get_dimnames(x))
