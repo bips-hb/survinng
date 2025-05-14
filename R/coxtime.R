@@ -290,42 +290,42 @@ CoxTime <- torch::nn_module(
   }
 )
 
-#' Load a pre-trained PyCox model
-#'
-#' This function loads a pre-trained PyCox model from a given path.
-#'
-#' @param path The path to the weights of the PyCox model.
-#' @param type The type of the model. Currently only "CoxTime" is supported.
-#' @param architecture The architecture of the model. If NULL, the default
-#' architecture is used. It needs to fit to the weights given in path.
-
-load_pycox_model <- function(path, in_features, base_hazard, type = "CoxTime", architecture = NULL,
-                             num_nodes = c(32, 32), batch_norm = TRUE, dropout = 0.1,
-                             activation = "relu", output_activation = "linear") {
-
-  # Check arguments
-  assertFileExists(path)
-  assertDataFrame(as.data.frame(base_hazard))
-  assertSubset(c("time", "baseline_hazards"), names(base_hazard))
-  assertCharacter(type, ignore.case = TRUE)
-  type <- tolower(type)
-  assertChoice(type, c("coxtime"))
-  assert(check_true(torch::is_nn_module(architecture) | is.null(architecture)),
-         "architecture")
-
-  # Rebuild architecture and load state dict
-  if (is.null(architecture)) {
-    net <- BaseMLP$new(in_features + 1, num_nodes, batch_norm,
-                       dropout, activation, output_activation)
-  }
-
-  # Load and preprocess state dict
-  state_dict <- torch::load_state_dict(path)
-  if (all(startsWith(names(state_dict), "net.net."))) {
-    names(state_dict) <- sub("net.", "", names(state_dict))
-  }
-  net$load_state_dict(state_dict)
-  net$eval()
-
-  structure(net, model_type = "pycox_coxtime", base_hazard = base_hazard)
-}
+# #' Load a pre-trained PyCox model
+# #'
+# #' This function loads a pre-trained PyCox model from a given path.
+# #'
+# #' @param path The path to the weights of the PyCox model.
+# #' @param type The type of the model. Currently only "CoxTime" is supported.
+# #' @param architecture The architecture of the model. If NULL, the default
+# #' architecture is used. It needs to fit to the weights given in path.
+#
+# load_pycox_model <- function(path, in_features, base_hazard, type = "CoxTime", architecture = NULL,
+#                              num_nodes = c(32, 32), batch_norm = TRUE, dropout = 0.1,
+#                              activation = "relu", output_activation = "linear") {
+#
+#   # Check arguments
+#   assertFileExists(path)
+#   assertDataFrame(as.data.frame(base_hazard))
+#   assertSubset(c("time", "baseline_hazards"), names(base_hazard))
+#   assertCharacter(type, ignore.case = TRUE)
+#   type <- tolower(type)
+#   assertChoice(type, c("coxtime"))
+#   assert(check_true(torch::is_nn_module(architecture) | is.null(architecture)),
+#          "architecture")
+#
+#   # Rebuild architecture and load state dict
+#   if (is.null(architecture)) {
+#     net <- BaseMLP$new(in_features + 1, num_nodes, batch_norm,
+#                        dropout, activation, output_activation)
+#   }
+#
+#   # Load and preprocess state dict
+#   state_dict <- torch::load_state_dict(path)
+#   if (all(startsWith(names(state_dict), "net.net."))) {
+#     names(state_dict) <- sub("net.", "", names(state_dict))
+#   }
+#   net$load_state_dict(state_dict)
+#   net$eval()
+#
+#   structure(net, model_type = "pycox_coxtime", base_hazard = base_hazard)
+# }

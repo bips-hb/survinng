@@ -47,15 +47,47 @@ surv_grad(
   ...
 )
 }
+\arguments{
+\item{exp}{An object of class \code{explainer_deepsurv}, \code{explainer_coxtime}, or
+\code{explainer_deephit}.}
+
+\item{target}{A character string indicating the target output. For \code{DeepSurv}
+and \code{CoxTime}, it can be either \code{"survival"} (default), \code{"cum_hazard"}, or
+\code{"hazard"}. For \code{DeepHit}, it can be \code{"survival"} (default), \code{"cif"}, or
+\code{"pmf"}.}
+
+\item{instance}{An integer specifying the instance for which the gradient
+is calculated. It should be between 1 and the number of instances in the
+dataset.}
+
+\item{times_input}{A logical value indicating whether the gradient should be
+multiplied with input. In the paper, this variant is referred to as
+\emph{"GxI(t)"}.}
+
+\item{batch_size}{An integer specifying the batch size for processing. The
+default is 50. This value describes the number of instances within one batch
+and not the final number of rows in the batch. For example, \code{CoxTime}
+replicates each instance for each time point.}
+
+\item{dtype}{A character string indicating the data type for the tensors.
+It can be either \code{"float"} (default) or \code{"double"}.}
+
+\item{include_time}{A logical value indicating whether to include the time
+points in the output. This is only relevant for \code{CoxTime} and is ignored for
+\code{DeepSurv} and \code{DeepHit}.}
+
+\item{...}{Unused arguments.}
+}
 \description{
-Calculate the Gradient of the Survival Function
+This function calculates the gradient of the survival function with respect to
+the input features and time points for a given instance. In the paper, this
+is referred to as the \emph{"Grad(t)"} method. It shows the sensitivity of the
+survival function to changes in the input features at a specific time point.
 }
 \seealso{
 Other Attribution Methods: 
 \code{\link{surv_gradSHAP}()},
-\code{\link{surv_hessian}()},
 \code{\link{surv_intgrad}()},
-\code{\link{surv_inthess}()},
 \code{\link{surv_smoothgrad}()}
 }
 \concept{Attribution Methods}

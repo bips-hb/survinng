@@ -4,6 +4,34 @@
 
 #' Calculate the Gradient of the Survival Function
 #'
+#' This function calculates the gradient of the survival function with respect to
+#' the input features and time points for a given instance. In the paper, this
+#' is referred to as the *"Grad(t)"* method. It shows the sensitivity of the
+#' survival function to changes in the input features at a specific time point.
+#'
+#' @param exp An object of class `explainer_deepsurv`, `explainer_coxtime`, or
+#' `explainer_deephit`.
+#' @param target A character string indicating the target output. For `DeepSurv`
+#' and `CoxTime`, it can be either `"survival"` (default), `"cum_hazard"`, or
+#' `"hazard"`. For `DeepHit`, it can be `"survival"` (default), `"cif"`, or
+#' `"pmf"`.
+#' @param instance An integer specifying the instance for which the gradient
+#' is calculated. It should be between 1 and the number of instances in the
+#' dataset.
+#' @param times_input A logical value indicating whether the gradient should be
+#' multiplied with input. In the paper, this variant is referred to as
+#' *"GxI(t)"*.
+#' @param batch_size An integer specifying the batch size for processing. The
+#' default is 50. This value describes the number of instances within one batch
+#' and not the final number of rows in the batch. For example, `CoxTime`
+#' replicates each instance for each time point.
+#' @param dtype A character string indicating the data type for the tensors.
+#' It can be either `"float"` (default) or `"double"`.
+#' @param include_time A logical value indicating whether to include the time
+#' points in the output. This is only relevant for `CoxTime` and is ignored for
+#' `DeepSurv` and `DeepHit`.
+#' @param ... Unused arguments.
+#'
 #' @family Attribution Methods
 #' @export
 surv_grad <- function(exp, target = "survival", instance = 1, times_input = FALSE,

@@ -5,6 +5,46 @@
 
 #' Calculate the GradSHAP values of the Survival Function
 #'
+#' This function calculates the GradSHAP values of the survival function with
+#' respect to the input features and time points for a given instance. In the
+#' paper, this is referred to as the *"GradSHAP(t)"* method. It is a fast and
+#' model-specific method for calculating the Shapley values for a deep
+#' survival model.
+#'
+#' @param exp An object of class `explainer_deepsurv`, `explainer_coxtime`, or
+#' `explainer_deephit`.
+#' @param target A character string indicating the target output. For
+#' `DeepSurv` and `CoxTime`, it can be either `"survival"` (default),
+#' `"cum_hazard"`, or `"hazard"`. For `DeepHit`, it can be `"survival"`
+#' (default), `"cif"`, or `"pmf"`.
+#' @param instance An integer specifying the instance for which the GradSHAP
+#' values are calculated. It should be between 1 and the number of instances in
+#' the dataset.
+#' @param times_input A logical value indicating whether the GradSHAP values
+#' should be multiplied with input.
+#' @param batch_size An integer specifying the batch size for processing. The
+#' default is 50. This value describes the number of instances within one
+#' batch and not the final number of rows in the batch. For example,
+#' `CoxTime` replicates each instance for each time point.
+#' @param n An integer specifying the number of samples to be used for
+#' approximating the integral. The default is 50.
+#' @param num_samples An integer specifying the number of samples to be used
+#' for the baseline distribution. The default is 10.
+#' @param data_ref A reference dataset for sampling. If `NULL`, the reference
+#' dataset is taken from the input data of the model. This dataset should
+#' contain the same number of features as the input data.
+#' @param dtype A character string indicating the data type for the tensors.
+#' It can be either `"float"` (default) or `"double"`.
+#' @param replace A logical value indicating whether to sample from the baseline
+#' distribution with replacement. The default is `TRUE`.
+#' @param include_time A logical value indicating whether to calculate GradSHAP
+#' also for each time point. This is only relevant for `CoxTime` and is ignored
+#' for `DeepSurv` and `DeepHit`. The default is `FALSE`.
+#' @param ... Unused arguments.
+#'
+#' #' @return Returns an object of class `surv_result`.
+#'
+#'
 #' @family Attribution Methods
 #' @export
 surv_gradSHAP <- function(exp, target = "survival", instance = 1,

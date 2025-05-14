@@ -63,15 +63,62 @@ surv_gradSHAP(
   ...
 )
 }
+\arguments{
+\item{exp}{An object of class \code{explainer_deepsurv}, \code{explainer_coxtime}, or
+\code{explainer_deephit}.}
+
+\item{target}{A character string indicating the target output. For
+\code{DeepSurv} and \code{CoxTime}, it can be either \code{"survival"} (default),
+\code{"cum_hazard"}, or \code{"hazard"}. For \code{DeepHit}, it can be \code{"survival"}
+(default), \code{"cif"}, or \code{"pmf"}.}
+
+\item{instance}{An integer specifying the instance for which the GradSHAP
+values are calculated. It should be between 1 and the number of instances in
+the dataset.}
+
+\item{times_input}{A logical value indicating whether the GradSHAP values
+should be multiplied with input.}
+
+\item{batch_size}{An integer specifying the batch size for processing. The
+default is 50. This value describes the number of instances within one
+batch and not the final number of rows in the batch. For example,
+\code{CoxTime} replicates each instance for each time point.}
+
+\item{n}{An integer specifying the number of samples to be used for
+approximating the integral. The default is 50.}
+
+\item{num_samples}{An integer specifying the number of samples to be used
+for the baseline distribution. The default is 10.}
+
+\item{data_ref}{A reference dataset for sampling. If \code{NULL}, the reference
+dataset is taken from the input data of the model. This dataset should
+contain the same number of features as the input data.}
+
+\item{dtype}{A character string indicating the data type for the tensors.
+It can be either \code{"float"} (default) or \code{"double"}.}
+
+\item{replace}{A logical value indicating whether to sample from the baseline
+distribution with replacement. The default is \code{TRUE}.}
+
+\item{include_time}{A logical value indicating whether to calculate GradSHAP
+also for each time point. This is only relevant for \code{CoxTime} and is ignored
+for \code{DeepSurv} and \code{DeepHit}. The default is \code{FALSE}.}
+
+\item{...}{Unused arguments.
+
+#' @return Returns an object of class \code{surv_result}.}
+}
 \description{
-Calculate the GradSHAP values of the Survival Function
+This function calculates the GradSHAP values of the survival function with
+respect to the input features and time points for a given instance. In the
+paper, this is referred to as the \emph{"GradSHAP(t)"} method. It is a fast and
+model-specific method for calculating the Shapley values for a deep
+survival model.
 }
 \seealso{
 Other Attribution Methods: 
 \code{\link{surv_grad}()},
-\code{\link{surv_hessian}()},
 \code{\link{surv_intgrad}()},
-\code{\link{surv_inthess}()},
 \code{\link{surv_smoothgrad}()}
 }
 \concept{Attribution Methods}

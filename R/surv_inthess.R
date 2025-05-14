@@ -2,10 +2,6 @@
 #                       Survival IntegratedHessian
 ################################################################################
 
-#' Calculate the Integrated Hessian of the Survival Function
-#'
-#' @family Attribution Methods
-#' @export
 surv_inthess<- function(exp, target = "survival", instance = 1,
                         times_input = TRUE, batch_size = 50,
                         n = 10, x_ref = NULL, dtype = "float", include_time = FALSE) {
@@ -13,9 +9,6 @@ surv_inthess<- function(exp, target = "survival", instance = 1,
 }
 
 # DeepSurv ----------------------------------------------------------------------
-
-#' @rdname surv_inthess
-#' @export
 surv_inthess.explainer_deepsurv <- function(exp, target = "survival", instance = 1,
                                             times_input = TRUE, batch_size = 50,
                                             n = 10, x_ref = NULL,
@@ -91,9 +84,6 @@ surv_inthess.explainer_deepsurv <- function(exp, target = "survival", instance =
 
 
 # CoxTime ----------------------------------------------------------------------
-
-#' @rdname surv_inthess
-#' @export
 surv_inthess.explainer_coxtime <- function(exp, target = "survival", instance = 1,
                                            times_input = TRUE, batch_size = 50,
                                            n = 10, x_ref = NULL,
@@ -171,9 +161,6 @@ surv_inthess.explainer_coxtime <- function(exp, target = "survival", instance = 
 }
 
 # DeepHit ----------------------------------------------------------------------
-
-#' @rdname surv_inthess
-#' @export
 surv_inthess.explainer_deephit <- function(exp, target = "survival", instance = 1,
                                            times_input = TRUE, batch_size = 50,
                                            n = 10, x_ref = NULL,

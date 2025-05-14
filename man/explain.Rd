@@ -43,8 +43,34 @@ explain(
 
 \item{data}{A data frame or matrix of data to explain the model.}
 
-\item{predict_function}{A function that can be used to make predictions
-from the model. If NULL, the predict method of the model will be used.}
+\item{model_type}{A string specifying the type of the survival model.
+Possible values are "coxtime", "deephit", or "deepsurv".}
+
+\item{baseline_hazard}{A data frame containing the baseline hazard. It
+should have two columns: "time" and "hazard". This is only used for
+"coxtime" and "deepsurv" models.}
+
+\item{labtrans}{A list containing the transformation functions for the
+time variable. It should have two elements: "transform" and
+"transform_inv". This is highly experimental and not yet fully
+supported.}
+
+\item{time_bins}{A numeric vector specifying the time bins for the
+"deephit" model, e.g., \code{c(0, 1, 2, 3)}.}
+
+\item{preprocess_fun}{A function to preprocess the data before
+making predictions, e.g., adding a time variable for a \code{coxtime} model.
+This argument is highly experimental and the default values should work
+for most cases.}
+
+\item{postprocess_fun}{A function to postprocess the predictions after
+making them. This argument is highly experimental and the default
+values should work.}
+
+\item{predict_fun}{A function that can be used to make predictions
+from the model. If \code{NULL}, the predict method of the model will be used.}
+
+\item{...}{Unused arguments.}
 }
 \value{
 An object of class \code{explainer} that contains the model, the

@@ -3,13 +3,23 @@
 \name{as.data.frame.surv_result}
 \alias{as.data.frame.surv_result}
 \alias{as.data.table.surv_result}
-\title{Convert survival attribution results to a data frame}
+\title{Convert survival attribution results to a data.frame}
 \usage{
 \method{as.data.frame}{surv_result}(x, ..., stacked = FALSE)
 
-as.data.table.surv_result(x, ...)
+as.data.table.surv_result(x, ..., stacked = FALSE)
+}
+\arguments{
+\item{x}{An object of class \code{surv_result} containing the survival
+attribution results.}
+
+\item{...}{Unused arguments.}
+
+\item{stacked}{Logical indicating whether to convert to a stacked data frame,
+i.e., the attributions are stacked on top of each other. Default is \code{FALSE}.}
 }
 \description{
-Convert survival attribution results to a data frame
+This function converts the survival attribution results into a data frame
+format. It can handle both stacked and non-stacked formats.
 }
 \concept{Conversion Methods}

@@ -1,13 +1,16 @@
 Package: Survinng
 Title: Gradient-Based Feature Attribution for Survival Neural Networks
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: c(
     person("Niklas", "Koenen", , "niklas.koenen@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4623-8271")),
     person(c("Sophie", "Hanna"), "Langbein", role = "aut",
            comment = c(ORCID = "0000-0001-5629-2055"))
   )
-Description: This package explains survival neural networks (TODO).
+Description: This package implements model-specific, gradient-based feature 
+  attribution methods for deep survival neural networks, including DeepHit, 
+  CoxTime, and DeepSurv. It accompanies the ICML 2025 paper "Gradient-based 
+  Explanations for Deep Learning Survival Models".  
 License: MIT + file LICENSE
 Imports: 
     checkmate,

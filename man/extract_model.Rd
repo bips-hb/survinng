@@ -15,6 +15,20 @@ extract_model(x, path = NULL, num_basehazard = 200L)
 
 \method{extract_model}{deepsurv}(x, path = NULL, num_basehazard = 200L)
 }
+\arguments{
+\item{x}{A \code{survivalmodels} object, i.e., \code{survivalmodels::deephit},
+\code{survivalmodels::coxtime}, or \code{survivalmodels::deepsurv}.}
+
+\item{path}{A string specifying the path to save the extracted model. If \code{NULL},
+the model is not saved. Default is \code{NULL}.}
+
+\item{num_basehazard}{An integer specifying the number of points of the
+baseline hazard to compute. Default is \code{200L}. This argument is only used for
+\code{coxtime} and \code{deepsurv} models.}
+
+\item{...}{Unused arguments.}
+}
 \description{
-Extract model information from a \code{survivalmodels} object
+This function extracts model information from a neural network trained with
+the \code{survivalmodels} package.
 }

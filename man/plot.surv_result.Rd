@@ -6,7 +6,25 @@
 \usage{
 \method{plot}{surv_result}(x, ..., stacked = FALSE, normalize = FALSE, add_sum = FALSE)
 }
+\arguments{
+\item{x}{An object of class \code{surv_result} containing the survival
+attribution results.}
+
+\item{...}{Unused arguments.}
+
+\item{stacked}{Logical indicating whether to plot stacked attributions.
+Default is \code{FALSE}.}
+
+\item{normalize}{Logical indicating whether to normalize the attribution by
+the sum of attributions for each instance and time. Default is \code{FALSE}.}
+
+\item{add_sum}{Logical indicating whether to add the sum of attributions to
+the plot. Default is \code{FALSE}.}
+}
 \description{
-Plot method for survival attribution results
+This function generates a plot for the survival attribution results.
+It can display the attributions over time for each instance and feature.
+The plot can be customized to show stacked or non-stacked attributions,
+normalized values, and the sum of attributions.
 }
 \concept{Plot Methods}

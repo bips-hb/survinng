@@ -2,19 +2,12 @@
 #                           Survival Hessian Methods                           #
 ################################################################################
 
-#' Calculate the Gradient of the Survival Function
-#'
-#' @family Attribution Methods
-#' @export
 surv_hessian <- function(exp, target = "survival", instance = 1, times_input = FALSE,
                          batch_size = 50, dtype = "float", include_time = FALSE) {
   UseMethod("surv_hessian")
 }
 
 # CoxTime ----------------------------------------------------------------------
-#'
-#' @rdname surv_hessian
-#' @export
 surv_hessian.explainer_coxtime <- function(exp, target = "survival", instance = 1,
                                             times_input = FALSE, batch_size = 50,
                                             dtype = "float", include_time = FALSE) {

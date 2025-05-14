@@ -2,6 +2,18 @@
 
 #' Extract model information from a `survivalmodels` object
 #'
+#' This function extracts model information from a neural network trained with
+#' the `survivalmodels` package.
+#'
+#' @param x A `survivalmodels` object, i.e., `survivalmodels::deephit`,
+#' `survivalmodels::coxtime`, or `survivalmodels::deepsurv`.
+#' @param path A string specifying the path to save the extracted model. If `NULL`,
+#' the model is not saved. Default is `NULL`.
+#' @param num_basehazard An integer specifying the number of points of the
+#' baseline hazard to compute. Default is `200L`. This argument is only used for
+#' `coxtime` and `deepsurv` models.
+#' @param ... Unused arguments.
+#'
 #' @rdname extract_model
 #' @export
 extract_model <- function(x, path = NULL, num_basehazard = 200L) {

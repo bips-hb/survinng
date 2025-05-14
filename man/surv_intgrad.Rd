@@ -55,15 +55,54 @@ surv_intgrad(
   ...
 )
 }
+\arguments{
+\item{exp}{An object of class \code{explainer_deepsurv}, \code{explainer_coxtime}, or
+\code{explainer_deephit}.}
+
+\item{target}{A character string indicating the target output. For \code{DeepSurv}
+and \code{CoxTime}, it can be either \code{"survival"} (default), \code{"cum_hazard"}, or
+\code{"hazard"}. For \code{DeepHit}, it can be \code{"survival"} (default), \code{"cif"}, or
+\code{"pmf"}.}
+
+\item{instance}{An integer specifying the instance for which the integrated
+gradients are calculated. It should be between 1 and the number of
+instances in the dataset.}
+
+\item{times_input}{A logical value indicating whether the integrated
+gradients should be multiplied with input. Default is \code{TRUE}.}
+
+\item{batch_size}{An integer specifying the batch size for processing. The
+default is 50. This value describes the number of instances within one batch
+and not the final number of rows in the batch. For example, \code{CoxTime}
+replicates each instance for each time point.}
+
+\item{n}{An integer specifying the number of approximation points for the
+integral calculation. Default is 10.}
+
+\item{x_ref}{A reference input for the integrated gradients. If \code{NULL}
+(default), the mean of the input data is used. It should have the same
+dimensions as the input data.}
+
+\item{dtype}{A character string indicating the data type for the tensors.
+It can be either \code{"float"} (default) or \code{"double"}.}
+
+\item{include_time}{A logical value indicating whether to include attributions
+for the time points. This is only relevant for \code{CoxTime} and is ignored for
+\code{DeepSurv} and \code{DeepHit}.}
+
+\item{...}{Unused arguments.}
+}
 \description{
-Calculate the Integrated Gradients of the Survival Function
+This function calculates the integrated gradients of the survival function
+with respect to the input features and time points for a given instance. In
+the paper, this is referred to as the \emph{"IntGrad(t)"} method. It shows the
+attributions of the input features to the target function with respect
+to a reference input.
 }
 \seealso{
 Other Attribution Methods: 
 \code{\link{surv_gradSHAP}()},
 \code{\link{surv_grad}()},
-\code{\link{surv_hessian}()},
-\code{\link{surv_inthess}()},
 \code{\link{surv_smoothgrad}()}
 }
 \concept{Attribution Methods}
