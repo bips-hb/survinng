@@ -22,6 +22,8 @@ Imports:
 Suggests: 
     data.table,
     keras,
+    knitr,
+    rmarkdown,
     simsurv,
     tensorflow,
     testthat (>= 3.0.0)
@@ -31,3 +33,4 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Config/Needs/website: rmarkdown
 URL: https://nkoenen.github.io/Survinng/
+VignetteBuilder: knitr
