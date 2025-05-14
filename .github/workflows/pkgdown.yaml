@@ -20,6 +20,8 @@ jobs:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      TORCH_TEST: 1
+      TORCH_INSTALL: 1
     permissions:
       contents: write
     steps:
@@ -35,6 +37,16 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
+
+      - name: Check if torch is installed
+        run: |
+          library(torch)
+          if (!torch_is_installed()) {
+            print("Torch is not installed!")
+            install_torch()
+          }
+          print(torch_randn(1))
+        shell: Rscript {0}
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
