@@ -2,6 +2,7 @@
 # Survinng
 
 <!-- badges: start -->
+# Survinng <a href="https://nkoenen.github.io/Survinng/"><img src="man/figures/logo.jpeg" align="right" height="120" alt="Survinng website" /></a>
 <!-- badges: end -->
 
 The goal of Survinng is to ...
