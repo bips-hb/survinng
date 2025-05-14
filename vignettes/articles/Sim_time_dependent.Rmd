@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 
-source(here("vignettes/articles/utils/utils_plotting.R"))
+source(here::here("vignettes/articles/utils/utils_plotting.R"))
 ```
 
 
@@ -138,6 +138,7 @@ surv_plot
 ## Explainable AI
 
 ### Gradient (Sensitivity)
+
 
 ```{r td gradient, fig.width=10, fig.height=15}
 # Plot attributions
