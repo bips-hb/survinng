@@ -25,6 +25,13 @@ Suggests:
     knitr,
     rmarkdown,
     simsurv,
+    survminer,
+    survival,
+    survivalmodels,
+    patchwork,
+    here,
+    survex,
+    SurvMetrics,
     tensorflow,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

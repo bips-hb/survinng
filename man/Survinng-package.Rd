@@ -8,6 +8,13 @@
 \description{
 This package implements model-specific, gradient-based feature attribution methods for deep survival neural networks, including DeepHit, CoxTime, and DeepSurv. It accompanies the ICML 2025 paper "Gradient-based Explanations for Deep Learning Survival Models".
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://nkoenen.github.io/Survinng/}
+}
+
+}
 \author{
 \strong{Maintainer}: Niklas Koenen \email{niklas.koenen@gmail.com} (\href{https://orcid.org/0000-0002-4623-8271}{ORCID})
 

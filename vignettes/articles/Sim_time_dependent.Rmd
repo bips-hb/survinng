@@ -1,0 +1,423 @@
+---
+title: "Simulation of Time-dependent Effects"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align = "center",
+  out.width = "100%"
+)
+
+source(here::here("vignettes/articles/utils/utils_plotting.R"))
+```
+
+
+Load the necessary libraries and source the utility functions.
+
+```{r setup, message=FALSE, warning=FALSE}
+library(Survinng)
+library(ggplot2)
+library(cowplot)
+library(dplyr)
+library(tidyr)
+library(SurvMetrics)
+library(survival)
+library(simsurv)
+library(survminer)
+library(torch)
+library(viridis)
+library(here)
+```
+
+
+### Time-dependent effects
+
+## Generate the data
+
+Simulation setting:
+- $10,000$ samples ($9,500$ for training, $500$ for testing)
+- $X_1 \sim \mathcal{N}(0,1)$ has a time-dependent effect: first negative, then positive on hazard (vice versa on survival)
+- $X_2 \sim \mathcal{N}(0,1)$ has a positive effect on the hazard -> negative effect on survival
+- $X_3 \sim \mathcal{U}(0,1)$ has a stronger negative effect on the hazard -> positive effect on survival
+- $X_3 \sim \mathcal{U}(-1,1)$ has no effect
+
+
+## Fit the models
+
+```{r td fit models, fig.width=10, fig.height=15}
+
+# Load data
+train <- readRDS(here("vignettes/articles/Sim_time_dependent/train.rds"))
+test <- readRDS(here("vignettes/articles/Sim_time_dependent/test.rds"))
+dat <- rbind(train, test)
+
+# Load extracted models
+ext_coxtime <- readRDS(here("vignettes/articles/Sim_time_dependent/extracted_model_coxtime.rds"))
+ext_deepsurv <- readRDS(here("vignettes/articles/Sim_time_dependent/extracted_model_deepsurv.rds"))
+ext_deephit <- readRDS(here("vignettes/articles/Sim_time_dependent/extracted_model_deephit.rds"))
+```
+
+
+## Create Explainer
+
+```{r td explainer}
+exp_deephit <- Survinng::explain(ext_deephit[[1]], data = test)
+exp_coxtime <- Survinng::explain(ext_coxtime[[1]], data = test)
+exp_deepsurv <- Survinng::explain(ext_deepsurv[[1]], data = test)
+```
+
+## Performance
+
+|Model | C-Index | IBS
+|:---------:|:--------:|:--------:|
+|CoxTime   | 0.845570   | 0.058430 |
+|DeepSurv   | 0.859624   | 0.060411 |
+|DeepHit   | 0.806480   | 0.095961 |
+
+```{r echo=FALSE, out.width='80%'}
+knitr::include_graphics('./Sim_time_dependent/sim_td_brier_plot.png')
+```
+
+
+
+## Kaplan-Meier Survival Curves
+
+```{r td KM, fig.width=12, fig.height=8}
+# Categorize `x1` into bins (e.g., low, medium, high)
+dat$x1_group <- cut(dat$x1, 
+                    breaks = quantile(dat$x1, probs = c(0, 0.5, 1)), 
+                    labels = c("Low", "High"), 
+                    include.lowest = TRUE)
+
+# Create a Surv object
+surv_obj <- Surv(dat$time, dat$status)
+
+# Fit Kaplan-Meier survival curves stratified by `x1_group`
+km_fit <- survfit(surv_obj ~ x1_group, data = dat)
+
+# Plot the KM curves
+km_plot <- ggsurvplot(km_fit, 
+                      data = dat,
+                      xlab = "Time t",
+                      ylab = "Survival Probability",
+                      legend.title = "x1 Group",
+                      palette = c("#377EB8", "#E69F00"),  
+                      title = "") 
+km_plot$plot <- km_plot$plot + 
+  theme_minimal(base_size = 17) +
+  theme(legend.position = "bottom") +
+  geom_rug(data = test, aes(x = time), sides = "bl", linewidth = 0.5, alpha = 0.5, inherit.aes = FALSE)
+km_plot
+```
+
+### Survival Prediction
+
+```{r td surv pred, fig.width=10, fig.height=15}
+# Print instances of interest
+td_ids <- c(79, 428)
+print(test[td_ids, ])
+
+# Compute Vanilla Gradient
+grad_cox <- surv_grad(exp_coxtime, target = "survival", instance = td_ids)
+grad_deephit <- surv_grad(exp_deephit, target = "survival", instance = td_ids)
+grad_deepsurv <- surv_grad(exp_deepsurv, target = "survival", instance = td_ids)
+
+# Plot survival predictions
+surv_plot <- cowplot::plot_grid(
+  plot_surv_pred(grad_cox) ,
+  plot_surv_pred(grad_deephit),
+  plot_surv_pred(grad_deepsurv),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"),
+  label_x = 0.03,      
+  label_size = 14) 
+surv_plot
+```
+
+## Explainable AI
+
+### Gradient (Sensitivity)
+
+```{r td gradient, fig.width=10, fig.height=15}
+# Plot attributions
+grad_plot <- cowplot::plot_grid(
+  plot_attribution(grad_cox, label = "Grad(t)") ,
+  plot_attribution(grad_deephit, label = "Grad(t)"),
+  plot_attribution(grad_deepsurv, label = "Grad(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+grad_plot
+```
+
+```{r td gradient norm, fig.width=10, fig.height=15}
+# Plot attributions
+grad_plot_norm <- cowplot::plot_grid(
+  plot_attribution(grad_cox, normalize = TRUE, label = "Grad(t)"),
+  plot_attribution(grad_deephit, normalize = TRUE, label = "Grad(t)"),
+  plot_attribution(grad_deepsurv, normalize = TRUE, label = "Grad(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+grad_plot_norm
+```
+
+### SmoothGrad (Sensitivity)
+
+```{r td smoothgrad, fig.width=10, fig.height=15}
+# Compute SmoothGrad
+sg_cox <- surv_smoothgrad(exp_coxtime, target = "survival", instance = td_ids, 
+                          n = 50, noise_level = 0.1)
+sg_deephit <- surv_smoothgrad(exp_deephit, target = "survival", instance = td_ids, 
+                              n = 50, noise_level = 0.1)
+sg_deepsurv <- surv_smoothgrad(exp_deepsurv, target = "survival", instance = td_ids, 
+                               n = 50, noise_level = 0.1)
+
+# Plot attributions
+smoothgrad_plot <- cowplot::plot_grid(
+  plot_attribution(sg_cox, label = "SG(t)"), 
+  plot_attribution(sg_deephit, label = "SG(t)"), 
+  plot_attribution(sg_deepsurv, label = "SG(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+smoothgrad_plot
+```
+
+```{r td smoothgrad norm, fig.width=10, fig.height=15}
+# Plot attributions
+smoothgrad_plot_comp <- cowplot::plot_grid(
+  plot_attribution(sg_cox, normalize = TRUE, label = "SG(t)"), 
+  plot_attribution(sg_deephit, normalize = TRUE, label = "SG(t)"), 
+  plot_attribution(sg_deepsurv, normalize = TRUE, label = "SG(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+smoothgrad_plot_comp
+```
+
+### Gradient x Input
+
+```{r td gradientxinput, fig.width=10, fig.height=15}
+# Compute GradientxInput
+gradin_cox <- surv_grad(exp_coxtime, instance = td_ids, times_input = TRUE)
+gradin_deephit <- surv_grad(exp_deephit, instance = td_ids, times_input = TRUE)
+gradin_deepsurv <- surv_grad(exp_deepsurv, instance = td_ids, times_input = TRUE)
+
+# Plot attributions
+gradin_plot <- cowplot::plot_grid(
+  plot_attribution(gradin_cox, label = "GxI(t)"), 
+  plot_attribution(gradin_deephit, label = "GxI(t)"), 
+  plot_attribution(gradin_deepsurv, label = "GxI(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+gradin_plot
+```
+
+```{r td gradientxinput norm, fig.width=10, fig.height=15}
+# Plot attributions
+gradin_plot_norm <- cowplot::plot_grid(
+  plot_attribution(gradin_cox, normalize = TRUE, label = "GxI(t)"), 
+  plot_attribution(gradin_deephit, normalize = TRUE, label = "GxI(t)"), 
+  plot_attribution(gradin_deepsurv, normalize = TRUE, label = "GxI(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+gradin_plot_norm
+```
+
+### SmoothGrad x Input
+
+```{r td smoothgradxinput, fig.width=10, fig.height=15}
+# Compute SmoothGradxInput
+sgin_cox <- surv_smoothgrad(exp_coxtime, instance = td_ids, n = 50, noise_level = 0.3,
+                            times_input = TRUE)
+sgin_deephit <- surv_smoothgrad(exp_deephit, instance = td_ids, n = 50, noise_level = 0.3,
+                                times_input = TRUE)
+sgin_deepsurv <- surv_smoothgrad(exp_deepsurv, instance = td_ids, n = 50, noise_level = 0.3,
+                                 times_input = TRUE)
+
+# Plot attributions
+smoothgradin_plot <- cowplot::plot_grid(
+  plot_attribution(sgin_cox, label = "SGxI(t)"), 
+  plot_attribution(sgin_deephit, label = "SGxI(t)"), 
+  plot_attribution(sgin_deepsurv, label = "SGxI(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+smoothgradin_plot
+```
+
+```{r td smoothgradxinput norm, fig.width=10, fig.height=15}
+# Plot attributions
+smoothgradin_plot_norm <- cowplot::plot_grid(
+  plot_attribution(sgin_cox, normalize = TRUE, label = "SGxI(t)"), 
+  plot_attribution(sgin_deephit, normalize = TRUE, label = "SGxI(t)"), 
+  plot_attribution(sgin_deepsurv, normalize = TRUE, label = "SGxI(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+smoothgradin_plot_norm
+```
+
+### IntegratedGradient
+
+#### Zero baseline (should be proportional to Gradient x Input)
+
+```{r td intgrad0, fig.width=10, fig.height=15}
+# Copute IntegratedGradient with 0 baseline
+x_ref <- matrix(c(0,0,0,0), nrow = 1)
+ig0_cox <- surv_intgrad(exp_coxtime, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
+ig0_deephit <- surv_intgrad(exp_deephit, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
+ig0_deepsurv <- surv_intgrad(exp_deepsurv, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
+
+# Plot attributions
+intgrad0_plot <- cowplot::plot_grid(
+  plot_attribution(ig0_cox, label = "IntGrad(t)"), 
+  plot_attribution(ig0_deephit, label = "IntGrad(t)"), 
+  plot_attribution(ig0_deepsurv, label = "IntGrad(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+intgrad0_plot
+```
+
+```{r td intgrad0 comp, fig.width=10, fig.height=15}
+# Plot attributions
+intgrad0_plot_comp <- cowplot::plot_grid(
+  plot_attribution(ig0_cox, add_comp = TRUE, label = "IntGrad(t)"), 
+  plot_attribution(ig0_deephit, add_comp = TRUE, label = "IntGrad(t)"), 
+  plot_attribution(ig0_deepsurv, add_comp = TRUE, label = "IntGrad(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+intgrad0_plot_comp
+```
+
+```{r td intgrad0 contr, fig.width=10, fig.height=15}
+# Plot contributions
+intgrad0_plot_contr <- cowplot::plot_grid(
+  plot_contribution(ig0_cox, scale = 0.9, label = "IntGrad(t)"), 
+  plot_contribution(ig0_deephit, scale = 0.9, label = "IntGrad(t)"), 
+  plot_contribution(ig0_deepsurv, scale = 0.9, label = "IntGrad(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+intgrad0_plot_contr
+```
+
+
+```{r td intgrad0 force, fig.width=10, fig.height=15}
+# Plot force
+intgrad0_plot_force <- cowplot::plot_grid(
+  plot_force(ig0_cox, zero_feature = "x4", upper_distance = 0, lower_distance = 0, lower_distance_x1 = 0.05, intgrad0_td_cox = TRUE, label = "IntGrad(t)"), 
+  plot_force(ig0_deephit, zero_feature = "x4", upper_distance = 0, lower_distance = 0, lower_distance_x1 = 0.02, label = "IntGrad(t)"),  
+  plot_force(ig0_deepsurv, zero_feature = "x4", upper_distance = 0, lower_distance = 0, intgrad0_td_deepsurv = TRUE, label = "IntGrad(t)"), 
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+intgrad0_plot_force
+```
+
+## Mean baseline
+
+```{r td intgradmean mean, fig.width=10, fig.height=15}
+# Compute IntegratedGradient with mean baseline
+x_ref <- NULL # default: feature-wise mean
+igm_cox <- surv_intgrad(exp_coxtime, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
+igm_deephit <- surv_intgrad(exp_deephit, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
+igm_deepsurv <- surv_intgrad(exp_deepsurv, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
+
+# Plot attributions
+intgradmean_plot <- cowplot::plot_grid(
+  plot_attribution(igm_cox, label = "IntGrad(t)"), 
+  plot_attribution(igm_deephit, label = "IntGrad(t)"), 
+  plot_attribution(igm_deepsurv, label = "IntGrad(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+intgradmean_plot
+```
+
+
+
+```{r td intgradmean comp mean, fig.width=10, fig.height=15}
+# Plot attributions
+intgradmean_plot_comp <- cowplot::plot_grid(
+  plot_attribution(igm_cox, add_comp = TRUE, label = "IntGrad(t)"), 
+  plot_attribution(igm_deephit, add_comp = TRUE, label = "IntGrad(t)"), 
+  plot_attribution(igm_deepsurv, add_comp = TRUE, label = "IntGrad(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+intgradmean_plot_comp
+```
+
+
+```{r td intgradmean contr mean, fig.width=10, fig.height=15}
+# Plot contributions
+intgradmean_plot_contr <- cowplot::plot_grid(
+  plot_contribution(igm_cox, scale = 0.9, label = "IntGrad(t)"), 
+  plot_contribution(igm_deephit, scale = 0.9, label = "IntGrad(t)"), 
+  plot_contribution(igm_deepsurv, scale = 0.9, label = "IntGrad(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+intgradmean_plot_contr
+```
+
+
+```{r td intgradmean mean force, fig.width=10, fig.height=15}
+# Plot force
+intgradmean_plot_force <- cowplot::plot_grid(
+  plot_force(igm_cox, zero_feature = "x4", upper_distance = 0, lower_distance = 0, intgradmean_td_cox = TRUE, label = "IntGrad(t)"), 
+  plot_force(igm_deephit, zero_feature = "x4", upper_distance = 0, lower_distance = 0, intgradmean_td_deephit = TRUE, label = "IntGrad(t)"), 
+  plot_force(igm_deepsurv, zero_feature = "x4", upper_distance = 0, lower_distance = 0, intgradmean_td_deepsurv = TRUE, label = "IntGrad(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+intgradmean_plot_force
+```
+
+### GradShap
+
+```{r td gradshap, fig.width=10, fig.height=15}
+# Compute GradShap
+gshap_cox <- surv_gradSHAP(exp_coxtime, instance = td_ids, n = 50, num_samples = 100, 
+                           batch_size = 1e6)
+gshap_deephit <- surv_gradSHAP(exp_deephit, instance = td_ids, n = 50, num_samples = 100, 
+                               batch_size = 1e6)
+gshap_deepsurv <- surv_gradSHAP(exp_deepsurv, instance = td_ids, n = 50, num_samples = 100, 
+                                batch_size = 1e6)
+
+# Plot attributions
+gshap_plot <- cowplot::plot_grid(
+  plot_attribution(gshap_cox, label = "GradSHAP(t)"), 
+  plot_attribution(gshap_deephit, label = "GradSHAP(t)"), 
+  plot_attribution(gshap_deepsurv, label = "GradSHAP(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+gshap_plot
+```
+
+
+
+```{r td gradshap comp, fig.width=10, fig.height=15}
+# Plot attributions
+gshap_plot_comp <- cowplot::plot_grid(
+  plot_attribution(gshap_cox, add_comp = TRUE, label = "GradSHAP(t)"), 
+  plot_attribution(gshap_deephit, add_comp = TRUE, label = "GradSHAP(t)"), 
+  plot_attribution(gshap_deepsurv, add_comp = TRUE, label = "GradSHAP(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+gshap_plot_comp
+```
+
+
+```{r td gradshap contr, fig.width=10, fig.height=15}
+# Plot contributions
+gshap_plot_contr <- cowplot::plot_grid(
+  plot_contribution(gshap_cox, scale = 0.9, label = "GradSHAP(t)"), 
+  plot_contribution(gshap_deephit, scale = 0.9, label = "GradSHAP(t)"), 
+  plot_contribution(gshap_deepsurv, scale = 0.9, label = "GradSHAP(t)"), 
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+gshap_plot_contr
+```
+
+```{r td gradshap force, fig.width=10, fig.height=15}
+# Plot force
+gshap_plot_force <- cowplot::plot_grid(
+  plot_force(gshap_cox, upper_distance = 0, lower_distance = 0, zero_feature = "x4", gradshap_td_cox = TRUE, label = "GradSHAP(t)"), 
+  plot_force(gshap_deephit, upper_distance = 0, lower_distance = 0, zero_feature = "x4", gradshap_td_deephit = TRUE, label = "GradSHAP(t)"), 
+  plot_force(gshap_deepsurv, upper_distance = 0, lower_distance = 0, zero_feature = "x4", gradshap_td_deepsurv = TRUE, label = "GradSHAP(t)"),
+  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
+gshap_plot_force
+```
+
+
+# Main paper plots
+
+```{r td gradient main, fig.width=10, fig.height=5}
+# Plot attributions
+grad_deephit_plot <- plot_attribution(grad_deephit, label = "Grad(t)")
+grad_deephit_plot
+```
+
+
+```{r td gradshap main, fig.width=10, fig.height=15}
+# Plot force
+gshap_coxtime_plot <- cowplot::plot_grid(
+  plot_attribution(gshap_cox, add_comp = TRUE, label = "GradSHAP(t)"), 
+  plot_contribution(gshap_cox, scale = 0.9, label = "GradSHAP(t)"),
+  plot_force(gshap_cox, upper_distance = 0, lower_distance = 0, zero_feature = "x4", gradshap_td_cox = TRUE, label = "GradSHAP(t)"), 
+  nrow = 3, labels = c("CoxTime", "CoxTime", "CoxTime"))
+gshap_coxtime_plot
+```
