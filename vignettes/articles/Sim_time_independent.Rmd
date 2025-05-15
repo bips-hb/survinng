@@ -88,9 +88,9 @@ tid_ids <- c(13, 387)
 print(test[tid_ids, ])
 
 # Compute Vanilla Gradient
-grad_cox <- surv_grad(exp_coxtime, target = "survival", instance = tid_ids, batch_size = 1e6)
-grad_deephit <- surv_grad(exp_deephit, target = "survival", instance = tid_ids, batch_size = 1e6)
-grad_deepsurv <- surv_grad(exp_deepsurv, target = "survival", instance = tid_ids, batch_size = 1e6)
+grad_cox <- surv_grad(exp_coxtime, target = "survival", instance = tid_ids)
+grad_deephit <- surv_grad(exp_deephit, target = "survival", instance = tid_ids)
+grad_deepsurv <- surv_grad(exp_deepsurv, target = "survival", instance = tid_ids)
 
 # Plot survival predictions
 surv_plot <- cowplot::plot_grid(
