@@ -53,33 +53,76 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="survinng">Survinng<a class="anchor" aria-label="anchor" href="#survinng"></a>
+<div class="page-header"><h1 id="survinng-gradient-based-explanations-for-deep-learning-survival-models">
+<code>Survinng</code>: Gradient-based Explanations for Deep Learning Survival Models<a class="anchor" aria-label="anchor" href="#survinng-gradient-based-explanations-for-deep-learning-survival-models"></a>
 </h1></div>
 <!-- badges: start -->
-</div>
-<div class="section level1">
-<h1 id="survinng-">Survinng <a href="https://nkoenen.github.io/Survinng/"><img src="reference/figures/logo.jpeg" align="right" height="120" alt="Survinng website"></a>
-<a class="anchor" aria-label="anchor" href="#survinng-"></a>
-</h1>
-<!-- badges: end -->
-<p>The goal of Survinng is to …</p>
-<div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h2>
-<p>You can install the development version of Survinng like so:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
-</h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nkoenen.github.io/Survinng/">Survinng</a></span><span class="op">)</span></span>
-<span><span class="co">## basic example code</span></span></code></pre></div>
-</div>
-</div>
 
+<p>The package <code>Survinng</code> provides gradient-based feature attribution methods for deep learning survival models. It implements novel adaptions of model-specific XAI methods for the survival analysis domain, like <strong>Grad(t)</strong>, <strong>SG(t)</strong>, <strong>GxI(t)</strong>, <strong>IntGrad(t)</strong>, and <strong>GradSHAP(t)</strong>. The whole package is designed to be compatible with the <a href="https://github.com/RaphaelS1/survivalmodels" class="external-link"><code>survivalmodels</code></a> package in R, which is an R wrapper for the <a href="https://github.com/havakv/pycox" class="external-link"><code>pycox</code></a> Python package. However, it can also be used with models from <code>pycox</code> directly and other survival models loaded in <code>torch</code>. Currently, the package supports the models types <code>DeepSurv</code>/<code>CoxPH</code>, <code>DeepHit</code>, and <code>CoxTime</code>.</p>
+<div class="section level3">
+<h3 id="id_-why-survinng">🚀 Why <code>Survinng</code>?<a class="anchor" aria-label="anchor" href="#id_-why-survinng"></a>
+</h3>
+<p>With <code>Survinng</code>, you get:</p>
+<ul>
+<li>⏱ <strong>Model-specific</strong> and <strong>time-resolved</strong> feature attributions for individuals<br>
+</li>
+<li>⚡️ <strong>Fast and scalable</strong> explanations using model gradients, especially for SHAP-like explanations<br>
+</li>
+<li>🤝 Compatible with <code>survivalmodels</code> and <code>pycox</code> models<br>
+</li>
+<li>📊 Easy-to-use <strong>visualization tools</strong> for temporal insights<br>
+</li>
+<li>🔀 Support for <strong>multimodal</strong> inputs (e.g., tabular + image)</li>
+</ul>
+<p>Overall, this package is part of the following ICML’25 paper:</p>
+<blockquote>
+<p>📄 <em>Based on the ICML 2025 paper:</em><br><a href="https://arxiv.org/pdf/2502.04970" class="external-link"><em>Gradient-based Explanations for Deep Learning Survival Models</em></a><br><em>Sophie Hanna Langbein, Niklas Koenen, Marvin N. Wright</em></p>
+</blockquote>
+</div>
+<div class="section level2">
+<h2 id="id_-installation">📦 Installation<a class="anchor" aria-label="anchor" href="#id_-installation"></a>
+</h2>
+<p>To install the latest development version directly from GitHub:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"nkoenen/Survinng"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="id_-usage">📖 Usage<a class="anchor" aria-label="anchor" href="#id_-usage"></a>
+</h2>
+<p>You have a trained survival neural network model from <code>survivalmodels</code> or <code>pycox</code> and your model input data data. Now you want to interpret individual data points by using the methods from the package <code>Survinng</code>, then stick to the following pseudo code:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(Survinng)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># Load a survival model and corresponding data</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">...</span> (e.g., from survivalmodels or pycox)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">...</span> (e.g., the test set of the model)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co"># Create explainer object</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>explainer <span class="ot">&lt;-</span> Survinng<span class="sc">::</span><span class="fu">explain</span>(model, data)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co"># Compute feature attributions</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>idx <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="co"># index of the instance to explain</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>grad <span class="ot">&lt;-</span> <span class="fu">surv_grad</span>(explainer, <span class="at">instance =</span> idx) <span class="co"># Grad(t)</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>sg <span class="ot">&lt;-</span> <span class="fu">surv_smoothgrad</span>(explainer, <span class="at">instance =</span> idx) <span class="co"># SG(t)</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>gxi <span class="ot">&lt;-</span> <span class="fu">surv_grad</span>(explainer, <span class="at">instance =</span> idx, <span class="at">times_input =</span> <span class="cn">TRUE</span>) <span class="co"># GxI(t)</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>ig <span class="ot">&lt;-</span> <span class="fu">surv_intgrad</span>(explainer, <span class="at">instance =</span> idx) <span class="co"># IntGrad(t)</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>shap <span class="ot">&lt;-</span> <span class="fu">surv_gradSHAP</span>(explainer, <span class="at">instance =</span> idx) <span class="co"># GradSHAP(t)</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co"># Plot results</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="fu">plot</span>(shap)</span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="id_-citation">📚 Citation<a class="anchor" aria-label="anchor" href="#id_-citation"></a>
+</h2>
+<p>If you use this package in your research, please cite it as follows:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">langbein2025grad</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="dt">title</span>={Gradient-based Explanations for Deep Learning Survival Models},</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="dt">author</span>={Langbein, Sophie Hanna and Koenen, Niklas and Wright, Marvin N.},</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="dt">journal</span>={arXiv preprint arXiv:2502.04970},</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="dt">year</span>={2025}</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+</div>
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
@@ -104,7 +147,16 @@
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://nkoenen.github.io/Survinng/"><img src="reference/figures/logo.jpeg" align="right" height="120" alt="Survinng website"></a></li>
+<li><a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a></li>
+<li><a href="https://arxiv.org/abs/2502.04970" class="external-link"><img src="https://img.shields.io/badge/arXiv-2502.04970-b31b1b.svg" alt="arXiv"></a></li>
+<li><a href="https://nkoenen.github.io/Survinng/"><img src="https://img.shields.io/badge/docs-%F0%9F%93%98%20Survinng%20Site-blue" alt="Website"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>
