@@ -7,6 +7,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2502.04970-b31b1b.svg)](https://arxiv.org/abs/2502.04970)
 [![Website](https://img.shields.io/badge/docs-📘%20Survinng%20Site-blue)](https://bips-hb.github.io/Survinng/)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/bips-hb/Survinng/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bips-hb/Survinng/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 
