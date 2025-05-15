@@ -116,6 +116,11 @@ shap <- surv_gradSHAP(explainer)
 plot(shap)
 ```
 
+## 🖥 Other Examples and Articles
+
+- Simulation: Time-independent effects (`survivalmodels`) [→ article](https://bips-hb.github.io/Survinng/articles/Sim_time_independent.html)
+- Simulation: Time-dependent effects (`survivalmodels`) [→ article](https://bips-hb.github.io/Survinng/articles/Sim_time_dependent.html)
+
 ## 📚 Citation
 
 If you use this package in your research, please cite it as follows:

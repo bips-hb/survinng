@@ -30,8 +30,7 @@ library(viridis)
 library(here)
 ```
 
-
-### Time-independent effects
+# Preprocessing
 
 ## Generate the data
 
@@ -69,6 +68,20 @@ ext_deepsurv <- readRDS(here("vignettes/articles/Sim_time_independent/ext_deepsu
 ext_deephit <- readRDS(here("vignettes/articles/Sim_time_independent/ext_deephit.rds"))
 ```
 
+## Performance
+
+The performance of the models is evaluated using the C-Index and Integrated Brier Score (IBS). The C-Index measures the concordance between predicted and observed survival times, while the IBS quantifies the accuracy of survival predictions. 
+
+|Model | C-Index | IBS |
+|:---------:|:--------:|:--------:|
+|CoxTime   | 0.809372   | 0.099053 |
+|DeepSurv   | 0.809121   | 0.099031 |
+|DeepHit   | 0.808829   | 0.141614 |
+
+```{r echo=FALSE, out.width='80%'}
+knitr::include_graphics(here('vignettes/articles/Sim_time_independent/sim_tid_brier_plot.png'))
+```
+
 
 
 ## Create Explainer
@@ -82,22 +95,7 @@ exp_coxtime <- Survinng::explain(ext_coxtime[[1]], data = test)
 exp_deepsurv <- Survinng::explain(ext_deepsurv[[1]], data = test)
 ```
 
-## Performance
-
-The performance of the models is evaluated using the C-Index and Integrated Brier Score (IBS). The C-Index measures the concordance between predicted and observed survival times, while the IBS quantifies the accuracy of survival predictions. 
-
-|Model | C-Index | IBS
-|:---------:|:--------:|:--------:|
-|CoxTime   | 0.809372   | 0.099053 |
-|DeepSurv   | 0.809121   | 0.099031 |
-|DeepHit   | 0.808829   | 0.141614 |
-
-```{r echo=FALSE, out.width='80%'}
-knitr::include_graphics(here('vignettes/articles/Sim_time_independent/sim_tid_brier_plot.png'))
-```
-
-
-### Survival Prediction
+## Survival Prediction
 
 The survival predictions for the test dataset are computed using the `predict()` function. The `type` argument specifies the type of prediction to be made (e.g., "survival", "risk", "cumulative hazard"). The survival predictions are then plotted for a set of instances of interest.
 
@@ -123,12 +121,12 @@ surv_plot
 ```
 
 
-## Explainable AI
+# Explainable AI
 
 The following sections demonstrate the application of various gradient-based explanation methods to the survival models. The methods include Grad(t), SmoothGrad(t), G x I(t), SmoothGrad x I(t), IntGrad(t), and GradSHAP(t). Each method provides insights into the contributions of the covariates to the survival predictions.
 
 
-### Grad(t) (Sensitivity)
+## Grad(t) (Sensitivity)
 
 Here we compute the gradient of the survival predictions with respect to the input features. The `surv_grad()` function computes the gradients for the specified instances.
 
@@ -142,7 +140,7 @@ grad_plot <- cowplot::plot_grid(
 grad_plot
 ```
 
-### SmoothGrad(t) (Sensitivity)
+## SmoothGrad(t) (Sensitivity)
 
 SmoothGrad(t) is a method that adds noise to the input features and computes the average gradient over multiple noisy samples. This approach helps to reduce the noise in the gradient estimates and provides a clearer picture of the feature importance.
 
@@ -162,7 +160,7 @@ smoothgrad_plot
 ```
 
 
-### Grad x I(t)
+## Grad x I(t)
 
 Grad x I(t) is a method that computes the gradient of the survival predictions with respect to the input features and multiplies it by the survival predictions themselves. This approach provides insights into the true local effects of the covariates on the survival prediction. 
 
@@ -190,7 +188,7 @@ grad_gradin_plot <- cowplot::plot_grid(
 grad_gradin_plot
 ```
 
-### SmoothGrad x I(t)
+## SmoothGrad x I(t)
 
 SmoothGrad x I(t) is a method that adds noise to the input features and computes the average gradient over multiple noisy samples, multiplied by the survival predictions. This approach helps to reduce the noise in the gradient estimates and provides a clearer picture of the feature importance.
 
@@ -212,11 +210,11 @@ smoothgradin_plot <- cowplot::plot_grid(
 smoothgradin_plot
 ```
 
-### IntGrad(t)
+## IntGrad(t)
 
 IntGrad(t) is a method that computes the integral of the gradients along a straight line path from a reference point to the input instance. This method provides a more comprehensive view of the feature importance by considering the cumulative effect of the features over time.
 
-## Zero baseline (should be proportional to Gradient x I(t))
+### Zero baseline
 
 The zero baseline is a reference point where all features are set to zero.
 
@@ -271,7 +269,7 @@ intgrad0_plot_force
 ```
 
 
-### GradShap
+## GradSHAP(t)
 
 GradSHAP(t) is a method that computes the SHAP values for survival predictions. It provides a measure of the contribution of each feature to the survival predictions, taking into account the time-dependent effects.
 

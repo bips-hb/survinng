@@ -31,6 +31,7 @@ library(viridis)
 library(here)
 ```
 
+# Preprocessing
 
 ## Generate the Data
 
@@ -73,21 +74,11 @@ ext_deephit <- readRDS(here("vignettes/articles/Sim_time_dependent/extracted_mod
 ```
 
 
-## Create Explainer
-
-The `explain()` function creates an explainer object for the survival models. The `data` argument specifies the dataset used for explanation, and the `model` argument specifies the model to be explained. The `target` argument indicates the type of prediction to be explained (e.g., "survival", "risk", "cumulative hazard").
-
-```{r td explainer}
-exp_deephit <- Survinng::explain(ext_deephit[[1]], data = test)
-exp_coxtime <- Survinng::explain(ext_coxtime[[1]], data = test)
-exp_deepsurv <- Survinng::explain(ext_deepsurv[[1]], data = test)
-```
-
 ## Performance
 
 The performance of the models is evaluated using the C-Index and Integrated Brier Score (IBS). The C-Index measures the concordance between predicted and observed survival times, while the IBS quantifies the accuracy of survival predictions. 
 
-|Model | C-Index | IBS
+|Model | C-Index | IBS |
 |:---------:|:--------:|:--------:|
 |CoxTime   | 0.845570   | 0.058430 |
 |DeepSurv   | 0.859624   | 0.060411 |
@@ -97,6 +88,16 @@ The performance of the models is evaluated using the C-Index and Integrated Brie
 knitr::include_graphics(here('vignettes/articles/Sim_time_dependent/sim_td_brier_plot.png'))
 ```
 
+
+## Create Explainer
+
+The `explain()` function creates an explainer object for the survival models. The `data` argument specifies the dataset used for explanation, and the `model` argument specifies the model to be explained. The `target` argument indicates the type of prediction to be explained (e.g., "survival", "risk", "cumulative hazard").
+
+```{r td explainer}
+exp_deephit <- Survinng::explain(ext_deephit[[1]], data = test)
+exp_coxtime <- Survinng::explain(ext_coxtime[[1]], data = test)
+exp_deepsurv <- Survinng::explain(ext_deepsurv[[1]], data = test)
+```
 
 
 ## Kaplan-Meier Survival Curves
@@ -131,7 +132,7 @@ km_plot$plot <- km_plot$plot +
 km_plot
 ```
 
-### Survival Prediction
+## Survival Prediction
 
 The survival predictions for the test dataset are computed using the `predict()` function. The `type` argument specifies the type of prediction to be made (e.g., "survival", "risk", "cumulative hazard"). The survival predictions are then plotted for a set of instances of interest.
 
@@ -156,11 +157,11 @@ surv_plot <- cowplot::plot_grid(
 surv_plot
 ```
 
-## Explainable AI
+# Explainable AI
 
 The following sections demonstrate the application of various gradient-based explanation methods to the survival models. The methods include Grad(t), SmoothGrad(t), IntGrad(t), and GradSHAP(t), corresponding to the plots shown in the main body of the paper.
 
-### Grad(t) (Sensitivity)
+## Grad(t) (Sensitivity)
 
 Here we compute the gradient of the survival predictions with respect to the input features. The `surv_grad()` function computes the gradients for the specified instances.
 
@@ -174,7 +175,7 @@ grad_plot <- cowplot::plot_grid(
 grad_plot
 ```
 
-### SmoothGrad(t) (Sensitivity)
+## SmoothGrad(t) (Sensitivity)
 
 SmoothGrad(t) is a method that adds noise to the input features and computes the average gradient over multiple noisy samples. This approach helps to reduce the noise in the gradient estimates and provides a clearer picture of the feature importance.
 
@@ -198,13 +199,13 @@ smoothgrad_plot
 
 The relevance curves derived from output-sensitive methods effectively reveal the time-dependent effect of $x_1$ on the survival predictions, by indicating a positive effect at earlier times and a negative effect later on. This time-dependent effect is accurately captured by CoxTime and DeepHit, but not by DeepSurv, which is inherently constrained by the PH assumption and thus unable to model time-dependence.
 
-### IntGrad(t)
+## IntGrad(t)
 
 IntGrad(t) is a method that computes the integral of the gradients along a straight line path from a reference point to the input instance. This method provides a more comprehensive view of the feature importance by considering the cumulative effect of the features over time.
 
 In addition to time-dependence in feature effects, difference-to-reference methods (i.e., IntGrad(t) and GradSHAP(t)) provide insights into the relative scale, direction, and magnitude of feature effects by comparing predictions to a meaningful reference.
 
-#### Zero baseline (should be proportional to Gradient x I(t))
+### Zero baseline
 
 The zero baseline is a reference point where all features are set to zero.
 
@@ -259,7 +260,7 @@ intgrad0_plot_force
 ```
 
 
-### GradShap(t)
+## GradSHAP(t)
 
 GradSHAP(t) is a method that computes the SHAP values for survival predictions. It provides a measure of the contribution of each feature to the survival predictions, taking into account the time-dependent effects.
 
