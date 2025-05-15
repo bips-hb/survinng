@@ -7,9 +7,9 @@ DeepSurv <- torch::nn_module(
   initialize = function(net, base_hazard,
                         preprocess_fun = NULL,
                         postprocess_fun = NULL) {
-    net$to(torch_float())
+    net$to(torch::torch_float())
     self$net <- net
-    self$dtype <- torch_float()
+    self$dtype <- torch::torch_float()
     self$base_hazard <- base_hazard
     self$t <- torch::torch_tensor(base_hazard$time)
     self$t_orig <- self$base_hazard$time
@@ -25,17 +25,17 @@ DeepSurv <- torch::nn_module(
         if (is.list(x) && length(x) == 1) {
           x <- x[[1]]
           # Output (batch_size, features) -> (batch_size, features, 1, t)
-          x <- x$unsqueeze(-1) * torch_ones(c(dim(x), length(self$t)))
+          x <- x$unsqueeze(-1) * torch::torch_ones(c(dim(x), length(self$t)))
           x <- x$unsqueeze(-2)
         } else if (is.list(x)) {
           x <- lapply(x, function(k) {
             # Output (batch_size, features) -> (batch_size, features, 1, t)
-            k <- k$unsqueeze(-1) * torch_ones(c(dim(k), length(self$t)))
+            k <- k$unsqueeze(-1) * torch::torch_ones(c(dim(k), length(self$t)))
             k$unsqueeze(-2)
           })
         } else {
           # Output (batch_size, features) -> (batch_size, features, 1, t)
-          x <- x$unsqueeze(-1) * torch_ones(c(dim(x), length(self$t)))
+          x <- x$unsqueeze(-1) * torch::torch_ones(c(dim(x), length(self$t)))
           x <- x$unsqueeze(-2)
         }
 
@@ -140,9 +140,9 @@ CoxTime <- torch::nn_module(
                         labtrans = NULL,
                         preprocess_fun = NULL,
                         postprocess_fun = NULL) {
-    net$to(torch_float())
+    net$to(torch::torch_float())
     self$net <- net
-    self$dtype <- torch_float()
+    self$dtype <- torch::torch_float()
     self$net <- net
     self$base_hazard <- base_hazard
     self$t <- torch::torch_tensor(base_hazard$time)

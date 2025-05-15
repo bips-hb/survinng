@@ -11,7 +11,7 @@ This package implements model-specific, gradient-based feature attribution metho
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://nkoenen.github.io/Survinng/}
+  \item \url{https://bips-hb.github.io/Survinng/}
 }
 
 }

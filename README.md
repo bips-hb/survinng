@@ -2,10 +2,10 @@
 # `Survinng`: Gradient-based Explanations for Deep Learning Survival Models
 
 <!-- badges: start -->
-<a href="https://nkoenen.github.io/Survinng/"><img src="man/figures/logo.jpeg" align="right" height="120" alt="Survinng website" /></a>
+<a href="https://bips-hb.github.io/Survinng/"><img src="man/figures/logo.jpeg" align="right" height="120" alt="Survinng website" /></a>
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![arXiv](https://img.shields.io/badge/arXiv-2502.04970-b31b1b.svg)](https://arxiv.org/abs/2502.04970)
-[![Website](https://img.shields.io/badge/docs-📘%20Survinng%20Site-blue)](https://nkoenen.github.io/Survinng/)
+[![Website](https://img.shields.io/badge/docs-📘%20Survinng%20Site-blue)](https://bips-hb.github.io/Survinng/)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
@@ -44,7 +44,7 @@ To install the latest development version directly from GitHub:
 
 ```r
 # install.packages("devtools")
-devtools::install_github("nkoenen/Survinng")
+devtools::install_github("bips-hb/Survinng")
 ```
 
 ## 📖 Usage
@@ -71,6 +71,45 @@ sg <- surv_smoothgrad(explainer, instance = idx) # SG(t)
 gxi <- surv_grad(explainer, instance = idx, times_input = TRUE) # GxI(t)
 ig <- surv_intgrad(explainer, instance = idx) # IntGrad(t)
 shap <- surv_gradSHAP(explainer, instance = idx) # GradSHAP(t)
+
+# Plot results
+plot(shap)
+```
+👉 For full documentation and advanced use cases, visit the 
+[📘 package website](https://bips-hb.github.io/Survinng/).
+
+## 💻 Quick Example
+
+```r
+library(survival)
+library(callr)
+
+# Load lung dataset
+data(cancer, package="survival")
+data <- na.omit(cancer[, c(1, 4, 5, 6, 7, 10, 2, 3)])
+train <- data[1:150, ]
+test <- data[151:212, ]
+
+# Train a DeepSurv model
+ext <- callr::r(function(train) {
+  library(survivalmodels)
+  library(survival)
+  
+  # Fit the DeepSurv model
+  install_pycox(install_torch = TRUE) # Requires pycox
+  fit <- deepsurv(Surv(time, status) ~ ., data = train, epochs = 100,
+                  early_stopping = TRUE)
+
+  # Extract the model
+  Survinng::extract_model(fit)
+}, args = list(train = train))
+
+
+# Create explainer
+explainer <- explain(ext, data = test)
+
+# Run GradSHAP(t)
+shap <- surv_gradSHAP(explainer)
 
 # Plot results
 plot(shap)

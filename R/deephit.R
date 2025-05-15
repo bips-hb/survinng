@@ -8,9 +8,9 @@ DeepHit <- torch::nn_module(
   classname = "DeepHit",
   initialize = function(net, time_bins, preprocess_fun = NULL,
                         postprocess_fun = NULL) {
-    net$to(torch_float())
+    net$to(torch::torch_float())
     self$net <- net
-    self$dtype <- torch_float()
+    self$dtype <- torch::torch_float()
     self$time_bins <- time_bins
 
     if (is.null(preprocess_fun)) {
