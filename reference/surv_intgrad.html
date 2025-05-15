@@ -27,6 +27,7 @@ to a reference input.'></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Sim_time_dependent.html">Simulation of Time-dependent Effects</a></li>
+    <li><a class="dropdown-item" href="../articles/Sim_time_independent.html">Simulation of Time-independent Effects</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -72,7 +73,7 @@ to a reference input.</p>
 <span>  target <span class="op">=</span> <span class="st">"survival"</span>,</span>
 <span>  instance <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  times_input <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  batch_size <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  batch_size <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  n <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  x_ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  dtype <span class="op">=</span> <span class="st">"float"</span>,</span>
@@ -85,7 +86,7 @@ to a reference input.</p>
 <span>  target <span class="op">=</span> <span class="st">"survival"</span>,</span>
 <span>  instance <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  times_input <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  batch_size <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  batch_size <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  n <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  x_ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  dtype <span class="op">=</span> <span class="st">"float"</span>,</span>
@@ -98,7 +99,7 @@ to a reference input.</p>
 <span>  target <span class="op">=</span> <span class="st">"survival"</span>,</span>
 <span>  instance <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  times_input <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  batch_size <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  batch_size <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  n <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  x_ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  dtype <span class="op">=</span> <span class="st">"float"</span>,</span>
@@ -135,7 +136,7 @@ gradients should be multiplied with input. Default is <code>TRUE</code>.</p></dd
 
 <dt id="arg-batch-size">batch_size<a class="anchor" aria-label="anchor" href="#arg-batch-size"></a></dt>
 <dd><p>An integer specifying the batch size for processing. The
-default is 50. This value describes the number of instances within one batch
+default is 1000. This value describes the number of instances within one batch
 and not the final number of rows in the batch. For example, <code>CoxTime</code>
 replicates each instance for each time point.</p></dd>
 

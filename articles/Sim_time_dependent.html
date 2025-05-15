@@ -34,6 +34,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/Sim_time_dependent.html">Simulation of Time-dependent Effects</a></li>
+    <li><a class="dropdown-item" href="../articles/Sim_time_independent.html">Simulation of Time-independent Effects</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -71,19 +72,13 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/whcsu/SurvMetrics" class="external-link">SurvMetrics</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">simsurv</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rpkgs.datanovia.com/survminer/index.html" class="external-link">survminer</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://torch.mlverse.org/docs" class="external-link">torch</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sjmgarnier.github.io/viridis/" class="external-link">viridis</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://here.r-lib.org/" class="external-link">here</a></span><span class="op">)</span></span></code></pre></div>
-<div class="section level4">
-<h4 id="time-dependent-effects">Time-dependent effects<a class="anchor" aria-label="anchor" href="#time-dependent-effects"></a>
-</h4>
-</div>
 <div class="section level3">
-<h3 id="generate-the-data">Generate the data<a class="anchor" aria-label="anchor" href="#generate-the-data"></a>
+<h3 id="generate-the-data">Generate the Data<a class="anchor" aria-label="anchor" href="#generate-the-data"></a>
 </h3>
 <p>Simulation setting: -
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mo>,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">10,000</annotation></semantics></math>
@@ -104,7 +99,7 @@ survival -
 has no effect</p>
 </div>
 <div class="section level3">
-<h3 id="fit-the-models">Fit the models<a class="anchor" aria-label="anchor" href="#fit-the-models"></a>
+<h3 id="load-models-and-data">Load Models and Data<a class="anchor" aria-label="anchor" href="#load-models-and-data"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -198,7 +193,6 @@ has no effect</p>
 <span></span>
 <span><span class="co"># Compute Vanilla Gradient</span></span>
 <span><span class="va">grad_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_grad.html">surv_grad</a></span><span class="op">(</span><span class="va">exp_coxtime</span>, target <span class="op">=</span> <span class="st">"survival"</span>, instance <span class="op">=</span> <span class="va">td_ids</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [Survinng] Batch size is smaller than the number of timepoints. Setting batch size (50) to the number of timepoints (74).</span></span>
 <span><span class="va">grad_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_grad.html">surv_grad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, target <span class="op">=</span> <span class="st">"survival"</span>, instance <span class="op">=</span> <span class="va">td_ids</span><span class="op">)</span></span>
 <span><span class="va">grad_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_grad.html">surv_grad</a></span><span class="op">(</span><span class="va">exp_deepsurv</span>, target <span class="op">=</span> <span class="st">"survival"</span>, instance <span class="op">=</span> <span class="va">td_ids</span><span class="op">)</span></span>
 <span></span>
@@ -207,7 +201,7 @@ has no effect</p>
 <span>  <span class="fu">plot_surv_pred</span><span class="op">(</span><span class="va">grad_cox</span><span class="op">)</span> ,</span>
 <span>  <span class="fu">plot_surv_pred</span><span class="op">(</span><span class="va">grad_deephit</span><span class="op">)</span>,</span>
 <span>  <span class="fu">plot_surv_pred</span><span class="op">(</span><span class="va">grad_deepsurv</span><span class="op">)</span>,</span>
-<span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span>,</span>
+<span>  nrow <span class="op">=</span> <span class="fl">1</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span>,</span>
 <span>  label_x <span class="op">=</span> <span class="fl">0.03</span>,      </span>
 <span>  label_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span> </span>
 <span><span class="va">surv_plot</span></span></code></pre></div>
@@ -229,24 +223,14 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">grad_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20gradient-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
-<span><span class="va">grad_plot_norm</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">grad_cox</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"Grad(t)"</span><span class="op">)</span>,</span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">grad_deephit</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"Grad(t)"</span><span class="op">)</span>,</span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">grad_deepsurv</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"Grad(t)"</span><span class="op">)</span>,</span>
-<span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">grad_plot_norm</span></span></code></pre></div>
-<p><img src="Sim_time_dependent_files/figure-html/td%20gradient%20norm-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level4">
 <h4 id="smoothgrad-sensitivity">SmoothGrad (Sensitivity)<a class="anchor" aria-label="anchor" href="#smoothgrad-sensitivity"></a>
 </h4>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compute SmoothGrad</span></span>
 <span><span class="va">sg_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_smoothgrad.html">surv_smoothgrad</a></span><span class="op">(</span><span class="va">exp_coxtime</span>, target <span class="op">=</span> <span class="st">"survival"</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, </span>
 <span>                          n <span class="op">=</span> <span class="fl">50</span>, noise_level <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [Survinng] Batch size is smaller than the number of timepoints. Setting batch size (50) to the number of timepoints (74).</span></span>
 <span><span class="va">sg_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_smoothgrad.html">surv_smoothgrad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, target <span class="op">=</span> <span class="st">"survival"</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, </span>
 <span>                              n <span class="op">=</span> <span class="fl">50</span>, noise_level <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="va">sg_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_smoothgrad.html">surv_smoothgrad</a></span><span class="op">(</span><span class="va">exp_deepsurv</span>, target <span class="op">=</span> <span class="st">"survival"</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, </span>
@@ -260,23 +244,13 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">smoothgrad_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20smoothgrad-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
-<span><span class="va">smoothgrad_plot_comp</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">sg_cox</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"SG(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">sg_deephit</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"SG(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">sg_deepsurv</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"SG(t)"</span><span class="op">)</span>,</span>
-<span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">smoothgrad_plot_comp</span></span></code></pre></div>
-<p><img src="Sim_time_dependent_files/figure-html/td%20smoothgrad%20norm-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level4">
 <h4 id="gradient-x-input">Gradient x Input<a class="anchor" aria-label="anchor" href="#gradient-x-input"></a>
 </h4>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compute GradientxInput</span></span>
 <span><span class="va">gradin_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_grad.html">surv_grad</a></span><span class="op">(</span><span class="va">exp_coxtime</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, times_input <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [Survinng] Batch size is smaller than the number of timepoints. Setting batch size (50) to the number of timepoints (74).</span></span>
 <span><span class="va">gradin_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_grad.html">surv_grad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, times_input <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">gradin_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_grad.html">surv_grad</a></span><span class="op">(</span><span class="va">exp_deepsurv</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, times_input <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -288,24 +262,14 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gradin_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20gradientxinput-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
-<span><span class="va">gradin_plot_norm</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gradin_cox</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"GxI(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gradin_deephit</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"GxI(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gradin_deepsurv</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"GxI(t)"</span><span class="op">)</span>,</span>
-<span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">gradin_plot_norm</span></span></code></pre></div>
-<p><img src="Sim_time_dependent_files/figure-html/td%20gradientxinput%20norm-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level4">
 <h4 id="smoothgrad-x-input">SmoothGrad x Input<a class="anchor" aria-label="anchor" href="#smoothgrad-x-input"></a>
 </h4>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compute SmoothGradxInput</span></span>
 <span><span class="va">sgin_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_smoothgrad.html">surv_smoothgrad</a></span><span class="op">(</span><span class="va">exp_coxtime</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, noise_level <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>                            times_input <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [Survinng] Batch size is smaller than the number of timepoints. Setting batch size (50) to the number of timepoints (74).</span></span>
 <span><span class="va">sgin_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_smoothgrad.html">surv_smoothgrad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, noise_level <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>                                times_input <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">sgin_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_smoothgrad.html">surv_smoothgrad</a></span><span class="op">(</span><span class="va">exp_deepsurv</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, noise_level <span class="op">=</span> <span class="fl">0.3</span>,</span>
@@ -319,15 +283,6 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">smoothgradin_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20smoothgradxinput-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
-<span><span class="va">smoothgradin_plot_norm</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">sgin_cox</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"SGxI(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">sgin_deephit</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"SGxI(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">sgin_deepsurv</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"SGxI(t)"</span><span class="op">)</span>,</span>
-<span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">smoothgradin_plot_norm</span></span></code></pre></div>
-<p><img src="Sim_time_dependent_files/figure-html/td%20smoothgradxinput%20norm-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level4">
 <h4 id="integratedgradient">IntegratedGradient<a class="anchor" aria-label="anchor" href="#integratedgradient"></a>
@@ -335,12 +290,12 @@ has no effect</p>
 <div class="section level5">
 <h5 id="zero-baseline-should-be-proportional-to-gradient-x-input">Zero baseline (should be proportional to Gradient x Input)<a class="anchor" aria-label="anchor" href="#zero-baseline-should-be-proportional-to-gradient-x-input"></a>
 </h5>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Copute IntegratedGradient with 0 baseline</span></span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Compute IntegratedGradient with 0 baseline</span></span>
 <span><span class="va">x_ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">ig0_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_coxtime</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span>, batch_size <span class="op">=</span> <span class="fl">1e6</span><span class="op">)</span></span>
-<span><span class="va">ig0_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span>, batch_size <span class="op">=</span> <span class="fl">1e6</span><span class="op">)</span></span>
-<span><span class="va">ig0_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_deepsurv</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span>, batch_size <span class="op">=</span> <span class="fl">1e6</span><span class="op">)</span></span>
+<span><span class="va">ig0_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_coxtime</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span><span class="op">)</span></span>
+<span><span class="va">ig0_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span><span class="op">)</span></span>
+<span><span class="va">ig0_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_deepsurv</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Plot attributions</span></span>
 <span><span class="va">intgrad0_plot</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
@@ -350,7 +305,7 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">intgrad0_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20intgrad0-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
 <span><span class="va">intgrad0_plot_comp</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">ig0_cox</span>, add_comp <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
@@ -359,7 +314,7 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">intgrad0_plot_comp</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20intgrad0%20comp-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot contributions</span></span>
 <span><span class="va">intgrad0_plot_contr</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu">plot_contribution</span><span class="op">(</span><span class="va">ig0_cox</span>, scale <span class="op">=</span> <span class="fl">0.9</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
@@ -368,7 +323,7 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">intgrad0_plot_contr</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20intgrad0%20contr-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot force</span></span>
 <span><span class="va">intgrad0_plot_force</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu">plot_force</span><span class="op">(</span><span class="va">ig0_cox</span>, zero_feature <span class="op">=</span> <span class="st">"x4"</span>, upper_distance <span class="op">=</span> <span class="fl">0</span>, lower_distance <span class="op">=</span> <span class="fl">0</span>, lower_distance_x1 <span class="op">=</span> <span class="fl">0.05</span>, intgrad0_td_cox <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
@@ -383,12 +338,12 @@ has no effect</p>
 <div class="section level3">
 <h3 id="mean-baseline">Mean baseline<a class="anchor" aria-label="anchor" href="#mean-baseline"></a>
 </h3>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compute IntegratedGradient with mean baseline</span></span>
 <span><span class="va">x_ref</span> <span class="op">&lt;-</span> <span class="cn">NULL</span> <span class="co"># default: feature-wise mean</span></span>
-<span><span class="va">igm_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_coxtime</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span>, batch_size <span class="op">=</span> <span class="fl">1e6</span><span class="op">)</span></span>
-<span><span class="va">igm_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span>, batch_size <span class="op">=</span> <span class="fl">1e6</span><span class="op">)</span></span>
-<span><span class="va">igm_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_deepsurv</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span>, batch_size <span class="op">=</span> <span class="fl">1e6</span><span class="op">)</span></span>
+<span><span class="va">igm_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_coxtime</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span><span class="op">)</span></span>
+<span><span class="va">igm_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span><span class="op">)</span></span>
+<span><span class="va">igm_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_deepsurv</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, x_ref <span class="op">=</span> <span class="va">x_ref</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Plot attributions</span></span>
 <span><span class="va">intgradmean_plot</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
@@ -398,7 +353,7 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">intgradmean_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20intgradmean%20mean-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
 <span><span class="va">intgradmean_plot_comp</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">igm_cox</span>, add_comp <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
@@ -407,7 +362,7 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">intgradmean_plot_comp</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20intgradmean%20comp%20mean-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot contributions</span></span>
 <span><span class="va">intgradmean_plot_contr</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu">plot_contribution</span><span class="op">(</span><span class="va">igm_cox</span>, scale <span class="op">=</span> <span class="fl">0.9</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
@@ -416,7 +371,7 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">intgradmean_plot_contr</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20intgradmean%20contr%20mean-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot force</span></span>
 <span><span class="va">intgradmean_plot_force</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu">plot_force</span><span class="op">(</span><span class="va">igm_cox</span>, zero_feature <span class="op">=</span> <span class="st">"x4"</span>, upper_distance <span class="op">=</span> <span class="fl">0</span>, lower_distance <span class="op">=</span> <span class="fl">0</span>, intgradmean_td_cox <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
@@ -428,14 +383,11 @@ has no effect</p>
 <div class="section level4">
 <h4 id="gradshap">GradShap<a class="anchor" aria-label="anchor" href="#gradshap"></a>
 </h4>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compute GradShap</span></span>
-<span><span class="va">gshap_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_gradSHAP.html">surv_gradSHAP</a></span><span class="op">(</span><span class="va">exp_coxtime</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, num_samples <span class="op">=</span> <span class="fl">100</span>, </span>
-<span>                           batch_size <span class="op">=</span> <span class="fl">1e6</span><span class="op">)</span></span>
-<span><span class="va">gshap_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_gradSHAP.html">surv_gradSHAP</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, num_samples <span class="op">=</span> <span class="fl">100</span>, </span>
-<span>                               batch_size <span class="op">=</span> <span class="fl">1e6</span><span class="op">)</span></span>
-<span><span class="va">gshap_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_gradSHAP.html">surv_gradSHAP</a></span><span class="op">(</span><span class="va">exp_deepsurv</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, num_samples <span class="op">=</span> <span class="fl">100</span>, </span>
-<span>                                batch_size <span class="op">=</span> <span class="fl">1e6</span><span class="op">)</span></span>
+<span><span class="va">gshap_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_gradSHAP.html">surv_gradSHAP</a></span><span class="op">(</span><span class="va">exp_coxtime</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, num_samples <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">gshap_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_gradSHAP.html">surv_gradSHAP</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, num_samples <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">gshap_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_gradSHAP.html">surv_gradSHAP</a></span><span class="op">(</span><span class="va">exp_deepsurv</span>, instance <span class="op">=</span> <span class="va">td_ids</span>, n <span class="op">=</span> <span class="fl">50</span>, num_samples <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Plot attributions</span></span>
 <span><span class="va">gshap_plot</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
@@ -445,7 +397,7 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gshap_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20gradshap-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
 <span><span class="va">gshap_plot_comp</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gshap_cox</span>, add_comp <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
@@ -454,7 +406,7 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gshap_plot_comp</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20gradshap%20comp-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot contributions</span></span>
 <span><span class="va">gshap_plot_contr</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu">plot_contribution</span><span class="op">(</span><span class="va">gshap_cox</span>, scale <span class="op">=</span> <span class="fl">0.9</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
@@ -463,7 +415,7 @@ has no effect</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gshap_plot_contr</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20gradshap%20contr-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot force</span></span>
 <span><span class="va">gshap_plot_force</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu">plot_force</span><span class="op">(</span><span class="va">gshap_cox</span>, upper_distance <span class="op">=</span> <span class="fl">0</span>, lower_distance <span class="op">=</span> <span class="fl">0</span>, zero_feature <span class="op">=</span> <span class="st">"x4"</span>, gradshap_td_cox <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
@@ -477,12 +429,12 @@ has no effect</p>
 <div class="section level2">
 <h2 id="main-paper-plots">Main paper plots<a class="anchor" aria-label="anchor" href="#main-paper-plots"></a>
 </h2>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
 <span><span class="va">grad_deephit_plot</span> <span class="op">&lt;-</span> <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">grad_deephit</span>, label <span class="op">=</span> <span class="st">"Grad(t)"</span><span class="op">)</span></span>
 <span><span class="va">grad_deephit_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20gradient%20main-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot force</span></span>
 <span><span class="va">gshap_coxtime_plot</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gshap_cox</span>, add_comp <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
