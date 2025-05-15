@@ -204,7 +204,7 @@ IntGrad(t) is a method that computes the integral of the gradients along a strai
 
 In addition to time-dependence in feature effects, difference-to-reference methods (i.e., IntGrad(t) and GradSHAP(t)) provide insights into the relative scale, direction, and magnitude of feature effects by comparing predictions to a meaningful reference.
 
-#### Zero baseline (should be proportional to Gradient x Input)
+#### Zero baseline (should be proportional to Gradient x I(t))
 
 The zero baseline is a reference point where all features are set to zero.
 
@@ -312,24 +312,3 @@ gshap_plot_force
 ```
 
 For example, the opposite effects of low vs. high values of $x_1$ are effectively captured in the plots. In observation 79, a low $x_1$ positively influences survival at later time points ($t>2$) compared to the overall average survival in the dataset, resulting in its largest contributions occurring at these times. Conversely, in observation 428, a high $x_1$ induces substantial contributions at earlier time points ($t<2$), but negatively impacts survival at later times, reflecting its early event as a consequence of the high $x_1$ and the strong negative effect of $x_3$. The average normalized absolute contribution, displayed on the right side of the contribution plots, offers a time-independent measure of feature importance, confirming the dominance of $x_3$ for the survival prediction of instance 428. Additionally, the visualizations suggest that CoxTime partially attributes the time-varying effect of $x_1$ to the other features, as the model, being non-parametric and lacking explicit knowledge of the time-dependent functional form, struggles to precisely disentangle and localize this effect.
-
-# Main paper plots
-
-These are the plots that can be found in the main body of "Gradient-based Explanations for Deep Learning Survival Models" (2025) by S.H. Langbein, N. Koenen and M. N. Wright.
-
-```{r td gradient main, fig.width=10, fig.height=5}
-# Plot attributions
-grad_deephit_plot <- plot_attribution(grad_deephit, label = "Grad(t)")
-grad_deephit_plot
-```
-
-
-```{r td gradshap main, fig.width=10, fig.height=15}
-# Plot force
-gshap_coxtime_plot <- cowplot::plot_grid(
-  plot_attribution(gshap_cox, add_comp = TRUE, label = "GradSHAP(t)"), 
-  plot_contribution(gshap_cox, scale = 0.9, label = "GradSHAP(t)"),
-  plot_force(gshap_cox, upper_distance = 0, lower_distance = 0, zero_feature = "x4", gradshap_td_cox = TRUE, label = "GradSHAP(t)"), 
-  nrow = 3, labels = c("CoxTime", "CoxTime", "CoxTime"))
-gshap_coxtime_plot
-```

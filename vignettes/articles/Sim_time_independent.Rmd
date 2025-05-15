@@ -2,6 +2,8 @@
 title: "Simulation of Time-independent Effects"
 ---
 
+In this vignette we simulate survival data to detect time-independent feature effects using gradient-based explanation techniques for survival neural network models. 
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -33,14 +35,26 @@ library(here)
 
 ## Generate the data
 
-Simulation setting:
-- $10,000$ samples ($9,500$ for training, $500$ for testing)
-- No time-dependent effects
-- $X_1 \sim \mathcal{N}(0,1)$ has a positive effect on the hazard -> negative effect on survival
-- $X_2 \sim \mathcal{U}(0,1)$ has a stronger negative effect on the hazard -> positive effect on survival
-- $X_3 \sim \mathcal{U}(-1,1)$ has no effect
+We consider a simulated dataset with the following characteristics:
+
+- **Sample size:** 10,000 individuals  
+  - 9,500 samples used for training  
+  - 500 samples used for testing
+
+- **Covariates:**
+  - $X_1 \sim N(0, 1)$: has a **positive effect** on the hazard  
+    → **Negative effect** on survival
+
+  - $X_2 \sim U(0, 1)$: has a **strong negative effect** on the hazard  
+    → **Positive effect** on survival
+
+  - $X_3 \sim U(-1, 1)$: has **no effect** on the hazard or survival
+
+- **Time-dependency:** None of the covariates have time-varying effects
 
 ## Load Models and Data
+
+The models used in this vignette are the same as those used in the main paper. The models were trained using the `survivalmodels` package, and the training process is not shown here, but can be found in the `vignettes/articles/Sim_time_independent` directory.
 
 ```{r td fit models, fig.width=10, fig.height=15}
 
@@ -59,15 +73,18 @@ ext_deephit <- readRDS(here("vignettes/articles/Sim_time_independent/ext_deephit
 
 ## Create Explainer
 
+The `explain()` function creates an explainer object for the survival models. The `data` argument specifies the dataset used for explanation, and the `model` argument specifies the model to be explained. The `target` argument indicates the type of prediction to be explained (e.g., "survival", "risk", "cumulative hazard").
+
+
 ```{r tid explainer}
 exp_deephit <- Survinng::explain(ext_deephit[[1]], data = test)
 exp_coxtime <- Survinng::explain(ext_coxtime[[1]], data = test)
 exp_deepsurv <- Survinng::explain(ext_deepsurv[[1]], data = test)
 ```
 
-
-
 ## Performance
+
+The performance of the models is evaluated using the C-Index and Integrated Brier Score (IBS). The C-Index measures the concordance between predicted and observed survival times, while the IBS quantifies the accuracy of survival predictions. 
 
 |Model | C-Index | IBS
 |:---------:|:--------:|:--------:|
@@ -81,6 +98,8 @@ knitr::include_graphics(here('vignettes/articles/Sim_time_independent/sim_tid_br
 
 
 ### Survival Prediction
+
+The survival predictions for the test dataset are computed using the `predict()` function. The `type` argument specifies the type of prediction to be made (e.g., "survival", "risk", "cumulative hazard"). The survival predictions are then plotted for a set of instances of interest.
 
 ```{r survival pred, fig.width=10, fig.height=5}
 # Print instances of interest
@@ -106,7 +125,12 @@ surv_plot
 
 ## Explainable AI
 
-### Gradient (Sensitivity)
+The following sections demonstrate the application of various gradient-based explanation methods to the survival models. The methods include Grad(t), SmoothGrad(t), G x I(t), SmoothGrad x I(t), IntGrad(t), and GradSHAP(t). Each method provides insights into the contributions of the covariates to the survival predictions.
+
+
+### Grad(t) (Sensitivity)
+
+Here we compute the gradient of the survival predictions with respect to the input features. The `surv_grad()` function computes the gradients for the specified instances.
 
 ```{r tid gradient, fig.width=10, fig.height=15}
 # Plot attributions
@@ -118,7 +142,9 @@ grad_plot <- cowplot::plot_grid(
 grad_plot
 ```
 
-### SmoothGrad (Sensitivity)
+### SmoothGrad(t) (Sensitivity)
+
+SmoothGrad(t) is a method that adds noise to the input features and computes the average gradient over multiple noisy samples. This approach helps to reduce the noise in the gradient estimates and provides a clearer picture of the feature importance.
 
 ```{r tid smoothgrad, fig.width=10, fig.height=15}
 # Compute SmoothGrad
@@ -136,7 +162,9 @@ smoothgrad_plot
 ```
 
 
-### Gradient x Input
+### Grad x I(t)
+
+Grad x I(t) is a method that computes the gradient of the survival predictions with respect to the input features and multiplies it by the survival predictions themselves. This approach provides insights into the true local effects of the covariates on the survival prediction. 
 
 ```{r tid gradientxinput, fig.width=10, fig.height=15}
 # Compute GradientxInput
@@ -162,7 +190,9 @@ grad_gradin_plot <- cowplot::plot_grid(
 grad_gradin_plot
 ```
 
-### SmoothGrad x Input
+### SmoothGrad x I(t)
+
+SmoothGrad x I(t) is a method that adds noise to the input features and computes the average gradient over multiple noisy samples, multiplied by the survival predictions. This approach helps to reduce the noise in the gradient estimates and provides a clearer picture of the feature importance.
 
 ```{r tid smoothgradxinput, fig.width=10, fig.height=15}
 # Compute SmoothGradxInput
@@ -182,9 +212,13 @@ smoothgradin_plot <- cowplot::plot_grid(
 smoothgradin_plot
 ```
 
-### IntegratedGradient
+### IntGrad(t)
 
-## Zero baseline (should be proportional to Gradient x Input)
+IntGrad(t) is a method that computes the integral of the gradients along a straight line path from a reference point to the input instance. This method provides a more comprehensive view of the feature importance by considering the cumulative effect of the features over time.
+
+## Zero baseline (should be proportional to Gradient x I(t))
+
+The zero baseline is a reference point where all features are set to zero.
 
 ```{r tid intgrad0, fig.width=10, fig.height=15}
 # Compute IntegratedGradient with 0 baseline
@@ -212,6 +246,8 @@ intgrad0_plot_comp <- cowplot::plot_grid(
 intgrad0_plot_comp
 ```
 
+\emph{Contribution plots} effectively visualize the normalized absolute contribution of each feature to the difference between reference and (survival) prediction over time. 
+
 ```{r tid intgrad0 contr, fig.width=10, fig.height=15}
 # Plot contributions
 intgrad0_plot_contr <- cowplot::plot_grid(
@@ -221,6 +257,8 @@ intgrad0_plot_contr <- cowplot::plot_grid(
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 intgrad0_plot_contr
 ```
+
+Complementarily, \emph{force plots} emphasize the relative contribution and direction of each feature at a set of representative survival times.
 
 ```{r tid intgrad0 force, fig.width=10, fig.height=15}
 # Plot force
@@ -232,56 +270,10 @@ intgrad0_plot_force <- cowplot::plot_grid(
 intgrad0_plot_force
 ```
 
-## Mean baseline
-
-```{r tid intgradmean, fig.width=10, fig.height=15}
-# Compute IntegratedGradient with mean baseline
-x_ref <- NULL # default: feature-wise mean
-igm_cox <- surv_intgrad(exp_coxtime, instance = tid_ids, n = 50, x_ref = x_ref)
-igm_deephit <- surv_intgrad(exp_deephit, instance = tid_ids, n = 50, x_ref = x_ref)
-igm_deepsurv <- surv_intgrad(exp_deepsurv, instance = tid_ids, n = 50, x_ref = x_ref)
-
-# Plot attributions
-intgradmean_plot <- cowplot::plot_grid(
-  plot_attribution(igm_cox, label = "IntGrad(t)"), 
-  plot_attribution(igm_deephit, label = "IntGrad(t)"), 
-  plot_attribution(igm_deepsurv, label = "IntGrad(t)"),
-  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
-intgradmean_plot
-```
-
-```{r tid intgradmean comp, fig.width=10, fig.height=15}
-# Plot attributions
-intgradmean_plot_comp <- cowplot::plot_grid(
-  plot_attribution(igm_cox, add_comp = TRUE, label = "IntGrad(t)"), 
-  plot_attribution(igm_deephit, add_comp = TRUE, label = "IntGrad(t)"), 
-  plot_attribution(igm_deepsurv, add_comp = TRUE, label = "IntGrad(t)"),
-  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
-intgradmean_plot_comp
-```
-
-```{r tid intgradmean contr, fig.width=10, fig.height=15}
-# Plot contributions
-intgradm_plot_contr <- cowplot::plot_grid(
-  plot_contribution(igm_cox, label = "IntGrad(t)"), 
-  plot_contribution(igm_deephit, label = "IntGrad(t)"), 
-  plot_contribution(igm_deepsurv, label = "IntGrad(t)"),
-  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
-intgradm_plot_contr
-```
-
-```{r tid intgradmean force, fig.width=10, fig.height=15}
-# Plot force
-intgradm_plot_force <- cowplot::plot_grid(
-  plot_force(igm_cox, upper_distance = 0, lower_distance = 0, label = "IntGrad(t)"), 
-  plot_force(igm_deephit, upper_distance = 0, lower_distance = 0, label = "IntGrad(t)"), 
-  plot_force(igm_deepsurv, upper_distance = 0, lower_distance = 0, label = "IntGrad(t)"),
-  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
-intgradm_plot_force
-```
-
 
 ### GradShap
+
+GradSHAP(t) is a method that computes the SHAP values for survival predictions. It provides a measure of the contribution of each feature to the survival predictions, taking into account the time-dependent effects.
 
 ```{r tid gradshap, fig.width=10, fig.height=15}
 # Compute GradShap
