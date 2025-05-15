@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   articles/Sim_time_dependent: Sim_time_dependent.html
   articles/Sim_time_independent: Sim_time_independent.html
-last_built: 2025-05-15T10:51Z
+last_built: 2025-05-15T11:04Z
 urls:
-  reference: bips-hb.github.io/Survinng/reference
-  article: bips-hb.github.io/Survinng/articles
+  reference: https://bips-hb.github.io/Survinng/reference
+  article: https://bips-hb.github.io/Survinng/articles
