@@ -12,7 +12,7 @@ surv_gradSHAP(
   target = "survival",
   instance = 1,
   times_input = TRUE,
-  batch_size = 50,
+  batch_size = 1000,
   n = 50,
   num_samples = 10,
   data_ref = NULL,
@@ -26,7 +26,7 @@ surv_gradSHAP(
   target = "survival",
   instance = 1,
   times_input = TRUE,
-  batch_size = 50,
+  batch_size = 1000,
   n = 50,
   num_samples = 10,
   data_ref = NULL,
@@ -40,7 +40,7 @@ surv_gradSHAP(
   target = "survival",
   instance = 1,
   times_input = TRUE,
-  batch_size = 50,
+  batch_size = 1000,
   n = 50,
   num_samples = 10,
   data_ref = NULL,
@@ -54,7 +54,7 @@ surv_gradSHAP(
   target = "survival",
   instance = 1,
   times_input = TRUE,
-  batch_size = 50,
+  batch_size = 1000,
   n = 50,
   num_samples = 10,
   data_ref = NULL,
@@ -80,7 +80,7 @@ the dataset.}
 should be multiplied with input.}
 
 \item{batch_size}{An integer specifying the batch size for processing. The
-default is 50. This value describes the number of instances within one
+default is 1000. This value describes the number of instances within one
 batch and not the final number of rows in the batch. For example,
 \code{CoxTime} replicates each instance for each time point.}
 

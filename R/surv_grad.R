@@ -22,7 +22,7 @@
 #' multiplied with input. In the paper, this variant is referred to as
 #' *"GxI(t)"*.
 #' @param batch_size An integer specifying the batch size for processing. The
-#' default is 50. This value describes the number of instances within one batch
+#' default is 1000. This value describes the number of instances within one batch
 #' and not the final number of rows in the batch. For example, `CoxTime`
 #' replicates each instance for each time point.
 #' @param dtype A character string indicating the data type for the tensors.
@@ -44,7 +44,7 @@ surv_grad <- function(exp, target = "survival", instance = 1, times_input = FALS
 #' @rdname surv_grad
 #' @export
 surv_grad.explainer_deepsurv <- function(exp, target = "survival", instance = 1,
-                                         times_input = FALSE, batch_size = 50,
+                                         times_input = FALSE, batch_size = 1000,
                                          dtype = "float", ...) {
 
   # Check arguments
@@ -95,7 +95,7 @@ surv_grad.explainer_deepsurv <- function(exp, target = "survival", instance = 1,
 #' @rdname surv_grad
 #' @export
 surv_grad.explainer_coxtime <- function(exp, target = "survival", instance = 1,
-                                        times_input = FALSE, batch_size = 50,
+                                        times_input = FALSE, batch_size = 1000,
                                         dtype = "float", include_time = FALSE) {
   # Check arguments
   assertClass(exp, "explainer_coxtime")
@@ -146,7 +146,7 @@ surv_grad.explainer_coxtime <- function(exp, target = "survival", instance = 1,
 #' @rdname surv_grad
 #' @export
 surv_grad.explainer_deephit <- function(exp, target = "survival", instance = 1,
-                                        times_input = FALSE, batch_size = 50,
+                                        times_input = FALSE, batch_size = 1000,
                                         dtype = "float", ...) {
 
   # Check arguments

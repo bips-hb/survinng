@@ -23,7 +23,7 @@
 #' @param times_input A logical value indicating whether the GradSHAP values
 #' should be multiplied with input.
 #' @param batch_size An integer specifying the batch size for processing. The
-#' default is 50. This value describes the number of instances within one
+#' default is 1000. This value describes the number of instances within one
 #' batch and not the final number of rows in the batch. For example,
 #' `CoxTime` replicates each instance for each time point.
 #' @param n An integer specifying the number of samples to be used for
@@ -48,7 +48,7 @@
 #' @family Attribution Methods
 #' @export
 surv_gradSHAP <- function(exp, target = "survival", instance = 1,
-                         times_input = TRUE, batch_size = 50,
+                         times_input = TRUE, batch_size = 1000,
                          n = 50, num_samples = 10, data_ref = NULL,
                          dtype = "float", replace = TRUE, include_time = FALSE) {
   UseMethod("surv_gradSHAP")
@@ -59,7 +59,7 @@ surv_gradSHAP <- function(exp, target = "survival", instance = 1,
 #' @rdname surv_gradSHAP
 #' @export
 surv_gradSHAP.explainer_deepsurv <- function(exp, target = "survival", instance = 1,
-                                             times_input = TRUE, batch_size = 50,
+                                             times_input = TRUE, batch_size = 1000,
                                              n = 50, num_samples = 10,
                                              data_ref = NULL, dtype = "float",
                                              replace = TRUE,
@@ -129,7 +129,7 @@ surv_gradSHAP.explainer_deepsurv <- function(exp, target = "survival", instance 
 #' @rdname surv_gradSHAP
 #' @export
 surv_gradSHAP.explainer_coxtime <- function(exp, target = "survival", instance = 1,
-                                            times_input = TRUE, batch_size = 50,
+                                            times_input = TRUE, batch_size = 1000,
                                             n = 50, num_samples = 10, data_ref = NULL,
                                             dtype = "float", replace = TRUE,
                                             include_time = FALSE) {
@@ -201,7 +201,7 @@ surv_gradSHAP.explainer_coxtime <- function(exp, target = "survival", instance =
 #' @rdname surv_gradSHAP
 #' @export
 surv_gradSHAP.explainer_deephit <- function(exp, target = "survival", instance = 1,
-                                            times_input = TRUE, batch_size = 50,
+                                            times_input = TRUE, batch_size = 1000,
                                             n = 50, num_samples = 10, data_ref = NULL,
                                             dtype = "float", replace = TRUE, ...) {
   # Check arguments

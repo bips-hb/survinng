@@ -20,6 +20,23 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
     inputs_ref <- to_tensor(inputs_ref, seq_len(dim(inputs_ref[[1]])[1]), repeats = 1, dtype = dtype)
   }
 
+  # Check dimension of the data
+  final_batch_size <- min(batch_size, dim(inputs[[1]])[1] * n_timepoints)
+  if (batch_size < n_timepoints) {
+    final_batch_size <- n_timepoints
+  } else {
+    final_batch_size <- n_timepoints * (final_batch_size %/% n_timepoints)
+  }
+  num_dims <- sum(sapply(inputs, function(x) final_batch_size * prod(dim(x)[-1])))
+  if (num_dims > 20000) {
+    warning("The resulting tensor has ", num_dims, " entries in total per batch. ",
+            "This may lead to runtime or memory issues. Consider using a ",
+            "smaller batch size (currently ", batch_size, ") ",
+            "or reducing the number of instances, samples or integration points.")
+  }
+
+
+
   # Split inputs into batches
   batches <- Surv_BatchLoader(
     inputs = inputs,

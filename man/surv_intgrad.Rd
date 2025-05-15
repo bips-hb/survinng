@@ -24,7 +24,7 @@ surv_intgrad(
   target = "survival",
   instance = 1,
   times_input = TRUE,
-  batch_size = 50,
+  batch_size = 1000,
   n = 10,
   x_ref = NULL,
   dtype = "float",
@@ -36,7 +36,7 @@ surv_intgrad(
   target = "survival",
   instance = 1,
   times_input = TRUE,
-  batch_size = 50,
+  batch_size = 1000,
   n = 10,
   x_ref = NULL,
   dtype = "float",
@@ -48,7 +48,7 @@ surv_intgrad(
   target = "survival",
   instance = 1,
   times_input = TRUE,
-  batch_size = 50,
+  batch_size = 1000,
   n = 10,
   x_ref = NULL,
   dtype = "float",
@@ -72,7 +72,7 @@ instances in the dataset.}
 gradients should be multiplied with input. Default is \code{TRUE}.}
 
 \item{batch_size}{An integer specifying the batch size for processing. The
-default is 50. This value describes the number of instances within one batch
+default is 1000. This value describes the number of instances within one batch
 and not the final number of rows in the batch. For example, \code{CoxTime}
 replicates each instance for each time point.}
 

@@ -22,7 +22,7 @@
 #' @param times_input A logical value indicating whether the integrated
 #' gradients should be multiplied with input. Default is `TRUE`.
 #' @param batch_size An integer specifying the batch size for processing. The
-#' default is 50. This value describes the number of instances within one batch
+#' default is 1000. This value describes the number of instances within one batch
 #' and not the final number of rows in the batch. For example, `CoxTime`
 #' replicates each instance for each time point.
 #' @param n An integer specifying the number of approximation points for the
@@ -51,7 +51,7 @@ surv_intgrad <- function(exp, target = "survival", instance = 1,
 #' @rdname surv_intgrad
 #' @export
 surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance = 1,
-                                            times_input = TRUE, batch_size = 50,
+                                            times_input = TRUE, batch_size = 1000,
                                             n = 10, x_ref = NULL,
                                             dtype = "float", ...) {
 
@@ -124,7 +124,7 @@ surv_intgrad.explainer_deepsurv <- function(exp, target = "survival", instance =
 #' @rdname surv_intgrad
 #' @export
 surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 1,
-                                           times_input = TRUE, batch_size = 50,
+                                           times_input = TRUE, batch_size = 1000,
                                            n = 10, x_ref = NULL,
                                            dtype = "float", include_time = FALSE) {
 
@@ -197,7 +197,7 @@ surv_intgrad.explainer_coxtime <- function(exp, target = "survival", instance = 
 #' @rdname surv_intgrad
 #' @export
 surv_intgrad.explainer_deephit <- function(exp, target = "survival", instance = 1,
-                                           times_input = TRUE, batch_size = 50,
+                                           times_input = TRUE, batch_size = 1000,
                                            n = 10, x_ref = NULL,
                                            dtype = "float", ...) {
 

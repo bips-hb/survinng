@@ -22,7 +22,7 @@ surv_grad(
   target = "survival",
   instance = 1,
   times_input = FALSE,
-  batch_size = 50,
+  batch_size = 1000,
   dtype = "float",
   ...
 )
@@ -32,7 +32,7 @@ surv_grad(
   target = "survival",
   instance = 1,
   times_input = FALSE,
-  batch_size = 50,
+  batch_size = 1000,
   dtype = "float",
   include_time = FALSE
 )
@@ -42,7 +42,7 @@ surv_grad(
   target = "survival",
   instance = 1,
   times_input = FALSE,
-  batch_size = 50,
+  batch_size = 1000,
   dtype = "float",
   ...
 )
@@ -65,7 +65,7 @@ multiplied with input. In the paper, this variant is referred to as
 \emph{"GxI(t)"}.}
 
 \item{batch_size}{An integer specifying the batch size for processing. The
-default is 50. This value describes the number of instances within one batch
+default is 1000. This value describes the number of instances within one batch
 and not the final number of rows in the batch. For example, \code{CoxTime}
 replicates each instance for each time point.}
 

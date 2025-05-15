@@ -24,7 +24,7 @@
 #' be multiplied with input. In the paper, this variant is referred to as
 #' `"SGxI(t)"`.
 #' @param batch_size An integer specifying the batch size for processing. The
-#' default is 50. This value describes the number of instances within one batch
+#' default is 1000. This value describes the number of instances within one batch
 #' and not the final number of rows in the batch. For example, `CoxTime`
 #' replicates each instance for each time point.
 #' @param n An integer specifying the number of noise samples to be added to
@@ -62,7 +62,7 @@ surv_smoothgrad <- function(
 #' @rdname surv_smoothgrad
 #' @export
 surv_smoothgrad.explainer_deepsurv <- function(exp, target = "survival", instance = 1,
-                                               times_input = FALSE, batch_size = 50,
+                                               times_input = FALSE, batch_size = 1000,
                                                n = 10, noise_level = 0.1,
                                                dtype = "float", ...) {
 
@@ -119,7 +119,7 @@ surv_smoothgrad.explainer_deepsurv <- function(exp, target = "survival", instanc
 #' @rdname surv_smoothgrad
 #' @export
 surv_smoothgrad.explainer_coxtime <- function(exp, target = "survival", instance = 1,
-                                              times_input = FALSE, batch_size = 50,
+                                              times_input = FALSE, batch_size = 1000,
                                               n = 10, noise_level = 0.1,
                                               dtype = "float", include_time = FALSE) {
 
@@ -178,7 +178,7 @@ surv_smoothgrad.explainer_coxtime <- function(exp, target = "survival", instance
 #' @rdname surv_smoothgrad
 #' @export
 surv_smoothgrad.explainer_deephit <- function(exp, target = "survival", instance = 1,
-                                              times_input = FALSE, batch_size = 50,
+                                              times_input = FALSE, batch_size = 1000,
                                               n = 10, noise_level = 0.1,
                                               dtype = "float", ...) {
 
