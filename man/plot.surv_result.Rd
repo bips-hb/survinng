@@ -2,29 +2,86 @@
 % Please edit documentation in R/plot.R
 \name{plot.surv_result}
 \alias{plot.surv_result}
-\title{Plot method for survival attribution results}
+\alias{plot_force}
+\alias{plot_pred}
+\alias{plot_attr}
+\alias{plot_contr}
+\title{Plot Methods for Survival Attribution Results}
 \usage{
-\method{plot}{surv_result}(x, ..., stacked = FALSE, normalize = FALSE, add_sum = FALSE)
+\method{plot}{surv_result}(x, ..., type = "attr")
+
+plot_force(x, ...)
+
+plot_pred(x)
+
+plot_attr(x, normalize = "none", add_comp = NULL)
+
+plot_contr(x, scale = 0.85, aggregate = FALSE)
 }
 \arguments{
-\item{x}{An object of class \code{surv_result} containing the survival
-attribution results.}
+\item{x}{An object of class \code{surv_result} containing survival attribution
+results.}
 
-\item{...}{Unused arguments.}
+\item{...}{(unsed arguments)}
 
-\item{stacked}{Logical indicating whether to plot stacked attributions.
-Default is \code{FALSE}.}
+\item{type}{Type of plot to generate when using the generic \code{plot()} method. Options:
+\itemize{
+\item \code{"pred"}: plot survival predictions over time
+\item \code{"attr"}: plot feature attributions over time (default)
+\item \code{"contr"}: plot feature contributions percentages over time
+\item \code{"force"}: plot force plots for each instance
+}}
 
-\item{normalize}{Logical indicating whether to normalize the attribution by
-the sum of attributions for each instance and time. Default is \code{FALSE}.}
+\item{normalize}{Normalization method for \code{plot_attr()}. Options:
+\itemize{
+\item \code{"none"} (default): no normalization
+\item \code{"abs"}: normalize by the sum of absolute values
+\item \code{"rel"}: normalize by the sum of values
+\strong{Note:} Only recommended for visualization of \code{GradSHAP(t)} or \code{IntGrad(t)}
+results.
+}}
 
-\item{add_sum}{Logical indicating whether to add the sum of attributions to
-the plot. Default is \code{FALSE}.}
+\item{add_comp}{Optional vector of comparison curves to add to the
+attribution plot (\code{plot_attr()} only). Options include:
+\itemize{
+\item \code{"pred"}: predicted survival curve
+\item \code{"pred_ref"}: reference survival curve
+\item \code{"pred_diff"}: difference between prediction and reference
+Default is \code{NULL}.
+}}
+
+\item{scale}{Scaling factor for plotting contribution percentages in
+\code{plot_contr()}. Default is \code{0.85}.}
+
+\item{aggregate}{Logical; if \code{TRUE}, contributions are aggregated across
+all instances in \code{plot_contr()}. If \code{FALSE} (default), one panel per instance
+is shown.}
+}
+\value{
+A \code{ggplot2} object.
 }
 \description{
-This function generates a plot for the survival attribution results.
-It can display the attributions over time for each instance and feature.
-The plot can be customized to show stacked or non-stacked attributions,
-normalized values, and the sum of attributions.
+Visualize survival predictions, feature attributions, and contribution
+percentages and force plots for survival results. The latter two are
+specifically for GradSHAP(t) and IntGrad(t) methods.
+}
+\details{
+These functions provide a convenient way to visualize the results of survival
+attribution methods:
+\itemize{
+\item \code{plot()} is a generic wrapper that dispatches to the appropriate plot type
+based on the \code{type} argument.
+\item \code{plot_pred()} visualizes survival predictions across time for the selected
+instances.
+\item \code{plot_attr()} displays time-resolved attributions over time per instance.
+}
+
+The following methods are only available for \code{GradSHAP(t)} and \code{IntGrad(t)}:
+\itemize{
+\item \code{plot_contr()} visualizes the relative contribution of features over time,
+optionally aggregated across instances for global insights.
+\item \code{plot_force()} generates force plots showing the features' effect to the
+prediction over time.
+}
 }
 \concept{Plot Methods}

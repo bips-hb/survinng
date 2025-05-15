@@ -1,161 +1,327 @@
 
-
-#' Plot method for survival attribution results
+#' Plot Methods for Survival Attribution Results
 #'
-#' This function generates a plot for the survival attribution results.
-#' It can display the attributions over time for each instance and feature.
-#' The plot can be customized to show stacked or non-stacked attributions,
-#' normalized values, and the sum of attributions.
+#' Visualize survival predictions, feature attributions, and contribution
+#' percentages and force plots for survival results. The latter two are
+#' specifically for GradSHAP(t) and IntGrad(t) methods.
 #'
-#' @param x An object of class `surv_result` containing the survival
-#' attribution results.
-#' @param stacked Logical indicating whether to plot stacked attributions.
-#' Default is `FALSE`.
-#' @param normalize Logical indicating whether to normalize the attribution by
-#' the sum of attributions for each instance and time. Default is `FALSE`.
-#' @param add_sum Logical indicating whether to add the sum of attributions to
-#' the plot. Default is `FALSE`.
-#' @param ... Unused arguments.
+#' These functions provide a convenient way to visualize the results of survival
+#' attribution methods:
 #'
-#' @importFrom stats aggregate as.formula ave
+#' - `plot()` is a generic wrapper that dispatches to the appropriate plot type
+#' based on the `type` argument.
+#' - `plot_pred()` visualizes survival predictions across time for the selected
+#' instances.
+#' - `plot_attr()` displays time-resolved attributions over time per instance.
+#'
+#' The following methods are only available for `GradSHAP(t)` and `IntGrad(t)`:
+#'
+#' - `plot_contr()` visualizes the relative contribution of features over time,
+#' optionally aggregated across instances for global insights.
+#' - `plot_force()` generates force plots showing the features' effect to the
+#' prediction over time.
+#'
+#' @param x An object of class `surv_result` containing survival attribution
+#' results.
+#' @param ... (unsed arguments)
+#' @param type Type of plot to generate when using the generic `plot()` method. Options:
+#'   - `"pred"`: plot survival predictions over time
+#'   - `"attr"`: plot feature attributions over time (default)
+#'   - `"contr"`: plot feature contributions percentages over time
+#'   - `"force"`: plot force plots for each instance
+#' @param normalize Normalization method for `plot_attr()`. Options:
+#'   - `"none"` (default): no normalization
+#'   - `"abs"`: normalize by the sum of absolute values
+#'   - `"rel"`: normalize by the sum of values
+#'  **Note:** Only recommended for visualization of `GradSHAP(t)` or `IntGrad(t)`
+#'  results.
+#' @param add_comp Optional vector of comparison curves to add to the
+#' attribution plot (`plot_attr()` only). Options include:
+#'   - `"pred"`: predicted survival curve
+#'   - `"pred_ref"`: reference survival curve
+#'   - `"pred_diff"`: difference between prediction and reference
+#'   Default is `NULL`.
+#' @param scale Scaling factor for plotting contribution percentages in
+#' `plot_contr()`. Default is `0.85`.
+#' @param aggregate Logical; if `TRUE`, contributions are aggregated across
+#'  all instances in `plot_contr()`. If `FALSE` (default), one panel per instance
+#'  is shown.
+#'
+#' @return A `ggplot2` object.
 #' @family Plot Methods
 #' @export
-plot.surv_result <- function(x, ...,  stacked = FALSE, normalize = FALSE, add_sum = FALSE) {
-  if (stacked == FALSE) {
-    dat <- as.data.frame(x)
+#' @rdname plot.surv_result
+plot.surv_result <- function(x, ..., type = "attr") {
 
-    if ("feature2" %in% colnames(dat)) {
-      stop("This plot method only supports one dimensional feature attributions.")
-    }
 
-    # Normalize value
-    if (normalize) {
-      dat$value <- ave(
-        dat$value,
-        dat$id,
-        dat$time,
-        FUN = function(x)
-          abs(x) / sum(abs(x))
-      )
-    }
-
-    # Add sum of all attributions if requested
-    if (add_sum) {
-      dat_sum <- aggregate(as.formula(paste0(
-        "value ~ ", paste0(setdiff(colnames(dat), c(
-          "feature", "value"
-        )), collapse = " + ")
-      )), data = dat, sum)
-      dat_sum$feature <- "Sum"
-      dat <- rbind(dat, dat_sum)
-    }
-
-    if ("pred_diff" %in% colnames(dat)) {
-      line <- geom_line(
-        aes(y = .data$pred_diff),
-        color = "darkgray",
-        linetype = "dashed",
-        linewidth = 1.15
-      )
-    } else {
-      line <- geom_line(
-        aes(y = .data$pred),
-        color = "darkgray",
-        linetype = "dashed",
-        linewidth = 1.15
-      )
-    }
-
-    if ("pred_diff_q1" %in% colnames(dat)) {
-      ribbon <- geom_ribbon(
-        aes(
-          ymin = .data$pred_diff_q1,
-          ymax = .data$pred_diff_q3
-        ),
-        fill = "gray",
-        alpha = 0.4,
-        linetype = "dashed"
-      )
-    } else {
-      ribbon <- NULL
-    }
-
-    p <- ggplot(dat, aes(x = .data$time)) + NULL +
-      ribbon +
-      geom_line(aes(
-        y = .data$value,
-        group = .data$feature,
-        color = .data$feature
-      )) +
-      geom_point(aes(
-        y = .data$value,
-        group = .data$feature,
-        color = .data$feature
-      ),
-      size = 0.75) +
-      line +
-      geom_hline(yintercept = 0, color = "black") +
-      facet_wrap(vars(.data$id),
-                 scales = "free_x",
-                 labeller = as_labeller(function(a)
-                   paste0("Instance ID: ", a))) +
-      theme_minimal() +
-      theme(legend.position = "bottom") +
-      labs(
-        x = "Time",
-        y = paste0("Attribution: ", unique(dat$method)),
-        color = "Feature",
-        linetype = NULL
-      )
-  }
-
-  if (stacked == TRUE) {
-    dat <- as.data.frame(x, stacked = TRUE)
-
-    if ("feature2" %in% colnames(dat)) {
-      stop("This plot method only supports one dimensional feature attributions.")
-    }
-
-    p <- ggplot(dat, aes(x = .data$time)) + NULL +
-      geom_ribbon(
-        aes(
-          ymin = .data$min_value,
-          ymax = .data$cum_ref,
-          group = .data$feature,
-          color = .data$feature,
-          fill = .data$feature
-        ),
-        alpha = 0.3
-      ) +
-      geom_line(aes(
-        y = .data$cum_ref,
-        group = .data$feature,
-        color = .data$feature
-      ),
-      linewidth = 0.7) +
-      geom_line(
-        aes(y = .data$pred_ref),
-        color = "blue",
-        linetype = "dotted",
-        linewidth = 1.5,
-        alpha = 0.5
-      ) +
-      geom_line(
-        aes(y = .data$pred),
-        color = "red",
-        linetype = "dotted",
-        linewidth = 1.5,
-        alpha = 0.5
-      ) +
-      theme_minimal() +
-      scale_colour_viridis_d() +
-      scale_fill_viridis_d() +
-      ylab("") +
-      theme(legend.position = "bottom")
+  if (type ==  "pred") {
+    p <- plot_pred(x, ...)
+  } else if (type == "attr") {
+    p <- plot_attr(x, ...)
+  } else if (type == "contr") {
+    p <- plot_contr(x, ...)
+  } else if (type == "force") {
+    p <- plot_force(x, ...)
+  } else {
+    stop("Invalid type. Choose 'pred' for survival prediction, 'attr' for
+         attributions, or 'contr' for contributions plots.")
   }
 
   p
 }
+
+
+
+#' @family Plot Methods
+#' @export
+#' @rdname plot.surv_result
+plot_force <- function(x, ...) {
+  # TODO
+
+  NULL
+}
+
+
+#' @family Plot Methods
+#' @export
+#' @rdname plot.surv_result
+plot_pred <- function(x) {
+  assertClass(x, "surv_result")
+
+  dat <- as.data.frame(x)
+  dat$id <- as.factor(dat$id)
+
+  if ("feature2" %in% colnames(dat)) {
+    stop("This plot method only supports one dimensional feature attributions.")
+  }
+
+  p <- ggplot(dat, aes(x = .data$time))  +
+    geom_line(aes(
+      y = .data$pred,
+      group = .data$id,
+      color = .data$id
+    )) +
+    theme_minimal(base_size = 16) +
+    theme(legend.position = "bottom") +
+    labs(
+      x = "Time",
+      y = "Survival Prediction",
+      color = "Instance ID",
+      linetype = "Instance ID"
+    )
+
+  p
+}
+
+
+#' @family Plot Methods
+#' @export
+#' @rdname plot.surv_result
+plot_attr <- function(x, normalize = "none", add_comp = NULL) {
+  assertChoice(normalize, c("none", "abs", "rel"))
+  assertSubset(add_comp, c("pred_ref", "pred", "pred_diff"), empty.ok = TRUE)
+
+  dat <- as.data.frame(x)
+  dat$id <- as.factor(dat$id)
+
+
+  # Check if it is for one-dimensional feature attributions
+  if ("feature2" %in% colnames(dat)) {
+    stop("This plot method only supports one dimensional feature attributions.")
+  }
+
+  # Normalize values if requested
+  if (normalize == "abs") {
+    norm_fun <- function(a) abs(a) / sum(abs(a))
+  } else if (normalize == "rel") {
+    norm_fun <- function(a) a / sum(a)
+  } else {
+    norm_fun <- function(a) a
+  }
+  dat$value <- ave(dat$value, dat$id, dat$time, FUN = norm_fun)
+
+
+  # Add comparison curves (reference, prediction, sum, difference)
+  if (!is.null(add_comp)) {
+    # Check if reference value is available
+    if (!(x$method %in% c("Surv_GradSHAP", "Surv_Intgrad"))) {
+      stop("Comparison curves are only available for GradSHAP(t) and Intgrad(t) methods.")
+    }
+
+    if (normalize != "none") {
+      warning("It is not recommended to normalize values when using comparison curves.")
+    }
+
+    dat$pred_ref <- dat$pred - dat$pred_diff
+    values <- stack(dat[, add_comp])
+    dat_comp <- cbind(dat[rep(1:nrow(dat), times = length(add_comp)), c("id", "time", "feature")],
+                      Comparison = values$ind,
+                      value = values$values)
+    # Create comparison curves
+    comp <- geom_line(
+      data = dat_comp,
+      aes(
+        x = .data$time,
+        y = .data$value,
+        group = .data$Comparison,
+        linetype = .data$Comparison
+      ),
+      color = "grey",
+      linewidth = 1
+    )
+  } else {
+    comp <- NULL
+  }
+
+  p <- ggplot(dat, aes(x = .data$time)) +
+    geom_line(aes(
+      y = .data$value,
+      group = .data$feature,
+      color = .data$feature
+    ), na.rm = TRUE) +
+    geom_point(aes(
+      y = .data$value,
+      group = .data$feature,
+      color = .data$feature
+    ),
+    na.rm = TRUE,
+    size = 0.75) +
+    comp +
+    geom_hline(yintercept = 0, color = "black") +
+    facet_wrap(vars(.data$id),
+               scales = "free_x",
+               labeller = as_labeller(function(a)
+                 paste0("Instance ID: ", a))) +
+    theme_minimal(base_size = 16) +
+    theme(legend.position = "bottom") +
+    labs(
+      x = "Time",
+      y = paste0("Attribution S(t|x): ", x$model_class),
+      color = "Feature",
+      linetype = NULL
+    ) +
+    scale_color_viridis_d()
+
+  p
+}
+
+#' @family Plot Methods
+#' @export
+#' @rdname plot.surv_result
+plot_contr <- function(x, scale = 0.85, aggregate = FALSE) {
+  dat <- as.data.frame(x)
+
+  if (!(x$method %in% c("Surv_GradSHAP", "Surv_Intgrad"))) {
+    stop("Contribution plots are only available for GradSHAP(t) and Intgrad(t) methods.")
+  }
+
+  # Aggregate values if requested
+  if (aggregate) {
+    dat <- dat %>%
+      group_by(.data$time, .data$feature) %>%
+      summarize(value = mean(abs(.data$value)), pred = mean(.data$pred),
+                pred_diff = mean(.data$pred_diff), method = unique(.data$method),
+                .groups = "drop")
+    dat$id <- "Aggregated"
+  }
+
+  dat$id <- as.factor(dat$id)
+  dat$pred_ref <- dat$pred - dat$pred_diff
+  integer_times <- seq(from = ceiling(min(dat$time)), to = floor(max(dat$time)))
+
+  # Process data to compute ratios, cumulative ratios, and ymin
+  dat <- dat %>%
+    group_by(.data$id, .data$time) %>%
+    mutate(sum = sum(abs(.data$value)),
+           ratio = abs(.data$value) / abs(.data$sum) * 100) %>%
+    arrange(.data$id, .data$time, desc(.data$feature)) %>%
+    group_by(.data$id, .data$time) %>%
+    mutate(cumulative_ratio = cumsum(.data$ratio)) %>%
+    arrange(.data$id, .data$time, .data$feature) %>%
+    group_by(.data$id, .data$time) %>%
+    mutate(ymin = lead(.data$cumulative_ratio, default = 0))
+
+  # Obtain average ratio over features and positions for the barchart
+  avg_contribution <- dat %>%
+    group_by(.data$id, .data$feature) %>%
+    summarize(mean_ratio = round(mean(.data$ratio),2), .groups = "drop") %>%
+    group_by(.data$id) %>%
+    mutate(pos = rev(cumsum(rev(.data$mean_ratio))) * scale)
+
+  # Set width of the bars to 10% of the time range
+  bar_width <- (max(dat$time) - min(dat$time)) * 0.1
+
+  # Generate the plot
+  p <- ggplot(dat, aes(x = .data$time)) +
+    # Line plot for cumulative_ratio
+    geom_line(aes(y = .data$cumulative_ratio, group = .data$feature),
+              color = "black") +
+    # Ribbon for cumulative_ratio
+    geom_ribbon(
+      aes(
+        ymin = .data$ymin,
+        ymax = .data$cumulative_ratio,
+        group = .data$feature,
+        fill = .data$feature
+      ),
+      alpha = 0.4
+    ) +
+    # Bar plot for mean_ratio
+    geom_bar(
+      data = avg_contribution, # Unique rows for bar plot
+      aes(
+        x = max(dat$time) + bar_width, # Offset x to place bars next to lines
+        y = .data$mean_ratio,
+        fill = .data$feature
+      ),
+      stat = "identity",
+      alpha = 0.6,
+      width = 0.8 * bar_width
+    ) +
+    # Add percentage labels
+    geom_text(
+      data = avg_contribution,
+      aes(
+        x = max(dat$time) + bar_width,
+        y = .data$pos,
+        label = paste0(round(.data$mean_ratio, 1), "%")
+      ),
+      color = "black",
+      size = 3,
+      check_overlap = TRUE
+    ) +
+    # Facet for each instance ID
+    facet_wrap(vars(.data$id),
+               scales = "free_x",
+               labeller = as_labeller(function(a) {
+                 if (aggregate) {
+                   "Global"
+                 } else {
+                   paste0("Instance ID: ", a)
+                 }
+               })) +
+    # Minimal theme
+    theme_minimal(base_size = 16) +
+    theme(legend.position = "bottom") +
+    # Suppress x-axis tick label for bar offset
+    scale_x_continuous(
+      breaks = integer_times,
+      labels = integer_times,
+      guide = guide_axis(check.overlap = TRUE)
+    ) +
+    scale_y_continuous(expand = c(0,0)) +
+    # Labels
+    labs(
+      x = "Time",
+      y = paste0("% Contribution: ", x$model_class),
+      color = "Feature",
+      fill = "Feature"
+    ) +
+    scale_fill_viridis_d(alpha = 0.4)
+
+  p
+}
+
 
 # Helper function to process nested result structures
 process_result <- function(res, prefix = NULL) {
