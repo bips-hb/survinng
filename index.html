@@ -85,7 +85,7 @@
 <p>To install the latest development version directly from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"nkoenen/Survinng"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bips-hb/Survinng"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="id_-usage">📖 Usage<a class="anchor" aria-label="anchor" href="#id_-usage"></a>
@@ -110,17 +110,55 @@
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a></span>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co"># Plot results</span></span>
 <span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="fu">plot</span>(shap)</span></code></pre></div>
+<p>👉 For full documentation and advanced use cases, visit the <a href="https://bips-hb.github.io/Survinng/">📘 package website</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="id_-quick-example">💻 Quick Example<a class="anchor" aria-label="anchor" href="#id_-quick-example"></a>
+</h2>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://callr.r-lib.org" class="external-link">callr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load lung dataset</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">cancer</span>, package<span class="op">=</span><span class="st">"survival"</span><span class="op">)</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">cancer</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">10</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">train</span> <span class="op">&lt;-</span> <span class="va">data</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">150</span>, <span class="op">]</span></span>
+<span><span class="va">test</span> <span class="op">&lt;-</span> <span class="va">data</span><span class="op">[</span><span class="fl">151</span><span class="op">:</span><span class="fl">212</span>, <span class="op">]</span></span>
+<span></span>
+<span><span class="co"># Train a DeepSurv model</span></span>
+<span><span class="va">ext</span> <span class="op">&lt;-</span> <span class="fu">callr</span><span class="fu">::</span><span class="fu"><a href="https://callr.r-lib.org/reference/r.html" class="external-link">r</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">train</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RaphaelS1/survivalmodels/" class="external-link">survivalmodels</a></span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Fit the DeepSurv model</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/survivalmodels/man/install_pycox.html" class="external-link">install_pycox</a></span><span class="op">(</span>install_torch <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Requires pycox</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survivalmodels/man/deepsurv.html" class="external-link">deepsurv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">train</span>, epochs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>                  early_stopping <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Extract the model</span></span>
+<span>  <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="reference/extract_model.html">extract_model</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="op">}</span>, args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>train <span class="op">=</span> <span class="va">train</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Create explainer</span></span>
+<span><span class="va">explainer</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run GradSHAP(t)</span></span>
+<span><span class="va">shap</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/surv_gradSHAP.html">surv_gradSHAP</a></span><span class="op">(</span><span class="va">explainer</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Plot results</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">shap</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="id_-citation">📚 Citation<a class="anchor" aria-label="anchor" href="#id_-citation"></a>
 </h2>
 <p>If you use this package in your research, please cite it as follows:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">langbein2025grad</span>,</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="dt">title</span>={Gradient-based Explanations for Deep Learning Survival Models},</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="dt">author</span>={Langbein, Sophie Hanna and Koenen, Niklas and Wright, Marvin N.},</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="dt">journal</span>={arXiv preprint arXiv:2502.04970},</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="dt">year</span>={2025}</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">langbein2025grad</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="dt">title</span>={Gradient-based Explanations for Deep Learning Survival Models},</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="dt">author</span>={Langbein, Sophie Hanna and Koenen, Niklas and Wright, Marvin N.},</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="dt">journal</span>={arXiv preprint arXiv:2502.04970},</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="dt">year</span>={2025}</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
@@ -150,10 +188,10 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://nkoenen.github.io/Survinng/"><img src="reference/figures/logo.jpeg" align="right" height="120" alt="Survinng website"></a></li>
+<li><a href="https://bips-hb.github.io/Survinng/"><img src="reference/figures/logo.jpeg" align="right" height="120" alt="Survinng website"></a></li>
 <li><a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a></li>
 <li><a href="https://arxiv.org/abs/2502.04970" class="external-link"><img src="https://img.shields.io/badge/arXiv-2502.04970-b31b1b.svg" alt="arXiv"></a></li>
-<li><a href="https://nkoenen.github.io/Survinng/"><img src="https://img.shields.io/badge/docs-%F0%9F%93%98%20Survinng%20Site-blue" alt="Website"></a></li>
+<li><a href="https://bips-hb.github.io/Survinng/"><img src="https://img.shields.io/badge/docs-%F0%9F%93%98%20Survinng%20Site-blue" alt="Website"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
 </ul>
 </div>
