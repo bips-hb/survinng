@@ -22,9 +22,7 @@ library(ggplot2)
 library(cowplot)
 library(dplyr)
 library(tidyr)
-library(SurvMetrics)
 library(survival)
-library(simsurv)
 library(survminer)
 library(torch)
 library(viridis)
@@ -32,9 +30,7 @@ library(here)
 ```
 
 
-### Time-dependent effects
-
-## Generate the data
+## Generate the Data
 
 Simulation setting:
 - $10,000$ samples ($9,500$ for training, $500$ for testing)
@@ -44,7 +40,7 @@ Simulation setting:
 - $X_3 \sim \mathcal{U}(-1,1)$ has no effect
 
 
-## Fit the models
+## Load Models and Data
 
 ```{r td fit models, fig.width=10, fig.height=15}
 
@@ -114,7 +110,7 @@ km_plot
 
 ### Survival Prediction
 
-```{r td surv pred, fig.width=10, fig.height=15}
+```{r td surv pred, fig.width=10, fig.height=5}
 # Print instances of interest
 td_ids <- c(79, 428)
 print(test[td_ids, ])
@@ -129,7 +125,7 @@ surv_plot <- cowplot::plot_grid(
   plot_surv_pred(grad_cox) ,
   plot_surv_pred(grad_deephit),
   plot_surv_pred(grad_deepsurv),
-  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"),
+  nrow = 1, labels = c("CoxTime", "DeepHit", "DeepSurv"),
   label_x = 0.03,      
   label_size = 14) 
 surv_plot
@@ -148,16 +144,6 @@ grad_plot <- cowplot::plot_grid(
   plot_attribution(grad_deepsurv, label = "Grad(t)"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 grad_plot
-```
-
-```{r td gradient norm, fig.width=10, fig.height=15}
-# Plot attributions
-grad_plot_norm <- cowplot::plot_grid(
-  plot_attribution(grad_cox, normalize = TRUE, label = "Grad(t)"),
-  plot_attribution(grad_deephit, normalize = TRUE, label = "Grad(t)"),
-  plot_attribution(grad_deepsurv, normalize = TRUE, label = "Grad(t)"),
-  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
-grad_plot_norm
 ```
 
 ### SmoothGrad (Sensitivity)
@@ -180,15 +166,6 @@ smoothgrad_plot <- cowplot::plot_grid(
 smoothgrad_plot
 ```
 
-```{r td smoothgrad norm, fig.width=10, fig.height=15}
-# Plot attributions
-smoothgrad_plot_comp <- cowplot::plot_grid(
-  plot_attribution(sg_cox, normalize = TRUE, label = "SG(t)"), 
-  plot_attribution(sg_deephit, normalize = TRUE, label = "SG(t)"), 
-  plot_attribution(sg_deepsurv, normalize = TRUE, label = "SG(t)"),
-  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
-smoothgrad_plot_comp
-```
 
 ### Gradient x Input
 
@@ -205,16 +182,6 @@ gradin_plot <- cowplot::plot_grid(
   plot_attribution(gradin_deepsurv, label = "GxI(t)"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 gradin_plot
-```
-
-```{r td gradientxinput norm, fig.width=10, fig.height=15}
-# Plot attributions
-gradin_plot_norm <- cowplot::plot_grid(
-  plot_attribution(gradin_cox, normalize = TRUE, label = "GxI(t)"), 
-  plot_attribution(gradin_deephit, normalize = TRUE, label = "GxI(t)"), 
-  plot_attribution(gradin_deepsurv, normalize = TRUE, label = "GxI(t)"),
-  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
-gradin_plot_norm
 ```
 
 ### SmoothGrad x Input
@@ -237,26 +204,16 @@ smoothgradin_plot <- cowplot::plot_grid(
 smoothgradin_plot
 ```
 
-```{r td smoothgradxinput norm, fig.width=10, fig.height=15}
-# Plot attributions
-smoothgradin_plot_norm <- cowplot::plot_grid(
-  plot_attribution(sgin_cox, normalize = TRUE, label = "SGxI(t)"), 
-  plot_attribution(sgin_deephit, normalize = TRUE, label = "SGxI(t)"), 
-  plot_attribution(sgin_deepsurv, normalize = TRUE, label = "SGxI(t)"),
-  nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
-smoothgradin_plot_norm
-```
-
 ### IntegratedGradient
 
 #### Zero baseline (should be proportional to Gradient x Input)
 
 ```{r td intgrad0, fig.width=10, fig.height=15}
-# Copute IntegratedGradient with 0 baseline
+# Compute IntegratedGradient with 0 baseline
 x_ref <- matrix(c(0,0,0,0), nrow = 1)
-ig0_cox <- surv_intgrad(exp_coxtime, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
-ig0_deephit <- surv_intgrad(exp_deephit, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
-ig0_deepsurv <- surv_intgrad(exp_deepsurv, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
+ig0_cox <- surv_intgrad(exp_coxtime, instance = td_ids, n = 50, x_ref = x_ref)
+ig0_deephit <- surv_intgrad(exp_deephit, instance = td_ids, n = 50, x_ref = x_ref)
+ig0_deepsurv <- surv_intgrad(exp_deepsurv, instance = td_ids, n = 50, x_ref = x_ref)
 
 # Plot attributions
 intgrad0_plot <- cowplot::plot_grid(
@@ -303,9 +260,9 @@ intgrad0_plot_force
 ```{r td intgradmean mean, fig.width=10, fig.height=15}
 # Compute IntegratedGradient with mean baseline
 x_ref <- NULL # default: feature-wise mean
-igm_cox <- surv_intgrad(exp_coxtime, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
-igm_deephit <- surv_intgrad(exp_deephit, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
-igm_deepsurv <- surv_intgrad(exp_deepsurv, instance = td_ids, n = 50, x_ref = x_ref, batch_size = 1e6)
+igm_cox <- surv_intgrad(exp_coxtime, instance = td_ids, n = 50, x_ref = x_ref)
+igm_deephit <- surv_intgrad(exp_deephit, instance = td_ids, n = 50, x_ref = x_ref)
+igm_deepsurv <- surv_intgrad(exp_deepsurv, instance = td_ids, n = 50, x_ref = x_ref)
 
 # Plot attributions
 intgradmean_plot <- cowplot::plot_grid(
@@ -354,12 +311,9 @@ intgradmean_plot_force
 
 ```{r td gradshap, fig.width=10, fig.height=15}
 # Compute GradShap
-gshap_cox <- surv_gradSHAP(exp_coxtime, instance = td_ids, n = 50, num_samples = 100, 
-                           batch_size = 1e6)
-gshap_deephit <- surv_gradSHAP(exp_deephit, instance = td_ids, n = 50, num_samples = 100, 
-                               batch_size = 1e6)
-gshap_deepsurv <- surv_gradSHAP(exp_deepsurv, instance = td_ids, n = 50, num_samples = 100, 
-                                batch_size = 1e6)
+gshap_cox <- surv_gradSHAP(exp_coxtime, instance = td_ids, n = 50, num_samples = 100)
+gshap_deephit <- surv_gradSHAP(exp_deephit, instance = td_ids, n = 50, num_samples = 100)
+gshap_deepsurv <- surv_gradSHAP(exp_deepsurv, instance = td_ids, n = 50, num_samples = 100)
 
 # Plot attributions
 gshap_plot <- cowplot::plot_grid(
