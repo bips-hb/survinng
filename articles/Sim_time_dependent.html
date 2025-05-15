@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Survinng</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,8 +81,11 @@ neural network models.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sjmgarnier.github.io/viridis/" class="external-link">viridis</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://here.r-lib.org/" class="external-link">here</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="generate-the-data">Generate the Data<a class="anchor" aria-label="anchor" href="#generate-the-data"></a>
+<h2 id="preprocessing">Preprocessing<a class="anchor" aria-label="anchor" href="#preprocessing"></a>
 </h2>
+<div class="section level3">
+<h3 id="generate-the-data">Generate the Data<a class="anchor" aria-label="anchor" href="#generate-the-data"></a>
+</h3>
 <p>We consider a simulated dataset with the following
 characteristics:</p>
 <ul>
@@ -119,9 +122,9 @@ has <strong>no effect</strong> on the hazard or survival</p></li>
 </li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="load-models-and-data">Load Models and Data<a class="anchor" aria-label="anchor" href="#load-models-and-data"></a>
-</h2>
+<div class="section level3">
+<h3 id="load-models-and-data">Load Models and Data<a class="anchor" aria-label="anchor" href="#load-models-and-data"></a>
+</h3>
 <p>The models used in this vignette are the same as those used in the
 main paper. The models were trained using the
 <code>survivalmodels</code> package, and the training process is not
@@ -139,23 +142,9 @@ shown here, but can be found in the
 <span><span class="va">ext_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"vignettes/articles/Sim_time_dependent/extracted_model_deepsurv.rds"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ext_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"vignettes/articles/Sim_time_dependent/extracted_model_deephit.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="create-explainer">Create Explainer<a class="anchor" aria-label="anchor" href="#create-explainer"></a>
-</h2>
-<p>The <code><a href="../reference/explain.html">explain()</a></code> function creates an explainer object for
-the survival models. The <code>data</code> argument specifies the
-dataset used for explanation, and the <code>model</code> argument
-specifies the model to be explained. The <code>target</code> argument
-indicates the type of prediction to be explained (e.g., “survival”,
-“risk”, “cumulative hazard”).</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">exp_deephit</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_deephit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span>
-<span><span class="va">exp_coxtime</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_coxtime</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span>
-<span><span class="va">exp_deepsurv</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_deepsurv</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
-</h2>
+<div class="section level3">
+<h3 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
+</h3>
 <p>The performance of the models is evaluated using the C-Index and
 Integrated Brier Score (IBS). The C-Index measures the concordance
 between predicted and observed survival times, while the IBS quantifies
@@ -186,9 +175,23 @@ the accuracy of survival predictions.</p>
 </table>
 <p><img src="Sim_time_dependent/sim_td_brier_plot.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
-<div class="section level2">
-<h2 id="kaplan-meier-survival-curves">Kaplan-Meier Survival Curves<a class="anchor" aria-label="anchor" href="#kaplan-meier-survival-curves"></a>
-</h2>
+<div class="section level3">
+<h3 id="create-explainer">Create Explainer<a class="anchor" aria-label="anchor" href="#create-explainer"></a>
+</h3>
+<p>The <code><a href="../reference/explain.html">explain()</a></code> function creates an explainer object for
+the survival models. The <code>data</code> argument specifies the
+dataset used for explanation, and the <code>model</code> argument
+specifies the model to be explained. The <code>target</code> argument
+indicates the type of prediction to be explained (e.g., “survival”,
+“risk”, “cumulative hazard”).</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exp_deephit</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_deephit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span>
+<span><span class="va">exp_coxtime</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_coxtime</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span>
+<span><span class="va">exp_deepsurv</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_deepsurv</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="kaplan-meier-survival-curves">Kaplan-Meier Survival Curves<a class="anchor" aria-label="anchor" href="#kaplan-meier-survival-curves"></a>
+</h3>
 <p>The Kaplan-Meier survival curves are plotted to visualize the
 survival probabilities over time. The <code>x1</code> variable is
 categorized into two groups (low and high) based on its median value.
@@ -220,6 +223,7 @@ The survival curves are then plotted for each group.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_rug.html" class="external-link">geom_rug</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">test</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">time</span><span class="op">)</span>, sides <span class="op">=</span> <span class="st">"bl"</span>, linewidth <span class="op">=</span> <span class="fl">0.5</span>, alpha <span class="op">=</span> <span class="fl">0.5</span>, inherit.aes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">km_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20KM-1.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
 <div class="section level3">
 <h3 id="survival-prediction">Survival Prediction<a class="anchor" aria-label="anchor" href="#survival-prediction"></a>
 </h3>
@@ -321,7 +325,7 @@ difference-to-reference methods (i.e., IntGrad(t) and GradSHAP(t))
 provide insights into the relative scale, direction, and magnitude of
 feature effects by comparing predictions to a meaningful reference.</p>
 <div class="section level4">
-<h4 id="zero-baseline-should-be-proportional-to-gradient-x-it">Zero baseline (should be proportional to Gradient x I(t))<a class="anchor" aria-label="anchor" href="#zero-baseline-should-be-proportional-to-gradient-x-it"></a>
+<h4 id="zero-baseline">Zero baseline<a class="anchor" aria-label="anchor" href="#zero-baseline"></a>
 </h4>
 <p>The zero baseline is a reference point where all features are set to
 zero.</p>
@@ -375,7 +379,7 @@ each feature at a set of representative survival times.</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="gradshapt">GradShap(t)<a class="anchor" aria-label="anchor" href="#gradshapt"></a>
+<h3 id="gradshapt">GradSHAP(t)<a class="anchor" aria-label="anchor" href="#gradshapt"></a>
 </h3>
 <p>GradSHAP(t) is a method that computes the SHAP values for survival
 predictions. It provides a measure of the contribution of each feature

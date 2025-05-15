@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Survinng</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,13 +80,12 @@ neural network models.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://torch.mlverse.org/docs" class="external-link">torch</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sjmgarnier.github.io/viridis/" class="external-link">viridis</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://here.r-lib.org/" class="external-link">here</a></span><span class="op">)</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="time-independent-effects">Time-independent effects<a class="anchor" aria-label="anchor" href="#time-independent-effects"></a>
-</h3>
-</div>
 <div class="section level2">
-<h2 id="generate-the-data">Generate the data<a class="anchor" aria-label="anchor" href="#generate-the-data"></a>
+<h2 id="preprocessing">Preprocessing<a class="anchor" aria-label="anchor" href="#preprocessing"></a>
 </h2>
+<div class="section level3">
+<h3 id="generate-the-data">Generate the data<a class="anchor" aria-label="anchor" href="#generate-the-data"></a>
+</h3>
 <p>We consider a simulated dataset with the following
 characteristics:</p>
 <ul>
@@ -116,9 +115,9 @@ has <strong>no effect</strong> on the hazard or survival</p></li>
 time-varying effects</li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="load-models-and-data">Load Models and Data<a class="anchor" aria-label="anchor" href="#load-models-and-data"></a>
-</h2>
+<div class="section level3">
+<h3 id="load-models-and-data">Load Models and Data<a class="anchor" aria-label="anchor" href="#load-models-and-data"></a>
+</h3>
 <p>The models used in this vignette are the same as those used in the
 main paper. The models were trained using the
 <code>survivalmodels</code> package, and the training process is not
@@ -136,23 +135,9 @@ shown here, but can be found in the
 <span><span class="va">ext_deepsurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"vignettes/articles/Sim_time_independent/ext_deepsurv.rds"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ext_deephit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"vignettes/articles/Sim_time_independent/ext_deephit.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="create-explainer">Create Explainer<a class="anchor" aria-label="anchor" href="#create-explainer"></a>
-</h2>
-<p>The <code><a href="../reference/explain.html">explain()</a></code> function creates an explainer object for
-the survival models. The <code>data</code> argument specifies the
-dataset used for explanation, and the <code>model</code> argument
-specifies the model to be explained. The <code>target</code> argument
-indicates the type of prediction to be explained (e.g., “survival”,
-“risk”, “cumulative hazard”).</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">exp_deephit</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_deephit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span>
-<span><span class="va">exp_coxtime</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_coxtime</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span>
-<span><span class="va">exp_deepsurv</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_deepsurv</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
-</h2>
+<div class="section level3">
+<h3 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
+</h3>
 <p>The performance of the models is evaluated using the C-Index and
 Integrated Brier Score (IBS). The C-Index measures the concordance
 between predicted and observed survival times, while the IBS quantifies
@@ -182,6 +167,21 @@ the accuracy of survival predictions.</p>
 </tbody>
 </table>
 <p><img src="Sim_time_independent/sim_tid_brier_plot.png" width="80%" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level3">
+<h3 id="create-explainer">Create Explainer<a class="anchor" aria-label="anchor" href="#create-explainer"></a>
+</h3>
+<p>The <code><a href="../reference/explain.html">explain()</a></code> function creates an explainer object for
+the survival models. The <code>data</code> argument specifies the
+dataset used for explanation, and the <code>model</code> argument
+specifies the model to be explained. The <code>target</code> argument
+indicates the type of prediction to be explained (e.g., “survival”,
+“risk”, “cumulative hazard”).</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exp_deephit</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_deephit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span>
+<span><span class="va">exp_coxtime</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_coxtime</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span>
+<span><span class="va">exp_deepsurv</span> <span class="op">&lt;-</span> <span class="fu">Survinng</span><span class="fu">::</span><span class="fu"><a href="../reference/explain.html">explain</a></span><span class="op">(</span><span class="va">ext_deepsurv</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, data <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="survival-prediction">Survival Prediction<a class="anchor" aria-label="anchor" href="#survival-prediction"></a>
 </h3>
@@ -324,11 +324,9 @@ the feature importance.</p>
 along a straight line path from a reference point to the input instance.
 This method provides a more comprehensive view of the feature importance
 by considering the cumulative effect of the features over time.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="zero-baseline-should-be-proportional-to-gradient-x-it">Zero baseline (should be proportional to Gradient x I(t))<a class="anchor" aria-label="anchor" href="#zero-baseline-should-be-proportional-to-gradient-x-it"></a>
-</h2>
+<div class="section level4">
+<h4 id="zero-baseline">Zero baseline<a class="anchor" aria-label="anchor" href="#zero-baseline"></a>
+</h4>
 <p>The zero baseline is a reference point where all features are set to
 zero.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -378,8 +376,10 @@ each feature at a set of representative survival times.</p>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">intgrad0_plot_force</span></span></code></pre></div>
 <p><img src="Sim_time_independent_files/figure-html/tid%20intgrad0%20force-1.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
+</div>
 <div class="section level3">
-<h3 id="gradshap">GradShap<a class="anchor" aria-label="anchor" href="#gradshap"></a>
+<h3 id="gradshapt">GradSHAP(t)<a class="anchor" aria-label="anchor" href="#gradshapt"></a>
 </h3>
 <p>GradSHAP(t) is a method that computes the SHAP values for survival
 predictions. It provides a measure of the contribution of each feature
