@@ -41,8 +41,6 @@
 #'   - `"pred_ref"`: reference survival curve
 #'   - `"pred_diff"`: difference between prediction and reference
 #'   Default is `NULL`.
-#' @param scale Scaling factor for plotting contribution percentages in
-#' `plot_contr()`. Default is `0.85`.
 #' @param aggregate Logical; if `TRUE`, contributions are aggregated across
 #'  all instances in `plot_contr()`. If `FALSE` (default), one panel per instance
 #'  is shown.
@@ -144,7 +142,7 @@ plot_attr <- function(x, normalize = "none", add_comp = NULL) {
   # Add comparison curves (reference, prediction, sum, difference)
   if (!is.null(add_comp)) {
     # Check if reference value is available
-    if (!(x$method %in% c("Surv_GradSHAP", "Surv_Intgrad"))) {
+    if (!(x$method %in% c("Surv_GradSHAP", "Surv_IntGrad"))) {
       stop("Comparison curves are only available for GradSHAP(t) and Intgrad(t) methods.")
     }
 
@@ -153,7 +151,7 @@ plot_attr <- function(x, normalize = "none", add_comp = NULL) {
     }
 
     dat$pred_ref <- dat$pred - dat$pred_diff
-    values <- stack(dat[, add_comp])
+    values <- stack(dat[, add_comp, drop = FALSE])
     dat_comp <- cbind(dat[rep(1:nrow(dat), times = length(add_comp)), c("id", "time", "feature")],
                       Comparison = values$ind,
                       value = values$values)
@@ -208,10 +206,10 @@ plot_attr <- function(x, normalize = "none", add_comp = NULL) {
 #' @family Plot Methods
 #' @export
 #' @rdname plot.surv_result
-plot_contr <- function(x, scale = 0.85, aggregate = FALSE) {
+plot_contr <- function(x, aggregate = FALSE) {
   dat <- as.data.frame(x)
 
-  if (!(x$method %in% c("Surv_GradSHAP", "Surv_Intgrad"))) {
+  if (!(x$method %in% c("Surv_GradSHAP", "Surv_IntGrad"))) {
     stop("Contribution plots are only available for GradSHAP(t) and Intgrad(t) methods.")
   }
 
@@ -229,11 +227,17 @@ plot_contr <- function(x, scale = 0.85, aggregate = FALSE) {
   dat$pred_ref <- dat$pred - dat$pred_diff
   integer_times <- seq(from = ceiling(min(dat$time)), to = floor(max(dat$time)))
 
+  # Check if all values are zero for a feature and time point
+  if (any(dat$pred_diff == 0)) {
+    dat[dat$pred_diff == 0, ]$value <- 1e-12
+  }
+
   # Process data to compute ratios, cumulative ratios, and ymin
   dat <- dat %>%
     group_by(.data$id, .data$time) %>%
-    mutate(sum = sum(abs(.data$value)),
-           ratio = abs(.data$value) / abs(.data$sum) * 100) %>%
+    mutate(
+      sum = sum(abs(.data$value)),
+      ratio = abs(.data$value) / abs(.data$sum) * 100) %>%
     arrange(.data$id, .data$time, desc(.data$feature)) %>%
     group_by(.data$id, .data$time) %>%
     mutate(cumulative_ratio = cumsum(.data$ratio)) %>%
@@ -244,9 +248,9 @@ plot_contr <- function(x, scale = 0.85, aggregate = FALSE) {
   # Obtain average ratio over features and positions for the barchart
   avg_contribution <- dat %>%
     group_by(.data$id, .data$feature) %>%
-    summarize(mean_ratio = round(mean(.data$ratio),2), .groups = "drop") %>%
+    summarize(mean_ratio = round(mean(.data$ratio, na.rm = TRUE),2), .groups = "drop") %>%
     group_by(.data$id) %>%
-    mutate(pos = rev(cumsum(rev(.data$mean_ratio))) * scale)
+    mutate(pos = rev(cumsum(rev(.data$mean_ratio) * 0.5 + 0.5 * c(0, rev(.data$mean_ratio[-1])))) )#rev(cumsum(rev(.data$mean_ratio))) * scale)
 
   # Set width of the bars to 10% of the time range
   bar_width <- (max(dat$time) - min(dat$time)) * 0.1
@@ -270,19 +274,19 @@ plot_contr <- function(x, scale = 0.85, aggregate = FALSE) {
     geom_bar(
       data = avg_contribution, # Unique rows for bar plot
       aes(
-        x = max(dat$time) + bar_width, # Offset x to place bars next to lines
+        x = max(dat$time) + bar_width *0.75, # Offset x to place bars next to lines
         y = .data$mean_ratio,
         fill = .data$feature
       ),
       stat = "identity",
       alpha = 0.6,
-      width = 0.8 * bar_width
+      width = 1 * bar_width
     ) +
     # Add percentage labels
     geom_text(
       data = avg_contribution,
       aes(
-        x = max(dat$time) + bar_width,
+        x = max(dat$time) + bar_width * 0.75, # Offset x to place labels next to bars
         y = .data$pos,
         label = paste0(round(.data$mean_ratio, 1), "%")
       ),
@@ -307,6 +311,7 @@ plot_contr <- function(x, scale = 0.85, aggregate = FALSE) {
     scale_x_continuous(
       breaks = integer_times,
       labels = integer_times,
+      expand = c(0, 0),
       guide = guide_axis(check.overlap = TRUE)
     ) +
     scale_y_continuous(expand = c(0,0)) +
@@ -317,6 +322,7 @@ plot_contr <- function(x, scale = 0.85, aggregate = FALSE) {
       color = "Feature",
       fill = "Feature"
     ) +
+    geom_vline(xintercept = max(dat$time)) +
     scale_fill_viridis_d(alpha = 0.4)
 
   p

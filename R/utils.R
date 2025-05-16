@@ -208,3 +208,11 @@ list_stack <- function(lst, dim = 1) {
 
   res
 }
+
+strip_fun <- function(x) {
+  if (is.list(x) & length(x) > 1) {
+    return(paste0("(", paste(sapply(x, strip_fun), collapse = ", "), ")"))
+  } else {
+    return(paste0(length(unlist(x))))
+  }
+}

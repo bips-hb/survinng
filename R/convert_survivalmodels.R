@@ -61,12 +61,12 @@ extract_model.coxtime <- function(x, path = NULL, num_basehazard = 200L) {
 
     labtrans <- list(
       transform = function(a) (a - mean) / std,
-      inv_transform = function(a) exp(a * std + mean) - 1
+      transform_inv = function(a) exp(a * std + mean) - 1
     )
   } else {
     labtrans = list(
       transform = function(a) a,
-      inv_transform = function(a) a
+      transform_inv = function(a) a
     )
   }
 

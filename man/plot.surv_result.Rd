@@ -16,7 +16,7 @@ plot_pred(x)
 
 plot_attr(x, normalize = "none", add_comp = NULL)
 
-plot_contr(x, scale = 0.85, aggregate = FALSE)
+plot_contr(x, aggregate = FALSE)
 }
 \arguments{
 \item{x}{An object of class \code{surv_result} containing survival attribution
@@ -49,9 +49,6 @@ attribution plot (\code{plot_attr()} only). Options include:
 \item \code{"pred_diff"}: difference between prediction and reference
 Default is \code{NULL}.
 }}
-
-\item{scale}{Scaling factor for plotting contribution percentages in
-\code{plot_contr()}. Default is \code{0.85}.}
 
 \item{aggregate}{Logical; if \code{TRUE}, contributions are aggregated across
 all instances in \code{plot_contr()}. If \code{FALSE} (default), one panel per instance

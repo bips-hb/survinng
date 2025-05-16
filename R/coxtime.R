@@ -149,17 +149,17 @@ CoxTime <- torch::nn_module(
     self$default_preprocess <- if (is.null(preprocess_fun)) TRUE else FALSE
 
     if (!is.null(labtrans)) {
-      if (!is.function(labtrans$transform) || !is.function(labtrans$inv_transform)) {
-        stop("Argument `labtrans` must be a list with 'transform' and 'inv_transform' functions!")
+      if (!is.function(labtrans$transform) || !is.function(labtrans$transform_inv)) {
+        stop("Argument `labtrans` must be a list with 'transform' and 'transform_inv' functions!")
       }
       self$labtrans <- labtrans
     } else {
       self$labtrans <- list(
         transform = function(a) a,
-        inv_transform = function(a) a
+        transform_inv = function(a) a
       )
     }
-    self$t_orig <- self$labtrans$inv_transform(self$base_hazard$time)
+    self$t_orig <- self$labtrans$transform_inv(self$base_hazard$time)
 
     if (is.null(preprocess_fun)) {
       self$preprocess_fun <- function(x) {

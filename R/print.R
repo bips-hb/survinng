@@ -9,8 +9,8 @@ print.surv_result <- function(x, ...) {
     stop("The object must be of class 'surv_result'.")
   }
 
-  cat("\nSurvival Gradient Result Summary\n")
-  cat("--------------------------------\n")
+  cat("\nSurvival Attribution Result Summary\n")
+  cat("-------------------------------------\n")
 
   # Model information
   if (!is.null(x$model_class)) {
@@ -19,7 +19,15 @@ print.surv_result <- function(x, ...) {
 
   # Method information
   if (!is.null(x$method)) {
-    cat("Method:               ", x$method, "\n")
+    method_name <- switch(
+      x$method,
+      "Surv_Gradient" = ifelse(x$method_args$times_input, "GxI(t)", "Grad(t)"),
+      "Surv_SmoothGrad" = ifelse(x$method_args$times_input, "SGxI(t)", "SG(t)"),
+      "Surv_IntGrad" = "IntGrad(t)",
+      "Surv_GradSHAP" = "GradSHAP(t)",
+      x$method
+    )
+    cat("Method:               ", method_name, "\n")
   }
 
   # Target information
@@ -39,9 +47,9 @@ print.surv_result <- function(x, ...) {
 
   # Number of competing risks (if applicable)
   if (!is.null(x$competing_risks) && x$competing_risks) {
-    cat("Competing risks:      Yes\n")
+    cat("Competing risks:       Yes\n")
   } else {
-    cat("Competing risks:      No\n")
+    cat("Competing risks:       No\n")
   }
 
   # Predicted outcomes summary (if available)
@@ -72,7 +80,8 @@ print.surv_result <- function(x, ...) {
     cat(x$warnings, "\n")
   }
 
-  cat("\nEnd of Summary\n")
+  cat("-------------------------------------\n")
+  cat("End of Summary\n")
 }
 
 
@@ -100,7 +109,7 @@ print.explainer_coxtime <- function(x, ...) {
 
   # Data summary
   input_data <- x$input_data
-  n_instances <- if (is.list(input_data)) length(input_data[[1]]) else length(input_data)
+  n_instances <- if (is.list(input_data)) dim(input_data[[1]])[1] else dim(input_data)[1]
 
   cat("Number of instances in the input data: ", n_instances, "\n")
 
@@ -111,7 +120,8 @@ print.explainer_coxtime <- function(x, ...) {
 
   # Additional model details
   cat("Model parameters:\n")
-  cat(" - Number of features: ", length(x$input_names), "\n")
+  cat(" - Number of input modalities: ", length(x$input_names), "\n")
+  cat(" - Number of features: ", strip_fun(x$input_names), "\n")
 
   if (!is.null(x$model$base_hazard)) {
     cat(" - Baseline hazard function: Yes\n")
@@ -127,7 +137,7 @@ print.explainer_coxtime <- function(x, ...) {
 
   # Show some of the input names (e.g., features)
   cat("\nFeatures (first 5 shown):\n")
-  cat(paste(x$input_names[1:min(5, length(x$input_names))], collapse = ", "), "\n")
+  cat(paste(unlist(x$input_names)[1:min(5, length(unlist(x$input_names)))], collapse = ", "), "\n")
 
   # Conclude
   cat("-----------------------------------\n")
@@ -153,18 +163,20 @@ print.explainer_deepsurv <- function(x, ...) {
 
   # Data summary
   input_data <- x$input_data
-  n_instances <- if (is.list(input_data)) length(input_data[[1]]) else length(input_data)
+  n_instances <- if (is.list(input_data)) dim(input_data[[1]])[1] else dim(input_data)[1]
 
   cat("Number of instances in the input data: ", n_instances, "\n")
 
-  # Display timepoints (DeepSurv may not have timepoints like CoxTime)
+  # Display timepoints
   if (!is.null(x$model$t_orig)) {
-    cat("Number of timepoints in the model: ", length(x$model$t_orig), "\n")
+    cat("Number of timepoints in the model: ", length(x$model$t_orig),
+        "(min:", min(x$model$t_orig), ", max:", max(x$model$t_orig), ")\n")
   }
 
   # Additional model details
   cat("Model parameters:\n")
-  cat(" - Number of features: ", length(x$input_names), "\n")
+  cat(" - Number of input modalities: ", length(x$input_names), "\n")
+  cat(" - Number of features: ", strip_fun(x$input_names), "\n")
 
   if (!is.null(x$model$base_hazard)) {
     cat(" - Baseline hazard function: Yes\n")
@@ -180,7 +192,7 @@ print.explainer_deepsurv <- function(x, ...) {
 
   # Show some of the input names (e.g., features)
   cat("\nFeatures (first 5 shown):\n")
-  cat(paste(x$input_names[1:min(5, length(x$input_names))], collapse = ", "), "\n")
+  cat(paste(unlist(x$input_names)[1:min(5, length(unlist(x$input_names)))], collapse = ", "), "\n")
 
   # Conclude
   cat("-----------------------------------\n")
@@ -206,7 +218,7 @@ print.explainer_deephit <- function(x, ...) {
 
   # Data summary
   input_data <- x$input_data
-  n_instances <- if (is.list(input_data)) length(input_data[[1]]) else length(input_data)
+  n_instances <- if (is.list(input_data)) dim(input_data[[1]])[1] else dim(input_data)[1]
 
   cat("Number of instances in the input data: ", n_instances, "\n")
 
@@ -224,7 +236,8 @@ print.explainer_deephit <- function(x, ...) {
 
   # Additional model details
   cat("Model parameters:\n")
-  cat(" - Number of features: ", length(x$input_names), "\n")
+  cat(" - Number of input modalities: ", length(x$input_names), "\n")
+  cat(" - Number of features: ", strip_fun(x$input_names), "\n")
 
   # If the model has a preprocessing function
   if (!is.null(x$model$preprocess_fun)) {
@@ -235,7 +248,7 @@ print.explainer_deephit <- function(x, ...) {
 
   # Show some of the input names (e.g., features)
   cat("\nFeatures (first 5 shown):\n")
-  cat(paste(x$input_names[1:min(5, length(x$input_names))], collapse = ", "), "\n")
+  cat(paste(unlist(x$input_names)[1:min(5, length(unlist(x$input_names)))], collapse = ", "), "\n")
 
   # Conclude
   cat("-----------------------------------\n")
