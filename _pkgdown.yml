@@ -2,3 +2,76 @@ url: https://bips-hb.github.io/Survinng/
 template:
   bootstrap: 5
 
+
+reference:
+- title: Feature attribution methods
+  desc: >
+      All implemented feature attribution methods for the survival neural
+      networks 'DeepHit', 'DeepSurv', and 'CoxTime'.
+  contents:
+  - surv_grad
+  - surv_grad.explainer_coxtime
+  - surv_grad.explainer_deepsurv
+  - surv_grad.explainer_deephit
+  - surv_smoothgrad
+  - surv_smoothgrad.explainer_coxtime
+  - surv_smoothgrad.explainer_deepsurv
+  - surv_smoothgrad.explainer_deephit
+  - surv_intgrad
+  - surv_intgrad.explainer_coxtime
+  - surv_intgrad.explainer_deepsurv
+  - surv_intgrad.explainer_deephit
+  - surv_gradSHAP
+  - surv_gradSHAP.explainer_coxtime
+  - surv_gradSHAP.explainer_deepsurv
+  - surv_gradSHAP.explainer_deephit
+
+- title: Creating explainer object
+  desc: >
+      The basic building block of the package is the 'explainer' object which
+      contains the model and the data needed for the feature attribution methods.
+  contents:
+  - explain
+  - explain.nn_module
+  - explain.extracted_survivalmodels_coxtime
+  - explain.extracted_survivalmodels_deepsurv
+  - explain.extracted_survivalmodels_deephit
+
+- title: Extracting a model from `survivalmodels`
+  desc: >
+      The 'extract_model' function extracts the model from the
+      'survivalmodels' object and returns all necessary information for the
+      survival model to be explained.
+  contents:
+  - extract_model
+  - extract_model.coxtime
+  - extract_model.deepsurv
+  - extract_model.deephit
+
+- title: Plotting and printing
+  desc: >
+      The 'plot' function is used to plot the feature attribution results in
+      different ways. The 'plot' function is a generic function that calls the
+      appropriate method depending on the argument 'type'. The 'print' function
+      is used to print extracted model, explainers, and feature attribution results..
+  contents:
+  - plot.surv_result
+  - plot_pred
+  - plot_attr
+  - plot_contr
+  - plot_force
+  - print.surv_result
+  - print.explainer_coxtime
+  - print.explainer_deepsurv
+  - print.explainer_deephit
+  - print.extracted_survivalmodels_coxtime
+  - print.extracted_survivalmodels_deepsurv
+  - print.extracted_survivalmodels_deephit
+
+- title: Data transformation
+  desc: >
+      These functions are used to transform the data into a data.frame or a
+      data.table format.
+  contents:
+  - as.data.frame.surv_result
+  - as.data.table.surv_result
