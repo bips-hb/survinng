@@ -1,0 +1,7 @@
+bibentry(
+  bibtype  = "Inproceedings",
+  title    = "Gradient-based Explanations for Deep Learning Survival Models",
+  author   = "Langbein, Sophie Hanna and Koenen, Niklas and Wright, Marvin N.",
+  booktitle  = "International Conference on Machine Learning",
+  year     = "2025"
+)
