@@ -18,7 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Sim_time_dependent.html">Simulation of Time-dependent Effects</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/how_to_load_model.html">How to load my model?</a></li>
+    <li><a class="dropdown-item" href="../articles/Sim_time_dependent.html">Simulation of Time-dependent Effects</a></li>
     <li><a class="dropdown-item" href="../articles/Sim_time_independent.html">Simulation of Time-independent Effects</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -36,9 +37,113 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="feature-attribution-methods">Feature attribution methods<a class="anchor" aria-label="anchor" href="#feature-attribution-methods"></a></h2>
+
+      <div class="section-desc"><p>All implemented feature attribution methods for the survival neural networks ‘DeepHit’, ‘DeepSurv’, and ‘CoxTime’.</p></div>
 
 
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="surv_grad.html">surv_grad()</a></code>
+
+        </dt>
+        <dd>Calculate the Gradient of the Survival Function</dd>
+      </dl><dl><dt>
+
+          <code><a href="surv_smoothgrad.html">surv_smoothgrad()</a></code>
+
+        </dt>
+        <dd>Calculate the SmoothGrad values of the Survival Function</dd>
+      </dl><dl><dt>
+
+          <code><a href="surv_intgrad.html">surv_intgrad()</a></code>
+
+        </dt>
+        <dd>Calculate the Integrated Gradients of the Survival Function</dd>
+      </dl><dl><dt>
+
+          <code><a href="surv_gradSHAP.html">surv_gradSHAP()</a></code>
+
+        </dt>
+        <dd>Calculate the GradSHAP values of the Survival Function</dd>
+      </dl></div><div class="section level2">
+      <h2 id="creating-explainer-object">Creating explainer object<a class="anchor" aria-label="anchor" href="#creating-explainer-object"></a></h2>
+
+      <div class="section-desc"><p>The basic building block of the package is the ‘explainer’ object which contains the model and the data needed for the feature attribution methods.</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="explain.html">explain()</a></code>
+
+        </dt>
+        <dd>Explain a model</dd>
+      </dl></div><div class="section level2">
+      <h2 id="extracting-a-model-from-survivalmodels-">Extracting a model from <code>survivalmodels</code><a class="anchor" aria-label="anchor" href="#extracting-a-model-from-survivalmodels-"></a></h2>
+
+      <div class="section-desc"><p>The ‘extract_model’ function extracts the model from the ‘survivalmodels’ object and returns all necessary information for the survival model to be explained.</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="extract_model.html">extract_model()</a></code>
+
+        </dt>
+        <dd>Extract model information from a <code>survivalmodels</code> object</dd>
+      </dl></div><div class="section level2">
+      <h2 id="plotting-and-printing">Plotting and printing<a class="anchor" aria-label="anchor" href="#plotting-and-printing"></a></h2>
+
+      <div class="section-desc"><p>The ‘plot’ function is used to plot the feature attribution results in different ways. The ‘plot’ function is a generic function that calls the appropriate method depending on the argument ‘type’. The ‘print’ function is used to print extracted model, explainers, and feature attribution results..</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="plot.surv_result.html">plot(<i>&lt;surv_result&gt;</i>)</a></code> <code><a href="plot.surv_result.html">plot_force()</a></code> <code><a href="plot.surv_result.html">plot_pred()</a></code> <code><a href="plot.surv_result.html">plot_attr()</a></code> <code><a href="plot.surv_result.html">plot_contr()</a></code>
+
+        </dt>
+        <dd>Plot Methods for Survival Attribution Results</dd>
+      </dl><dl><dt>
+
+          <code><a href="print.surv_result.html">print(<i>&lt;surv_result&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print function for surv_result objects</dd>
+      </dl><dl><dt>
+
+          <code><a href="print.explainer.html">print(<i>&lt;explainer_coxtime&gt;</i>)</a></code> <code><a href="print.explainer.html">print(<i>&lt;explainer_deepsurv&gt;</i>)</a></code> <code><a href="print.explainer.html">print(<i>&lt;explainer_deephit&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Custom print method for explainer objects</dd>
+      </dl><dl><dt>
+
+          <code><a href="print.extracted_survivalmodels.html">print(<i>&lt;extracted_survivalmodels_coxtime&gt;</i>)</a></code> <code><a href="print.extracted_survivalmodels.html">print(<i>&lt;extracted_survivalmodels_deepsurv&gt;</i>)</a></code> <code><a href="print.extracted_survivalmodels.html">print(<i>&lt;extracted_survivalmodels_deephit&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print method for extracted pycox survival model</dd>
+      </dl></div><div class="section level2">
+      <h2 id="data-transformation">Data transformation<a class="anchor" aria-label="anchor" href="#data-transformation"></a></h2>
+
+      <div class="section-desc"><p>These functions are used to transform the data into a data.frame or a data.table format.</p></div>
 
 
     </div><div class="section level2">
@@ -52,68 +157,9 @@
 
         </dt>
         <dd>Convert survival attribution results to a data.frame</dd>
-      </dl><dl><dt>
-
-          <code><a href="explain.html">explain()</a></code>
-
-        </dt>
-        <dd>Explain a model</dd>
-      </dl><dl><dt>
-
-          <code><a href="extract_model.html">extract_model()</a></code>
-
-        </dt>
-        <dd>Extract model information from a <code>survivalmodels</code> object</dd>
-      </dl><dl><dt>
-
-          <code><a href="plot.surv_result.html">plot(<i>&lt;surv_result&gt;</i>)</a></code> <code><a href="plot.surv_result.html">plot_force()</a></code> <code><a href="plot.surv_result.html">plot_pred()</a></code> <code><a href="plot.surv_result.html">plot_attr()</a></code> <code><a href="plot.surv_result.html">plot_contr()</a></code>
-
-        </dt>
-        <dd>Plot Methods for Survival Attribution Results</dd>
-      </dl><dl><dt>
-
-          <code><a href="print.explainer.html">print(<i>&lt;explainer_coxtime&gt;</i>)</a></code> <code><a href="print.explainer.html">print(<i>&lt;explainer_deepsurv&gt;</i>)</a></code> <code><a href="print.explainer.html">print(<i>&lt;explainer_deephit&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Custom print method for explainer objects</dd>
-      </dl><dl><dt>
-
-          <code><a href="print.extracted_survivalmodels.html">print(<i>&lt;extracted_survivalmodels_coxtime&gt;</i>)</a></code> <code><a href="print.extracted_survivalmodels.html">print(<i>&lt;extracted_survivalmodels_deepsurv&gt;</i>)</a></code> <code><a href="print.extracted_survivalmodels.html">print(<i>&lt;extracted_survivalmodels_deephit&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Print method for extracted pycox survival model</dd>
-      </dl><dl><dt>
-
-          <code><a href="print.surv_result.html">print(<i>&lt;surv_result&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Print function for surv_result objects</dd>
-      </dl><dl><dt>
-
-          <code><a href="surv_grad.html">surv_grad()</a></code>
-
-        </dt>
-        <dd>Calculate the Gradient of the Survival Function</dd>
-      </dl><dl><dt>
-
-          <code><a href="surv_gradSHAP.html">surv_gradSHAP()</a></code>
-
-        </dt>
-        <dd>Calculate the GradSHAP values of the Survival Function</dd>
-      </dl><dl><dt>
-
-          <code><a href="surv_intgrad.html">surv_intgrad()</a></code>
-
-        </dt>
-        <dd>Calculate the Integrated Gradients of the Survival Function</dd>
-      </dl><dl><dt>
-
-          <code><a href="surv_smoothgrad.html">surv_smoothgrad()</a></code>
-
-        </dt>
-        <dd>Calculate the SmoothGrad values of the Survival Function</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

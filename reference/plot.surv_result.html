@@ -22,7 +22,8 @@ specifically for GradSHAP(t) and IntGrad(t) methods."></head><body>
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Sim_time_dependent.html">Simulation of Time-dependent Effects</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/how_to_load_model.html">How to load my model?</a></li>
+    <li><a class="dropdown-item" href="../articles/Sim_time_dependent.html">Simulation of Time-dependent Effects</a></li>
     <li><a class="dropdown-item" href="../articles/Sim_time_independent.html">Simulation of Time-independent Effects</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -58,7 +59,7 @@ specifically for GradSHAP(t) and IntGrad(t) methods.</p>
 <span></span>
 <span><span class="fu">plot_attr</span><span class="op">(</span><span class="va">x</span>, normalize <span class="op">=</span> <span class="st">"none"</span>, add_comp <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">plot_contr</span><span class="op">(</span><span class="va">x</span>, scale <span class="op">=</span> <span class="fl">0.85</span>, aggregate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">plot_contr</span><span class="op">(</span><span class="va">x</span>, aggregate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -98,11 +99,6 @@ attribution plot (<code>plot_attr()</code> only). Options include:</p><ul><li><p
 <li><p><code>"pred_diff"</code>: difference between prediction and reference
 Default is <code>NULL</code>.</p></li>
 </ul></dd>
-
-
-<dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
-<dd><p>Scaling factor for plotting contribution percentages in
-<code>plot_contr()</code>. Default is <code>0.85</code>.</p></dd>
 
 
 <dt id="arg-aggregate">aggregate<a class="anchor" aria-label="anchor" href="#arg-aggregate"></a></dt>
