@@ -134,7 +134,7 @@ larger sample sizes or number of integration points, but this may lead to
 increased memory usage and longer computation times. The explanations are 
 stored in data.tables for downstream visualization.
 
-```{r, cache=TRUE, warning=FALSE}
+```{r, cache=TRUE, warning=FALSE, message=FALSE, results='hide'}
 exp_deephit <- Survinng::explain(model, list(data_img, data_tab), 
                                  model_type = "deephit",
                                  time_bins = seq(0, 17, length.out = n_out))
@@ -184,7 +184,7 @@ into the internal reasoning of the survival model.
 
 ### Plot Grad(t)
 
-```{r, fig.height= 7, fig.width = 12}
+```{r, fig.height= 7, fig.width = 14, warning=FALSE, message=FALSE}
 plots <- plot_result(grad, orig_img, name = "real_data_grad", as_force = FALSE)
 plot_grid(plots[[1]], 
           plot_grid(plots[[3]], plots[[2]], nrow = 1, rel_widths = c(1, 7)),
@@ -193,7 +193,7 @@ plot_grid(plots[[1]],
 
 ### Plot SG(t)
 
-```{r, fig.height= 7, fig.width = 12}
+```{r, fig.height= 7, fig.width = 14, warning=FALSE, message=FALSE}
 plots <- plot_result(sgrad, orig_img, name = "real_data_sgrad", as_force = FALSE)
 plot_grid(plots[[1]], 
           plot_grid(plots[[3]], plots[[2]], nrow = 1, rel_widths = c(1, 7)),
@@ -202,18 +202,18 @@ plot_grid(plots[[1]],
 
 ### Plot IntGrad(t)
 
-```{r, fig.height= 7, fig.width = 12}
+```{r, fig.height= 7, fig.width = 14, warning=FALSE, message=FALSE}
 plots <- plot_result(intgrad, orig_img, name = "real_data_intgrad", as_force = TRUE)
-plot_grid(plots[[1]], 
+plot_grid(plots[[4]], 
           plot_grid(plots[[3]], plots[[2]], nrow = 1, rel_widths = c(1, 7)),
           rel_heights = c(1, 0.25), nrow = 2)
 ```
 
 ### Plot GradSHAP(t)
 
-```{r, fig.height= 7, fig.width = 12}
+```{r, fig.height= 7, fig.width = 14, warning=FALSE, message=FALSE}
 plots <- plot_result(grad_shap, orig_img, name = "real_data_gradshap", as_force = TRUE)
-plot_grid(plots[[1]], 
+plot_grid(plots[[4]], 
           plot_grid(plots[[3]], plots[[2]], nrow = 1, rel_widths = c(1, 7)),
           rel_heights = c(1, 0.25), nrow = 2)
 ```
