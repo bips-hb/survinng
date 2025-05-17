@@ -47,6 +47,7 @@ attribution plot (\code{plot_attr()} only). Options include:
 \item \code{"pred"}: predicted survival curve
 \item \code{"pred_ref"}: reference survival curve
 \item \code{"pred_diff"}: difference between prediction and reference
+You can also specify \code{"all"} to include all three curves.
 Default is \code{NULL}.
 }}
 

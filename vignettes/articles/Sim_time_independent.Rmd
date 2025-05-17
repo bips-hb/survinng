@@ -28,6 +28,10 @@ library(survminer)
 library(torch)
 library(viridis)
 library(here)
+
+# Set seed for reproducibility
+set.seed(2025)
+torch_manual_seed(2025)
 ```
 
 # Preprocessing
@@ -53,10 +57,9 @@ We consider a simulated dataset with the following characteristics:
 
 ## Load Models and Data
 
-The models used in this vignette are the same as those used in the main paper. The models were trained using the `survivalmodels` package, and the training process is not shown here, but can be found in the `vignettes/articles/Sim_time_independent` directory.
+The models used in this vignette are the same as those used in the main paper. The models were trained using the `survivalmodels` package, and the training process is not shown here, but can be found in the `vignettes/articles/Sim_time_independent` directory or on [GitHub](https://github.com/bips-hb/Survinng/tree/master/vignettes/articles/Sim_time_independent).
 
 ```{r td fit models, fig.width=10, fig.height=15}
-
 # Load data
 train <- readRDS(here("vignettes/articles/Sim_time_independent/train.rds"))
 test <- readRDS(here("vignettes/articles/Sim_time_independent/test.rds"))
@@ -72,11 +75,13 @@ ext_deephit <- readRDS(here("vignettes/articles/Sim_time_independent/ext_deephit
 
 The performance of the models is evaluated using the C-Index and Integrated Brier Score (IBS). The C-Index measures the concordance between predicted and observed survival times, while the IBS quantifies the accuracy of survival predictions. 
 
+<center>
 |Model | C-Index | IBS |
 |:---------:|:--------:|:--------:|
 |CoxTime   | 0.809372   | 0.099053 |
 |DeepSurv   | 0.809121   | 0.099031 |
 |DeepHit   | 0.808829   | 0.141614 |
+</center>
 
 ```{r echo=FALSE, out.width='80%'}
 knitr::include_graphics(here('vignettes/articles/Sim_time_independent/sim_tid_brier_plot.png'))
@@ -111,9 +116,9 @@ grad_deepsurv <- surv_grad(exp_deepsurv, target = "survival", instance = tid_ids
 
 # Plot survival predictions
 surv_plot <- cowplot::plot_grid(
-  plot_surv_pred(grad_cox) ,
-  plot_surv_pred(grad_deephit),
-  plot_surv_pred(grad_deepsurv),
+  plot(grad_cox, type = "pred"),
+  plot(grad_deephit, type = "pred"),
+  plot(grad_deepsurv, type = "pred"),
   nrow = 1, labels = c("CoxTime", "DeepHit", "DeepSurv"),
   label_x = 0.03,      
   label_size = 14) 
@@ -133,9 +138,9 @@ Here we compute the gradient of the survival predictions with respect to the inp
 ```{r tid gradient, fig.width=10, fig.height=15}
 # Plot attributions
 grad_plot <- cowplot::plot_grid(
-  plot_attribution(grad_cox, label = "Grad(t)") ,
-  plot_attribution(grad_deephit, label = "Grad(t)"),
-  plot_attribution(grad_deepsurv, label = "Grad(t)"),
+  plot(grad_cox, type = "attr"),
+  plot(grad_deephit, type = "attr"),
+  plot(grad_deepsurv, type = "attr"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 grad_plot
 ```
@@ -152,9 +157,9 @@ sg_deepsurv <- surv_smoothgrad(exp_deepsurv, target = "survival", instance = tid
 
 # Plot attributions
 smoothgrad_plot <- cowplot::plot_grid(
-  plot_attribution(sg_cox, label = "SG(t)"), 
-  plot_attribution(sg_deephit, label = "SG(t)"), 
-  plot_attribution(sg_deepsurv, label = "SG(t)"),
+  plot(sg_cox, type = "attr"), 
+  plot(sg_deephit, type = "attr"), 
+  plot(sg_deepsurv, type = "attr"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 smoothgrad_plot
 ```
@@ -172,9 +177,9 @@ gradin_deepsurv <- surv_grad(exp_deepsurv, instance = tid_ids, times_input = TRU
 
 # Plot attributions
 gradin_plot <- cowplot::plot_grid(
-  plot_attribution(gradin_cox, label = "GxI(t)"), 
-  plot_attribution(gradin_deephit, label = "GxI(t)"), 
-  plot_attribution(gradin_deepsurv, label = "GxI(t)"),
+  plot(gradin_cox, type = "attr"), 
+  plot(gradin_deephit, type = "attr"), 
+  plot(gradin_deepsurv, type = "attr"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 gradin_plot
 ```
@@ -182,8 +187,8 @@ gradin_plot
 ```{r tid gradient and gradientin, fig.width=10, fig.height=10}
 # Plot attributions
 grad_gradin_plot <- cowplot::plot_grid(
-  plot_attribution(grad_deepsurv, label = "Grad(t)") ,
-  plot_attribution(gradin_deepsurv, label = "GxI(t)"),
+  plot(grad_deepsurv, type = "attr") ,
+  plot(gradin_deepsurv, type = "attr"),
   nrow = 2, labels = c("DeepSurv", "DeepSurv"))
 grad_gradin_plot
 ```
@@ -203,9 +208,9 @@ sgin_deepsurv <- surv_smoothgrad(exp_deepsurv, instance = tid_ids, n = 50, noise
 
 # Plot attributions
 smoothgradin_plot <- cowplot::plot_grid(
-  plot_attribution(sgin_cox, label = "SGxI(t)"), 
-  plot_attribution(sgin_deephit, label = "SGxI(t)"), 
-  plot_attribution(sgin_deepsurv, label = "SGxI(t)"),
+  plot(sgin_cox, type = "attr"), 
+  plot(sgin_deephit, type = "attr"), 
+  plot(sgin_deepsurv, type = "attr"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 smoothgradin_plot
 ```
@@ -227,9 +232,9 @@ ig0_deepsurv <- surv_intgrad(exp_deepsurv, instance = tid_ids, n = 50, x_ref = x
 
 # Plot attributions
 intgrad0_plot <- cowplot::plot_grid(
-  plot_attribution(ig0_cox, label = "IntGrad(t)"), 
-  plot_attribution(ig0_deephit, label = "IntGrad(t)"), 
-  plot_attribution(ig0_deepsurv, label = "IntGrad(t)"),
+  plot(ig0_cox, type = "attr"), 
+  plot(ig0_deephit, type = "attr"), 
+  plot(ig0_deepsurv, type = "attr"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 intgrad0_plot
 ```
@@ -237,26 +242,26 @@ intgrad0_plot
 ```{r tid intgrad0 comp, fig.width=10, fig.height=15}
 # Plot attributions
 intgrad0_plot_comp <- cowplot::plot_grid(
-  plot_attribution(ig0_cox, add_comp = TRUE, label = "IntGrad(t)"), 
-  plot_attribution(ig0_deephit, add_comp = TRUE, label = "IntGrad(t)"), 
-  plot_attribution(ig0_deepsurv, add_comp = TRUE, label = "IntGrad(t)"),
+  plot(ig0_cox, add_comp = "all", type = "attr"), 
+  plot(ig0_deephit, add_comp = "all", type = "attr"), 
+  plot(ig0_deepsurv, add_comp = "all", type = "attr"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 intgrad0_plot_comp
 ```
 
-\emph{Contribution plots} effectively visualize the normalized absolute contribution of each feature to the difference between reference and (survival) prediction over time. 
+*Contribution plots* effectively visualize the normalized absolute contribution of each feature to the difference between reference and (survival) prediction over time. 
 
 ```{r tid intgrad0 contr, fig.width=10, fig.height=15}
 # Plot contributions
 intgrad0_plot_contr <- cowplot::plot_grid(
-  plot_contribution(ig0_cox, label = "IntGrad(t)"), 
-  plot_contribution(ig0_deephit, label = "IntGrad(t)"), 
-  plot_contribution(ig0_deepsurv, label = "IntGrad(t)"),
+  plot(ig0_cox, type = "contr"), 
+  plot(ig0_deephit, type = "contr"), 
+  plot(ig0_deepsurv, type = "contr"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 intgrad0_plot_contr
 ```
 
-Complementarily, \emph{force plots} emphasize the relative contribution and direction of each feature at a set of representative survival times.
+Complementarily, *force plots* emphasize the relative contribution and direction of each feature at a set of representative survival times.
 
 ```{r tid intgrad0 force, fig.width=10, fig.height=15}
 # Plot force
@@ -281,9 +286,9 @@ gshap_deepsurv <- surv_gradSHAP(exp_deepsurv, instance = tid_ids, n = 50, num_sa
 
 # Plot attributions
 gshap_plot <- cowplot::plot_grid(
-  plot_attribution(gshap_cox, label = "GradSHAP(t)"), 
-  plot_attribution(gshap_deephit, label = "GradSHAP(t)"), 
-  plot_attribution(gshap_deepsurv, label = "GradSHAP(t)"),
+  plot(gshap_cox, type = "attr"), 
+  plot(gshap_deephit, type = "attr"), 
+  plot(gshap_deepsurv, type = "attr"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 gshap_plot
 ```
@@ -291,19 +296,19 @@ gshap_plot
 ```{r tid gradshap comp, fig.width=10, fig.height=15}
 # Plot attributions
 gshap_plot_comp <- cowplot::plot_grid(
-  plot_attribution(gshap_cox, add_comp = TRUE, label = "GradSHAP(t)"), 
-  plot_attribution(gshap_deephit, add_comp = TRUE, label = "GradSHAP(t)"), 
-  plot_attribution(gshap_deepsurv, add_comp = TRUE, label = "GradSHAP(t)"),
+  plot(gshap_cox, add_comp = "all", type = "attr"), 
+  plot(gshap_deephit, add_comp = "all", type = "attr"), 
+  plot(gshap_deepsurv, add_comp = "all", type = "attr"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 gshap_plot_comp
 ```
 
 ```{r tid gradshap contr, fig.width=10, fig.height=15}
-# Plot contributions %
+# Plot contributions 
 gshap_plot_contr <- cowplot::plot_grid(
-  plot_contribution(gshap_cox, label = "GradSHAP(t)"), 
-  plot_contribution(gshap_deephit, label = "GradSHAP(t)"), 
-  plot_contribution(gshap_deepsurv, label = "GradSHAP(t)"),
+  plot(gshap_cox, type = "contr"), 
+  plot(gshap_deephit, type = "contr"), 
+  plot(gshap_deepsurv, type = "contr"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 gshap_plot_contr
 ```

@@ -22,7 +22,7 @@ We begin by loading the necessary libraries and setting the seeds to ensure repr
 which can be found in the `vignettes/articles/real_data` directory or online 
 [in the GitHub repository](https://github.com/bips-hb/Survinng/blob/2640cffaba38e81d6b6f2ee3051b2d9f44d0f86f/vignettes/articles/real_data/utils.R).
 
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
 library(Survinng)
 library(torch)
 library(torchvision)

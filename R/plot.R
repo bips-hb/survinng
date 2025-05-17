@@ -40,7 +40,8 @@
 #'   - `"pred"`: predicted survival curve
 #'   - `"pred_ref"`: reference survival curve
 #'   - `"pred_diff"`: difference between prediction and reference
-#'   Default is `NULL`.
+#' You can also specify `"all"` to include all three curves.
+#' Default is `NULL`.
 #' @param aggregate Logical; if `TRUE`, contributions are aggregated across
 #'  all instances in `plot_contr()`. If `FALSE` (default), one panel per instance
 #'  is shown.
@@ -117,6 +118,12 @@ plot_pred <- function(x) {
 #' @rdname plot.surv_result
 plot_attr <- function(x, normalize = "none", add_comp = NULL) {
   assertChoice(normalize, c("none", "abs", "rel"))
+
+  # Set default for add_comp if "all"
+  if (identical(add_comp, "all")) {
+    add_comp <- c("pred", "pred_diff", "pred_ref")
+  }
+
   assertSubset(add_comp, c("pred_ref", "pred", "pred_diff"), empty.ok = TRUE)
 
   dat <- as.data.frame(x)
@@ -171,6 +178,16 @@ plot_attr <- function(x, normalize = "none", add_comp = NULL) {
     comp <- NULL
   }
 
+  # Get Method name
+  method_name <- switch(
+    x$method,
+    "Surv_Gradient" = ifelse(x$method_args$times_input, "GxI(t)", "Grad(t)"),
+    "Surv_SmoothGrad" = ifelse(x$method_args$times_input, "SGxI(t)", "SG(t)"),
+    "Surv_IntGrad" = "IntGrad(t)",
+    "Surv_GradSHAP" = "GradSHAP(t)",
+    x$method
+  )
+
   p <- ggplot(dat, aes(x = .data$time)) +
     geom_line(aes(
       y = .data$value,
@@ -194,7 +211,7 @@ plot_attr <- function(x, normalize = "none", add_comp = NULL) {
     theme(legend.position = "bottom") +
     labs(
       x = "Time",
-      y = paste0("Attribution S(t|x): ", x$model_class),
+      y = paste0("Attribution S(t|x): ", method_name),
       color = "Feature",
       linetype = NULL
     ) +
@@ -254,6 +271,16 @@ plot_contr <- function(x, aggregate = FALSE) {
 
   # Set width of the bars to 10% of the time range
   bar_width <- (max(dat$time) - min(dat$time)) * 0.1
+
+  # Get Method name
+  method_name <- switch(
+    x$method,
+    "Surv_Gradient" = ifelse(x$method_args$times_input, "GxI(t)", "Grad(t)"),
+    "Surv_SmoothGrad" = ifelse(x$method_args$times_input, "SGxI(t)", "SG(t)"),
+    "Surv_IntGrad" = "IntGrad(t)",
+    "Surv_GradSHAP" = "GradSHAP(t)",
+    x$method
+  )
 
   # Generate the plot
   p <- ggplot(dat, aes(x = .data$time)) +
@@ -318,7 +345,7 @@ plot_contr <- function(x, aggregate = FALSE) {
     # Labels
     labs(
       x = "Time",
-      y = paste0("% Contribution: ", x$model_class),
+      y = paste0("% Contribution: ", method_name),
       color = "Feature",
       fill = "Feature"
     ) +
