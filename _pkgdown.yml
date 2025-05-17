@@ -3,16 +3,13 @@ template:
   bootstrap: 5
 
 articles:
-      text: Articles
-      menu:
-      - text: "How to load my model?"
-        href: articles/how_to_load_model.html
-      - text: "Simulation of Time-independent Effects"
-        href: articles/Sim_time_independent.html
-      - text: "Simulation of Time-dependent Effects"
-        href: articles/Sim_time_dependent.html
-      - text: "Real Multi-modal Medical Data"
-        href: articles/multimodal.html
+- text: "Articles"
+  navbar: ~
+  contents:
+  - how_to_load_model
+  - Sim_time_independent
+  - Sim_time_dependent
+  - multimodal
 
 reference:
 - title: Feature attribution methods
