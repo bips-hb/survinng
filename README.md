@@ -120,6 +120,8 @@ plot(shap)
 
 - Simulation: Time-independent effects (`survivalmodels`) [→ article](https://bips-hb.github.io/Survinng/articles/Sim_time_independent.html)
 - Simulation: Time-dependent effects (`survivalmodels`) [→ article](https://bips-hb.github.io/Survinng/articles/Sim_time_dependent.html)
+- Example on real multi-modal medical data [→ article](https://bips-hb.github.io/Survinng/articles/multimodal.html)
+
 
 ## 📚 Citation
 
