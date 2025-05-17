@@ -9,7 +9,7 @@ articles:
   - articles/how_to_load_model
   - articles/Sim_time_independent
   - articles/Sim_time_dependent
-  - articles/ultimodal
+  - articles/multimodal
 
 reference:
 - title: Feature attribution methods
