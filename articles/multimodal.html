@@ -236,32 +236,20 @@ visualization.</p>
 <span><span class="co"># Run Grad(t)</span></span>
 <span><span class="va">grad</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_grad.html">surv_grad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">ids</span>, batch_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           used (Mb) gc trigger  (Mb) max used  (Mb)</span></span>
-<span><span class="co">#&gt; Ncells 1503811 80.4    2541664 135.8  2541664 135.8</span></span>
-<span><span class="co">#&gt; Vcells 5779262 44.1   16380020 125.0 12084423  92.2</span></span>
 <span></span>
 <span><span class="co"># Run SG(t)</span></span>
 <span><span class="va">sgrad</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_smoothgrad.html">surv_smoothgrad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">ids</span>, n <span class="op">=</span> <span class="fl">50</span>, </span>
 <span>                         noise_level <span class="op">=</span> <span class="fl">0.3</span>, batch_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           used (Mb) gc trigger  (Mb)  max used   (Mb)</span></span>
-<span><span class="co">#&gt; Ncells 1506108 80.5    2541664 135.8   2541664  135.8</span></span>
-<span><span class="co">#&gt; Vcells 8849584 67.6  124608412 950.7 132090721 1007.8</span></span>
 <span></span>
 <span><span class="co"># Run IntGrad(t)</span></span>
 <span><span class="va">intgrad</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_intgrad.html">surv_intgrad</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">ids</span>, n <span class="op">=</span> <span class="fl">50</span>, batch_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> </span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            used (Mb) gc trigger  (Mb)  max used   (Mb)</span></span>
-<span><span class="co">#&gt; Ncells  1508184 80.6    2541664 135.8   2541664  135.8</span></span>
-<span><span class="co">#&gt; Vcells 11918807 91.0  127554189 973.2 132090721 1007.8</span></span>
 <span></span>
 <span><span class="co"># Run GradSHAP(t)</span></span>
 <span><span class="va">grad_shap</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_gradSHAP.html">surv_gradSHAP</a></span><span class="op">(</span><span class="va">exp_deephit</span>, instance <span class="op">=</span> <span class="va">ids</span>, n <span class="op">=</span> <span class="fl">10</span>, num_samples <span class="op">=</span> <span class="fl">50</span>, </span>
 <span>                           batch_size <span class="op">=</span> <span class="fl">10</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            used  (Mb) gc trigger  (Mb)  max used   (Mb)</span></span>
-<span><span class="co">#&gt; Ncells  1508803  80.6    2541664 135.8   2541664  135.8</span></span>
-<span><span class="co">#&gt; Vcells 14985069 114.4   52246197 398.7 132090721 1007.8</span></span>
 <span></span>
 <span><span class="co"># Convert to data.tables</span></span>
 <span><span class="va">grad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">grad</span><span class="op">)</span></span>
@@ -289,64 +277,40 @@ model.</p>
 </h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu">plot_result</span><span class="op">(</span><span class="va">grad</span>, <span class="va">orig_img</span>, name <span class="op">=</span> <span class="st">"real_data_grad"</span>, as_force <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `summarise()` has grouped output by 'id', 'time'. You can override using the</span></span>
-<span><span class="co">#&gt; `.groups` argument.</span></span>
-<span><span class="co">#&gt; `summarise()` has grouped output by 'id', 'time', 'height'. You can override</span></span>
-<span><span class="co">#&gt; using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">ℹ</span> Google's Terms of Service: <span style="color: #0000BB; font-style: italic;">&lt;https://mapsplatform.google.com&gt;</span> Stadia Maps'</span></span>
-<span><span class="co">#&gt; Terms of Service: <span style="color: #0000BB; font-style: italic;">&lt;https://stadiamaps.com/terms-of-service&gt;</span> OpenStreetMap's</span></span>
-<span><span class="co">#&gt; Tile Usage Policy: <span style="color: #0000BB; font-style: italic;">&lt;https://operations.osmfoundation.org/policies/tiles&gt;</span> <span style="color: #00BB00;">ℹ</span></span></span>
-<span><span class="co">#&gt; Please cite <span style="color: #0000BB;">ggmap</span> if you use it! Use `citation("ggmap")` for details.</span></span>
-<span><span class="co">#&gt; Attaching package: 'ggmap'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:cowplot':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; theme_nothing</span></span>
 <span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, </span>
 <span>          <span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>, <span class="va">plots</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, nrow <span class="op">=</span> <span class="fl">1</span>, rel_widths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>          rel_heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.25</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multimodal_files/figure-html/unnamed-chunk-5-1.png" width="1152"></p>
+<p><img src="multimodal_files/figure-html/unnamed-chunk-5-1.png" width="1344"></p>
 </div>
 <div class="section level3">
 <h3 id="plot-sgt">Plot SG(t)<a class="anchor" aria-label="anchor" href="#plot-sgt"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu">plot_result</span><span class="op">(</span><span class="va">sgrad</span>, <span class="va">orig_img</span>, name <span class="op">=</span> <span class="st">"real_data_sgrad"</span>, as_force <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `summarise()` has grouped output by 'id', 'time'. You can override using the</span></span>
-<span><span class="co">#&gt; `.groups` argument.</span></span>
-<span><span class="co">#&gt; `summarise()` has grouped output by 'id', 'time', 'height'. You can override</span></span>
-<span><span class="co">#&gt; using the `.groups` argument.</span></span>
 <span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, </span>
 <span>          <span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>, <span class="va">plots</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, nrow <span class="op">=</span> <span class="fl">1</span>, rel_widths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>          rel_heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.25</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multimodal_files/figure-html/unnamed-chunk-6-1.png" width="1152"></p>
+<p><img src="multimodal_files/figure-html/unnamed-chunk-6-1.png" width="1344"></p>
 </div>
 <div class="section level3">
 <h3 id="plot-intgradt">Plot IntGrad(t)<a class="anchor" aria-label="anchor" href="#plot-intgradt"></a>
 </h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu">plot_result</span><span class="op">(</span><span class="va">intgrad</span>, <span class="va">orig_img</span>, name <span class="op">=</span> <span class="st">"real_data_intgrad"</span>, as_force <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `summarise()` has grouped output by 'id', 'time'. You can override using the</span></span>
-<span><span class="co">#&gt; `.groups` argument.</span></span>
-<span><span class="co">#&gt; `summarise()` has grouped output by 'id', 'time', 'height'. You can override</span></span>
-<span><span class="co">#&gt; using the `.groups` argument.</span></span>
-<span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, </span>
+<span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span>, </span>
 <span>          <span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>, <span class="va">plots</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, nrow <span class="op">=</span> <span class="fl">1</span>, rel_widths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>          rel_heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.25</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multimodal_files/figure-html/unnamed-chunk-7-1.png" width="1152"></p>
+<p><img src="multimodal_files/figure-html/unnamed-chunk-7-1.png" width="1344"></p>
 </div>
 <div class="section level3">
 <h3 id="plot-gradshapt">Plot GradSHAP(t)<a class="anchor" aria-label="anchor" href="#plot-gradshapt"></a>
 </h3>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu">plot_result</span><span class="op">(</span><span class="va">grad_shap</span>, <span class="va">orig_img</span>, name <span class="op">=</span> <span class="st">"real_data_gradshap"</span>, as_force <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `summarise()` has grouped output by 'id', 'time'. You can override using the</span></span>
-<span><span class="co">#&gt; `.groups` argument.</span></span>
-<span><span class="co">#&gt; `summarise()` has grouped output by 'id', 'time', 'height'. You can override</span></span>
-<span><span class="co">#&gt; using the `.groups` argument.</span></span>
-<span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, </span>
+<span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span>, </span>
 <span>          <span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>, <span class="va">plots</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, nrow <span class="op">=</span> <span class="fl">1</span>, rel_widths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>          rel_heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.25</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multimodal_files/figure-html/unnamed-chunk-8-1.png" width="1152"></p>
+<p><img src="multimodal_files/figure-html/unnamed-chunk-8-1.png" width="1344"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
