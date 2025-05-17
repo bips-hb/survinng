@@ -3,7 +3,7 @@ template:
   bootstrap: 5
 
 articles:
-- text: "Articles"
+- title: "Articles"
   navbar: ~
   contents:
   - articles/how_to_load_model
