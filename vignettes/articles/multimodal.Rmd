@@ -74,7 +74,7 @@ data_img <- torch_stack(lapply(data$full_path, function(x) {
 
 ## Explain model
 
-```{r}
+```{r, cache=TRUE, warning=FALSE}
 exp_deephit <- Survinng::explain(model, list(data_img, data_tab), 
                                  model_type = "deephit",
                                  time_bins = seq(0, 17, length.out = n_out))
@@ -83,21 +83,54 @@ ids <- 230
 orig_img <- base_loader(here(paste0("vignettes/articles/real_data/test/", data[ids, ]$full_path)))
 
 # Run Grad(t)
-grad <- surv_grad(exp_deephit, instance = ids, batch_size = 5)
+grad <- surv_grad(exp_deephit, instance = ids, batch_size = 10)
 gc()
 
 # Run SG(t)
-sgrad <- surv_smoothgrad(exp_deephit, instance = ids, n = 100, 
-                         noise_level = 0.3, batch_size = 5)
+sgrad <- surv_smoothgrad(exp_deephit, instance = ids, n = 50, 
+                         noise_level = 0.3, batch_size = 10)
 gc()
 
 # Run IntGrad(t)
-intgrad <- surv_intgrad(exp_deephit, instance = ids, n = 100, batch_size = 5) 
+intgrad <- surv_intgrad(exp_deephit, instance = ids, n = 50, batch_size = 10) 
 gc()
 
 # Run GradSHAP(t)
-grad_shap <- surv_gradSHAP(exp_deephit, instance = ids, n = 20, num_samples = 100, 
-                           batch_size = 5, replace = FALSE) 
+grad_shap <- surv_gradSHAP(exp_deephit, instance = ids, n = 10, num_samples = 50, 
+                           batch_size = 10, replace = FALSE) 
 gc()
+
+# Convert to data.tables
+grad <- as.data.table(grad)
+sgrad <- as.data.table(sgrad)
+intgrad <- as.data.table(intgrad)
+grad_shap <- as.data.table(grad_shap)
 ```
 
+```{r, fig.height= 7, fig.width = 12}
+plots <- plot_result(grad, orig_img, name = "real_data_grad", as_force = FALSE)
+plot_grid(plots[[1]], 
+          plot_grid(plots[[3]], plots[[2]], nrow = 1, rel_widths = c(1, 7)),
+          rel_heights = c(1, 0.25), nrow = 2)
+```
+
+```{r, fig.height= 7, fig.width = 12}
+plots <- plot_result(sgrad, orig_img, name = "real_data_sgrad", as_force = FALSE)
+plot_grid(plots[[1]], 
+          plot_grid(plots[[3]], plots[[2]], nrow = 1, rel_widths = c(1, 7)),
+          rel_heights = c(1, 0.25), nrow = 2)
+```
+
+```{r, fig.height= 7, fig.width = 12}
+plots <- plot_result(intgrad, orig_img, name = "real_data_intgrad", as_force = TRUE)
+plot_grid(plots[[1]], 
+          plot_grid(plots[[3]], plots[[2]], nrow = 1, rel_widths = c(1, 7)),
+          rel_heights = c(1, 0.25), nrow = 2)
+```
+
+```{r, fig.height= 7, fig.width = 12}
+plots <- plot_result(grad_shap, orig_img, name = "real_data_gradshap", as_force = TRUE)
+plot_grid(plots[[1]], 
+          plot_grid(plots[[3]], plots[[2]], nrow = 1, rel_widths = c(1, 7)),
+          rel_heights = c(1, 0.25), nrow = 2)
+```
