@@ -34,9 +34,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/how_to_load_model.html">How to load my model?</a></li>
-    <li><a class="dropdown-item" href="../articles/multimodal.html">Example on Real Multi-modal Medical Data</a></li>
-    <li><a class="dropdown-item" href="../articles/Sim_time_dependent.html">Simulation of Time-dependent Effects</a></li>
     <li><a class="dropdown-item" href="../articles/Sim_time_independent.html">Simulation of Time-independent Effects</a></li>
+    <li><a class="dropdown-item" href="../articles/Sim_time_dependent.html">Simulation of Time-dependent Effects</a></li>
+    <li><a class="dropdown-item" href="../articles/multimodal.html">Example on Real Multi-modal Medical Data</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -81,7 +81,11 @@ neural network models.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rpkgs.datanovia.com/survminer/index.html" class="external-link">survminer</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://torch.mlverse.org/docs" class="external-link">torch</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sjmgarnier.github.io/viridis/" class="external-link">viridis</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://here.r-lib.org/" class="external-link">here</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://here.r-lib.org/" class="external-link">here</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set seed for reproducibility</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2025</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_manual_seed.html" class="external-link">torch_manual_seed</a></span><span class="op">(</span><span class="fl">2025</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="preprocessing">Preprocessing<a class="anchor" aria-label="anchor" href="#preprocessing"></a>
 </h2>
@@ -131,10 +135,9 @@ has <strong>no effect</strong> on the hazard or survival</p></li>
 main paper. The models were trained using the
 <code>survivalmodels</code> package, and the training process is not
 shown here, but can be found in the
-<code>vignettes/articles/Sim_time_dependent</code> directory.</p>
+<code>vignettes/articles/Sim_time_dependent</code> directory or on <a href="https://github.com/bips-hb/Survinng/tree/master/vignettes/articles/Sim_time_dependent" class="external-link">GitHub</a>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Load data</span></span>
+<code class="sourceCode R"><span><span class="co"># Load data</span></span>
 <span><span class="va">train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"vignettes/articles/Sim_time_dependent/train.rds"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">test</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"vignettes/articles/Sim_time_dependent/test.rds"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span><span class="op">)</span></span>
@@ -151,6 +154,7 @@ shown here, but can be found in the
 Integrated Brier Score (IBS). The C-Index measures the concordance
 between predicted and observed survival times, while the IBS quantifies
 the accuracy of survival predictions.</p>
+<center>
 <table class="table">
 <thead><tr class="header">
 <th align="center">Model</th>
@@ -175,6 +179,7 @@ the accuracy of survival predictions.</p>
 </tr>
 </tbody>
 </table>
+</center>
 <p><img src="Sim_time_dependent/sim_td_brier_plot.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
@@ -249,9 +254,9 @@ set of instances of interest.</p>
 <span></span>
 <span><span class="co"># Plot survival predictions</span></span>
 <span><span class="va">surv_plot</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_surv_pred</span><span class="op">(</span><span class="va">grad_cox</span><span class="op">)</span> ,</span>
-<span>  <span class="fu">plot_surv_pred</span><span class="op">(</span><span class="va">grad_deephit</span><span class="op">)</span>,</span>
-<span>  <span class="fu">plot_surv_pred</span><span class="op">(</span><span class="va">grad_deepsurv</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">grad_cox</span>, type <span class="op">=</span> <span class="st">"pred"</span><span class="op">)</span> ,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">grad_deephit</span>, type <span class="op">=</span> <span class="st">"pred"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">grad_deepsurv</span>, type <span class="op">=</span> <span class="st">"pred"</span><span class="op">)</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">1</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span>,</span>
 <span>  label_x <span class="op">=</span> <span class="fl">0.03</span>,      </span>
 <span>  label_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span> </span>
@@ -275,9 +280,9 @@ the gradients for the specified instances.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
 <span><span class="va">grad_plot</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">grad_cox</span>, label <span class="op">=</span> <span class="st">"Grad(t)"</span><span class="op">)</span> ,</span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">grad_deephit</span>, label <span class="op">=</span> <span class="st">"Grad(t)"</span><span class="op">)</span>,</span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">grad_deepsurv</span>, label <span class="op">=</span> <span class="st">"Grad(t)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">grad_cox</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span> ,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">grad_deephit</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">grad_deepsurv</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">grad_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20gradient-1.png" width="100%" style="display: block; margin: auto;"></p>
@@ -300,9 +305,9 @@ clearer picture of the feature importance.</p>
 <span></span>
 <span><span class="co"># Plot attributions</span></span>
 <span><span class="va">smoothgrad_plot</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">sg_cox</span>, label <span class="op">=</span> <span class="st">"SG(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">sg_deephit</span>, label <span class="op">=</span> <span class="st">"SG(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">sg_deepsurv</span>, label <span class="op">=</span> <span class="st">"SG(t)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sg_cox</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sg_deephit</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sg_deepsurv</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">smoothgrad_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20smoothgrad-1.png" width="100%" style="display: block; margin: auto;"></p>
@@ -340,35 +345,36 @@ zero.</p>
 <span></span>
 <span><span class="co"># Plot attributions</span></span>
 <span><span class="va">intgrad0_plot</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">ig0_cox</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">ig0_deephit</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">ig0_deepsurv</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ig0_cox</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ig0_deephit</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ig0_deepsurv</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">intgrad0_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20intgrad0-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
 <span><span class="va">intgrad0_plot_comp</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">ig0_cox</span>, add_comp <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">ig0_deephit</span>, add_comp <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">ig0_deepsurv</span>, add_comp <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ig0_cox</span>, add_comp <span class="op">=</span> <span class="st">"all"</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ig0_deephit</span>, add_comp <span class="op">=</span> <span class="st">"all"</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ig0_deepsurv</span>, add_comp <span class="op">=</span> <span class="st">"all"</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">intgrad0_plot_comp</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20intgrad0%20comp-1.png" width="100%" style="display: block; margin: auto;"></p>
-<p> effectively visualize the normalized absolute contribution of each
-feature to the difference between reference and (survival) prediction
-over time.</p>
+<p><em>Contribution plots</em> effectively visualize the normalized
+absolute contribution of each feature to the difference between
+reference and (survival) prediction over time.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot contributions</span></span>
 <span><span class="va">intgrad0_plot_contr</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_contribution</span><span class="op">(</span><span class="va">ig0_cox</span>, scale <span class="op">=</span> <span class="fl">0.9</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_contribution</span><span class="op">(</span><span class="va">ig0_deephit</span>, scale <span class="op">=</span> <span class="fl">0.9</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_contribution</span><span class="op">(</span><span class="va">ig0_deepsurv</span>, scale <span class="op">=</span> <span class="fl">0.9</span>, label <span class="op">=</span> <span class="st">"IntGrad(t)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ig0_cox</span>, type <span class="op">=</span> <span class="st">"contr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ig0_deephit</span>, type <span class="op">=</span> <span class="st">"contr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ig0_deepsurv</span>, type <span class="op">=</span> <span class="st">"contr"</span><span class="op">)</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">intgrad0_plot_contr</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20intgrad0%20contr-1.png" width="100%" style="display: block; margin: auto;"></p>
-<p>Complementarily, emphasize the relative contribution and direction of
-each feature at a set of representative survival times.</p>
+<p>Complementarily, <em>force plots</em> emphasize the relative
+contribution and direction of each feature at a set of representative
+survival times.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot force</span></span>
 <span><span class="va">intgrad0_plot_force</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
@@ -395,27 +401,27 @@ effects.</p>
 <span></span>
 <span><span class="co"># Plot attributions</span></span>
 <span><span class="va">gshap_plot</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gshap_cox</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gshap_deephit</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gshap_deepsurv</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gshap_cox</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gshap_deephit</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gshap_deepsurv</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gshap_plot</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20gradshap-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot attributions</span></span>
 <span><span class="va">gshap_plot_comp</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gshap_cox</span>, add_comp <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gshap_deephit</span>, add_comp <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_attribution</span><span class="op">(</span><span class="va">gshap_deepsurv</span>, add_comp <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gshap_cox</span>, add_comp <span class="op">=</span> <span class="st">"all"</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gshap_deephit</span>, add_comp <span class="op">=</span> <span class="st">"all"</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gshap_deepsurv</span>, add_comp <span class="op">=</span> <span class="st">"all"</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gshap_plot_comp</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20gradshap%20comp-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot contributions</span></span>
 <span><span class="va">gshap_plot_contr</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
-<span>  <span class="fu">plot_contribution</span><span class="op">(</span><span class="va">gshap_cox</span>, scale <span class="op">=</span> <span class="fl">0.9</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_contribution</span><span class="op">(</span><span class="va">gshap_deephit</span>, scale <span class="op">=</span> <span class="fl">0.9</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
-<span>  <span class="fu">plot_contribution</span><span class="op">(</span><span class="va">gshap_deepsurv</span>, scale <span class="op">=</span> <span class="fl">0.9</span>, label <span class="op">=</span> <span class="st">"GradSHAP(t)"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gshap_cox</span>, type <span class="op">=</span> <span class="st">"contr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gshap_deephit</span>, type <span class="op">=</span> <span class="st">"contr"</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gshap_deepsurv</span>, type <span class="op">=</span> <span class="st">"contr"</span><span class="op">)</span>, </span>
 <span>  nrow <span class="op">=</span> <span class="fl">3</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CoxTime"</span>, <span class="st">"DeepHit"</span>, <span class="st">"DeepSurv"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gshap_plot_contr</span></span></code></pre></div>
 <p><img src="Sim_time_dependent_files/figure-html/td%20gradshap%20contr-1.png" width="100%" style="display: block; margin: auto;"></p>
