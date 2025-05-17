@@ -9,6 +9,19 @@ knitr::opts_chunk$set(
 )
 ```
 
+This vignette demonstrates how to apply gradient-based attribution methods to a multi-modal survival model trained on real medical data. Specifically, we explore the interpretability of a DeepHit-style neural network that jointly processes tabular and image-based features. The model is evaluated on a set of test instances and visualized using various attribution techniques.
+
+**Note:** Since the images used in this example are of size `(3, 226, 226)`, 
+running this example may take a while or too much memory, especially for the 
+`GradSHAP(t)` and `IntGrad(t)` methods if too many samples are used. To avoid
+this, we recommend using smaller sample sizes or number of integration points.
+
+## Setup
+
+We begin by loading the necessary libraries and setting the seeds to ensure reproducibility. The helper functions used for image processing and visualization are sourced from a separate utility script
+which can be found in the `vignettes/articles/real_data` directory or online 
+[in the GitHub repository](https://github.com/bips-hb/Survinng/blob/2640cffaba38e81d6b6f2ee3051b2d9f44d0f86f/vignettes/articles/real_data/utils.R).
+
 ```{r setup}
 library(Survinng)
 library(torch)
@@ -28,6 +41,19 @@ torch_manual_seed(42)
 
 
 ## Load model and metadata
+
+We first load the trained model along with its corresponding metadata, including 
+the number of outputs for the image and joint components, whether a bias term 
+was included, and the number of tabular features. The model’s performance is 
+briefly summarized using two commonly used survival metrics: the Concordance 
+index and the Integrated Brier Score.
+
+After restoring the model’s state dictionary, we replicate the multi-modal 
+network structure consisting of a ResNet34 backbone for the image branch and a 
+linear transformation for the tabular input.
+
+All required files are available in the `vignettes/articles/real_data` directory 
+or online [in the GitHub repository folder](https://github.com/bips-hb/Survinng/tree/2640cffaba38e81d6b6f2ee3051b2d9f44d0f86f/vignettes/articles/real_data).
 
 ```{r}
 # Load model metadata
@@ -56,6 +82,18 @@ model
 
 ## Load data
 
+Next, we prepare the input data for evaluation and explanation. This includes:
+
+* A tabular dataset containing numeric predictors.
+* Corresponding image files from the test set.
+
+Images are preprocessed using standard transformations (center cropping and 
+normalization) and stacked into a single tensor. The tabular inputs are 
+converted into a Torch tensor to be compatible with the model input format.
+
+**Note:** The tabular and image data can be found in the `vignettes/articles/real_data` 
+directory or online in the [GitHub repository folder](https://github.com/bips-hb/Survinng/tree/2640cffaba38e81d6b6f2ee3051b2d9f44d0f86f/vignettes/articles/real_data).
+
 ```{r}
 data <- read.csv(here("vignettes/articles/real_data/deephit_tabular_data.csv"))
 test_images <- list.files(here("vignettes/articles/real_data/test"), full.names = FALSE)
@@ -73,6 +111,27 @@ data_img <- torch_stack(lapply(data$full_path, function(x) {
 ```
 
 ## Explain model
+
+We apply several gradient-based feature attribution techniques adapted for survival 
+analysis to explain the model's prediction of a selected test instance:
+
+* Grad(t): Simple backpropagation-based gradients with respect to the input.
+
+* SG(t): A noise-averaged version of gradients to improve local fluctuations of
+the gradients.
+
+* IG(t): A path-based method that accumulates gradients along a linear 
+interpolation between a baseline and the input. In this example, we use a 
+mean baseline.
+
+* GradSHAP(t): An approximation to SHAP values using randomized baseline samples 
+combined with gradient integration.
+
+Each method runs with a moderate batch size of 10 and a fixed number of samples 
+to ensure computational feasibility. For better estimates, we recommend using
+larger sample sizes or number of integration points, but this may lead to
+increased memory usage and longer computation times. The explanations are 
+stored in data.tables for downstream visualization.
 
 ```{r, cache=TRUE, warning=FALSE}
 exp_deephit <- Survinng::explain(model, list(data_img, data_tab), 
@@ -107,12 +166,31 @@ intgrad <- as.data.table(intgrad)
 grad_shap <- as.data.table(grad_shap)
 ```
 
+## Visualize results
+
+For each method, we visualize:
+
+* The original image.
+* The pixel-wise relevance heatmap.
+* A combined view aligning tabular and image attributions.
+
+The plots enable a comparative interpretation of how each attribution method
+highlights relevant regions in the image and important features in the tabular 
+input over time. In particular, the visualizations allow us to examine the 
+consistency and plausibility of attributions across methods, offering insight 
+into the internal reasoning of the survival model.
+
+
+### Plot Grad(t)
+
 ```{r, fig.height= 7, fig.width = 12}
 plots <- plot_result(grad, orig_img, name = "real_data_grad", as_force = FALSE)
 plot_grid(plots[[1]], 
           plot_grid(plots[[3]], plots[[2]], nrow = 1, rel_widths = c(1, 7)),
           rel_heights = c(1, 0.25), nrow = 2)
 ```
+
+### Plot SG(t)
 
 ```{r, fig.height= 7, fig.width = 12}
 plots <- plot_result(sgrad, orig_img, name = "real_data_sgrad", as_force = FALSE)
@@ -121,12 +199,16 @@ plot_grid(plots[[1]],
           rel_heights = c(1, 0.25), nrow = 2)
 ```
 
+### Plot IntGrad(t)
+
 ```{r, fig.height= 7, fig.width = 12}
 plots <- plot_result(intgrad, orig_img, name = "real_data_intgrad", as_force = TRUE)
 plot_grid(plots[[1]], 
           plot_grid(plots[[3]], plots[[2]], nrow = 1, rel_widths = c(1, 7)),
           rel_heights = c(1, 0.25), nrow = 2)
 ```
+
+### Plot GradSHAP(t)
 
 ```{r, fig.height= 7, fig.width = 12}
 plots <- plot_result(grad_shap, orig_img, name = "real_data_gradshap", as_force = TRUE)
