@@ -6,10 +6,10 @@ articles:
 - text: "Articles"
   navbar: ~
   contents:
-  - how_to_load_model
-  - Sim_time_independent
-  - Sim_time_dependent
-  - multimodal
+  - articles/how_to_load_model
+  - articles/Sim_time_independent
+  - articles/Sim_time_dependent
+  - articles/ultimodal
 
 reference:
 - title: Feature attribution methods
