@@ -74,10 +74,78 @@ plot.surv_result <- function(x, ..., type = "attr") {
 #' @family Plot Methods
 #' @export
 #' @rdname plot.surv_result
-plot_force <- function(x, ...) {
-  # TODO
+plot_force <- function(x, num_samples = 10) {
+  # Convert input to a data frame and calculate derived columns
+  dat <- as.data.frame(x)
+  dat$id <- as.factor(dat$id)
+  dat$feature <- factor(dat$feature)
 
-  NULL
+  # Process data to compute sum of attributions
+  dat <- dat %>%
+    group_by(id, time) %>%
+    mutate(sum = sum(value))
+
+  # Sample time points for visualization
+  t_interest <- sort(unique(dat$time))
+  target_points <- seq(min(t_interest), max(t_interest), length.out = num_samples)
+  selected_points <- sapply(target_points, function(x)
+    t_interest[which.min(abs(t_interest - x))])
+  dat_small <- dat[dat$time %in% selected_points, ]
+
+  # Plot
+  p <- ggplot() +
+    geom_bar(
+      data = dat_small,
+      mapping = aes(
+        x = .data$time,
+        y = .data$value,
+        fill = .data$feature,
+        color = .data$feature
+      ),
+      stat = "identity",
+      position = "stack"
+    ) +
+    scale_color_viridis_d(name = "Feature", guide = guide_legend(override.aes = list(linewidth = 7))) +
+    scale_fill_viridis_d(alpha = 0.4, name = "Feature") +
+    geom_line(
+      data = dat,
+      mapping = aes(x = .data$time, y = .data$sum),
+      color = "black",
+      linewidth = 2
+    ) +
+    facet_wrap(vars(.data$id),
+               scales = "free_x",
+               labeller = as_labeller(function(a) paste0(""))) +  # Removes "Instance ID: XYZ"
+    theme_minimal(base_size = 13) +
+    theme(
+      legend.position = "none",  # Remove legend
+      axis.title.x = element_blank(),  # Remove x-axis title
+      axis.title.y = element_blank(),  # Remove y-axis title
+      axis.text.x = element_blank(),  # Remove x-axis numbers
+      axis.text.y = element_blank(),  # Remove y-axis numbers
+      strip.text = element_blank(),  # Remove facet headers
+      panel.background = element_rect(fill = "white", color = NA),  # White panel background
+      plot.background = element_rect(fill = "white", color = NA),   # White plot background
+      panel.grid = element_blank(),  # Remove grid lines
+    ) +
+    ylim(-0.15, 0.16) +
+    scale_x_continuous(expand = c(0,0)) +
+    geom_label(
+      data = subset(dat_small, round(value, 2) != 0),
+      mapping = aes(
+        x = .data$time,
+        y = .data$value,
+        label = round(.data$value, 2),
+        group = .data$feature
+      ),
+      position = position_stack(vjust = 0.5),
+      size = 3,
+      fill = "white",       # White background
+      color = "black",      # Text color
+      label.size = 0.3      # Border thickness (black by default)
+    )
+
+  return(p)
 }
 
 
