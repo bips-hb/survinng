@@ -54,7 +54,7 @@ specifically for GradSHAP(t) and IntGrad(t) methods.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'surv_result'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span>, type <span class="op">=</span> <span class="st">"attr"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">plot_force</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">plot_force</span><span class="op">(</span><span class="va">x</span>, num_bars <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">plot_pred</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span></span>
@@ -82,6 +82,10 @@ results.</p></dd>
 <li><p><code>"contr"</code>: plot feature contributions percentages over time</p></li>
 <li><p><code>"force"</code>: plot force plots for each instance</p></li>
 </ul></dd>
+
+
+<dt id="arg-num-bars">num_bars<a class="anchor" aria-label="anchor" href="#arg-num-bars"></a></dt>
+<dd><p>Number of bars to show in the force plot. Default is 10.</p></dd>
 
 
 <dt id="arg-normalize">normalize<a class="anchor" aria-label="anchor" href="#arg-normalize"></a></dt>
