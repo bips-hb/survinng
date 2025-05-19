@@ -10,7 +10,7 @@
 \usage{
 \method{plot}{surv_result}(x, ..., type = "attr")
 
-plot_force(x, ...)
+plot_force(x, num_bars = 10)
 
 plot_pred(x)
 
@@ -31,6 +31,8 @@ results.}
 \item \code{"contr"}: plot feature contributions percentages over time
 \item \code{"force"}: plot force plots for each instance
 }}
+
+\item{num_bars}{Number of bars to show in the force plot. Default is 10.}
 
 \item{normalize}{Normalization method for \code{plot_attr()}. Options:
 \itemize{

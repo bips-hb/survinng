@@ -35,6 +35,7 @@
 #'   - `"rel"`: normalize by the sum of values
 #'  **Note:** Only recommended for visualization of `GradSHAP(t)` or `IntGrad(t)`
 #'  results.
+#' @param num_bars Number of bars to show in the force plot. Default is 10.
 #' @param add_comp Optional vector of comparison curves to add to the
 #' attribution plot (`plot_attr()` only). Options include:
 #'   - `"pred"`: predicted survival curve
@@ -74,7 +75,9 @@ plot.surv_result <- function(x, ..., type = "attr") {
 #' @family Plot Methods
 #' @export
 #' @rdname plot.surv_result
-plot_force <- function(x, num_samples = 10) {
+plot_force <- function(x, num_bars = 10) {
+  assertNumeric(num_bars, lower = 1)
+
   # Convert input to a data frame and calculate derived columns
   dat <- as.data.frame(x)
   dat$id <- as.factor(dat$id)
@@ -82,15 +85,41 @@ plot_force <- function(x, num_samples = 10) {
 
   # Process data to compute sum of attributions
   dat <- dat %>%
-    group_by(id, time) %>%
-    mutate(sum = sum(value))
+    group_by(.data$id, .data$time) %>%
+    mutate(sum = sum(.data$value))
 
   # Sample time points for visualization
   t_interest <- sort(unique(dat$time))
-  target_points <- seq(min(t_interest), max(t_interest), length.out = num_samples)
+  target_points <- seq(min(t_interest), max(t_interest), length.out = num_bars)
   selected_points <- sapply(target_points, function(x)
     t_interest[which.min(abs(t_interest - x))])
   dat_small <- dat[dat$time %in% selected_points, ]
+
+  # Get Method name
+  method_name <- switch(
+    x$method,
+    "Surv_Gradient" = ifelse(x$method_args$times_input, "GxI(t)", "Grad(t)"),
+    "Surv_SmoothGrad" = ifelse(x$method_args$times_input, "SGxI(t)", "SG(t)"),
+    "Surv_IntGrad" = "IntGrad(t)",
+    "Surv_GradSHAP" = "GradSHAP(t)",
+    x$method
+  )
+
+  # Create dataset for arrows
+  fun <- function(feat, value) {
+    value <- value[rev(order(feat))]
+    value_pos <- value
+    value_neg <- value
+    value_pos[value < 0] <- 0
+    value_neg[value > 0] <- 0
+
+    (cumsum(value_pos) * (value > 0) + cumsum(value_neg) * (value < 0))[rev(order(feat))]
+  }
+  dat_arrow <- subset(dat_small, round(dat_small$value, 2) != 0) %>%
+    mutate(value = fun(.data$feature, .data$value))
+
+  # Calc y range
+  y_range <- max(dat_small$value) - min(dat_small$value)
 
   # Plot
   p <- ggplot() +
@@ -105,44 +134,54 @@ plot_force <- function(x, num_samples = 10) {
       stat = "identity",
       position = "stack"
     ) +
-    scale_color_viridis_d(name = "Feature", guide = guide_legend(override.aes = list(linewidth = 7))) +
+    scale_color_viridis_d(name = "Feature") +
     scale_fill_viridis_d(alpha = 0.4, name = "Feature") +
     geom_line(
       data = dat,
       mapping = aes(x = .data$time, y = .data$sum),
       color = "black",
-      linewidth = 2
+      linewidth = 1.25
     ) +
     facet_wrap(vars(.data$id),
                scales = "free_x",
-               labeller = as_labeller(function(a) paste0(""))) +  # Removes "Instance ID: XYZ"
+               labeller = as_labeller(function(a)
+                 paste0("Instance ID: ", a))) +
     theme_minimal(base_size = 13) +
-    theme(
-      legend.position = "none",  # Remove legend
-      axis.title.x = element_blank(),  # Remove x-axis title
-      axis.title.y = element_blank(),  # Remove y-axis title
-      axis.text.x = element_blank(),  # Remove x-axis numbers
-      axis.text.y = element_blank(),  # Remove y-axis numbers
-      strip.text = element_blank(),  # Remove facet headers
-      panel.background = element_rect(fill = "white", color = NA),  # White panel background
-      plot.background = element_rect(fill = "white", color = NA),   # White plot background
-      panel.grid = element_blank(),  # Remove grid lines
-    ) +
-    ylim(-0.15, 0.16) +
-    scale_x_continuous(expand = c(0,0)) +
+    theme(legend.position = "bottom") +
+    #geom_segment(
+    #  data = dat_arrow,
+    #  mapping = aes(
+    #    x = .data$time,
+    #    xend = .data$time,
+    #    y = .data$value,
+    #    yend = .data$value + .data$value * scale,
+    #    color = .data$feature
+    #  ),
+    #  arrow = arrow(type = "closed", length = unit(1/(num_bars*3), "npc")),
+    #  linewidth = 4,
+    #  show.legend = FALSE
+    #) +
     geom_label(
-      data = subset(dat_small, round(value, 2) != 0),
+      data = subset(dat_small, round(dat_small$value, 2) != 0), #subset(dat_small, round(abs(dat_small$value), 2) > y_range * 0.05),
       mapping = aes(
         x = .data$time,
         y = .data$value,
-        label = round(.data$value, 2),
-        group = .data$feature
+        label = ifelse(abs(.data$value) < y_range * 0.05, NA, round(.data$value, 2)),
+        group = .data$feature,
+        fill = .data$feature
       ),
+      alpha = 0.25,
+      na.rm = TRUE,
+      show.legend = FALSE,
       position = position_stack(vjust = 0.5),
-      size = 3,
-      fill = "white",       # White background
+      #size = 4,
+      #fill = "white",       # White background
       color = "black",      # Text color
       label.size = 0.3      # Border thickness (black by default)
+    ) +
+    labs(
+      x = "Time",
+      y = paste0("Contribution: ", method_name)
     )
 
   return(p)

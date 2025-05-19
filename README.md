@@ -118,6 +118,7 @@ plot(shap)
 
 ## 🖥 Other Examples and Articles
 
+- How to load my model? [→ article](https://bips-hb.github.io/Survinng/articles/how_to_load_model.html)
 - Simulation: Time-independent effects (`survivalmodels`) [→ article](https://bips-hb.github.io/Survinng/articles/Sim_time_independent.html)
 - Simulation: Time-dependent effects (`survivalmodels`) [→ article](https://bips-hb.github.io/Survinng/articles/Sim_time_dependent.html)
 - Example on real multi-modal medical data [→ article](https://bips-hb.github.io/Survinng/articles/multimodal.html)

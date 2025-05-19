@@ -11,8 +11,6 @@ knitr::opts_chunk$set(
   fig.align = "center",
   out.width = "100%"
 )
-
-source(here::here("vignettes/articles/utils/utils_plotting.R"))
 ```
 
 
@@ -254,12 +252,12 @@ intgrad0_plot_contr
 
 Complementarily, *force plots* emphasize the relative contribution and direction of each feature at a set of representative survival times.
 
-```{r td intgrad0 force, fig.width=10, fig.height=15}
+```{r td intgrad0 force, fig.width=12, fig.height=15}
 # Plot force
 intgrad0_plot_force <- cowplot::plot_grid(
-  plot_force(ig0_cox, zero_feature = "x4", upper_distance = 0, lower_distance = 0, lower_distance_x1 = 0.05, intgrad0_td_cox = TRUE, label = "IntGrad(t)"), 
-  plot_force(ig0_deephit, zero_feature = "x4", upper_distance = 0, lower_distance = 0, lower_distance_x1 = 0.02, label = "IntGrad(t)"),  
-  plot_force(ig0_deepsurv, zero_feature = "x4", upper_distance = 0, lower_distance = 0, intgrad0_td_deepsurv = TRUE, label = "IntGrad(t)"), 
+  plot(ig0_cox, type = "force"),
+  plot(ig0_deephit, type = "force"),
+  plot(ig0_deepsurv, type = "force"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 intgrad0_plot_force
 ```
@@ -307,12 +305,12 @@ gshap_plot_contr <- cowplot::plot_grid(
 gshap_plot_contr
 ```
 
-```{r td gradshap force, fig.width=10, fig.height=15}
+```{r td gradshap force, fig.width=12, fig.height=15}
 # Plot force
 gshap_plot_force <- cowplot::plot_grid(
-  plot_force(gshap_cox, upper_distance = 0, lower_distance = 0, zero_feature = "x4", gradshap_td_cox = TRUE, label = "GradSHAP(t)"), 
-  plot_force(gshap_deephit, upper_distance = 0, lower_distance = 0, zero_feature = "x4", gradshap_td_deephit = TRUE, label = "GradSHAP(t)"), 
-  plot_force(gshap_deepsurv, upper_distance = 0, lower_distance = 0, zero_feature = "x4", gradshap_td_deepsurv = TRUE, label = "GradSHAP(t)"),
+  plot(gshap_cox, type = "force"),
+  plot(gshap_deephit, type = "force"),
+  plot(gshap_deepsurv, type = "force"),
   nrow = 3, labels = c("CoxTime", "DeepHit", "DeepSurv"))
 gshap_plot_force
 ```
