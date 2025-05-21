@@ -14,7 +14,7 @@ set.seed(42)
 torch::torch_manual_seed(42)
 ```
 
-```{r setup}
+```{r setup, warning=FALSE, message=FALSE}
 library(Survinng)
 library(here)
 ```

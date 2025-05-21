@@ -634,7 +634,7 @@ as.data.table.surv_result <- function(x, ..., stacked = FALSE) {
     names(feat_names) <- feat_dim_labels
 
     # Create data frame
-    dt <- do.call(data.table::CJ, c(list(id = id, time = time), feat_names, after = 1))
+    dt <- do.call(data.table::CJ, c(list(id = id, time = time), feat_names))
     dt$value <- c(arr_i)
 
     # Add predictions and quantiles
