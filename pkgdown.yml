@@ -1,12 +1,12 @@
 pandoc: 3.1.11
-pkgdown: 2.1.2
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   articles/how_to_load_model: how_to_load_model.html
   articles/multimodal: multimodal.html
   articles/Sim_time_dependent: Sim_time_dependent.html
   articles/Sim_time_independent: Sim_time_independent.html
-last_built: 2025-05-21T11:05Z
+last_built: 2025-05-28T21:04Z
 urls:
-  reference: https://bips-hb.github.io/Survinng/reference
-  article: https://bips-hb.github.io/Survinng/articles
+  reference: https://bips-hb.github.io/survinng/reference
+  article: https://bips-hb.github.io/survinng/articles
