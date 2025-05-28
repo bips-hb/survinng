@@ -7,7 +7,7 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(Survinng)
+library(survinng)
 
 if (Sys.getenv("TORCH_TEST", unset = 0) == 1) {
   set.seed(42)
@@ -15,5 +15,5 @@ if (Sys.getenv("TORCH_TEST", unset = 0) == 1) {
 
   library(torch)
 
-  test_check("Survinng")
+  test_check("survinng")
 }

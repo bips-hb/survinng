@@ -28,7 +28,7 @@ base_method <- function(exp, instance, n = 1, model_class, inputs_ref = NULL,
     final_batch_size <- n_timepoints * (final_batch_size %/% n_timepoints)
   }
   num_dims <- sum(sapply(inputs, function(x) final_batch_size * prod(dim(x)[-1])))
-  if (num_dims > 20000) {
+  if (num_dims > 2e6) {
     warning("The resulting tensor has ", num_dims, " entries in total per batch. ",
             "This may lead to runtime or memory issues. Consider using a ",
             "smaller batch size (currently ", batch_size, ") ",

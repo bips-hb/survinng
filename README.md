@@ -1,17 +1,17 @@
 
-# `Survinng`: Gradient-based Explanations for Deep Learning Survival Models
+# `survinng`: Gradient-based Explanations for Deep Learning Survival Models
 
 <!-- badges: start -->
-<a href="https://bips-hb.github.io/Survinng/"><img src="man/figures/logo.jpeg" align="right" height="120" alt="Survinng website" /></a>
+<a href="https://bips-hb.github.io/survinng/"><img src="man/figures/logo.jpeg" align="right" height="120" alt="survinng website" /></a>
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![arXiv](https://img.shields.io/badge/arXiv-2502.04970-b31b1b.svg)](https://arxiv.org/abs/2502.04970)
-[![Website](https://img.shields.io/badge/docs-📘%20Survinng%20Site-blue)](https://bips-hb.github.io/Survinng/)
+[![Website](https://img.shields.io/badge/docs-📘%20survinng%20Site-blue)](https://bips-hb.github.io/survinng/)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/bips-hb/Survinng/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bips-hb/Survinng/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/bips-hb/survinng/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bips-hb/survinng/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 
-The package `Survinng` provides gradient-based feature attribution methods 
+The package `survinng` provides gradient-based feature attribution methods 
 for deep learning survival models. It implements novel adaptions of model-specific
 XAI methods for the survival analysis domain, like **Grad(t)**, **SG(t)**, **GxI(t)**,
 **IntGrad(t)**, and **GradSHAP(t)**. The whole package is designed to be compatible with the
@@ -21,9 +21,9 @@ However, it can also be used with models from `pycox` directly and other
 survival models loaded in `torch`. Currently, the package supports the models
 types `DeepSurv`/`CoxPH`, `DeepHit`, and `CoxTime`.
 
-### 🚀 Why `Survinng`?
+### 🚀 Why `survinng`?
 
-With `Survinng`, you get:
+With `survinng`, you get:
 
 * ⏱ **Model-specific** and **time-resolved** feature attributions for individuals  
 * ⚡️ **Fast and scalable** explanations using model gradients, especially for SHAP-like explanations  
@@ -45,25 +45,25 @@ To install the latest development version directly from GitHub:
 
 ```r
 # install.packages("devtools")
-devtools::install_github("bips-hb/Survinng")
+devtools::install_github("bips-hb/survinng")
 ```
 
 ## 📖 Usage
 
 You have a trained survival neural network model from `survivalmodels` or
 `pycox` and your model input data data. Now you want to interpret individual 
-data points by using the methods from the package `Survinng`, then stick to the 
+data points by using the methods from the package `survinng`, then stick to the 
 following pseudo code:
 
 ```r
-library(Survinng)
+library(survinng)
 
 # Load a survival model and corresponding data
 model <- ... (e.g., from survivalmodels or pycox)
 data <- ... (e.g., the test set of the model)
 
 # Create explainer object
-explainer <- Survinng::explain(model, data)
+explainer <- survinng::explain(model, data)
 
 # Compute feature attributions
 idx <- 1 # index of the instance to explain
@@ -77,7 +77,7 @@ shap <- surv_gradSHAP(explainer, instance = idx) # GradSHAP(t)
 plot(shap)
 ```
 👉 For full documentation and advanced use cases, visit the 
-[📘 package website](https://bips-hb.github.io/Survinng/).
+[📘 package website](https://bips-hb.github.io/survinng/).
 
 ## 💻 Quick Example
 
@@ -102,7 +102,7 @@ ext <- callr::r(function(train) {
                   early_stopping = TRUE)
 
   # Extract the model
-  Survinng::extract_model(fit)
+  survinng::extract_model(fit)
 }, args = list(train = train))
 
 
@@ -118,10 +118,10 @@ plot(shap)
 
 ## 🖥 Other Examples and Articles
 
-- How to load my model? [→ article](https://bips-hb.github.io/Survinng/articles/how_to_load_model.html)
-- Simulation: Time-independent effects (`survivalmodels`) [→ article](https://bips-hb.github.io/Survinng/articles/Sim_time_independent.html)
-- Simulation: Time-dependent effects (`survivalmodels`) [→ article](https://bips-hb.github.io/Survinng/articles/Sim_time_dependent.html)
-- Example on real multi-modal medical data [→ article](https://bips-hb.github.io/Survinng/articles/multimodal.html)
+- How to load my model? [→ article](https://bips-hb.github.io/survinng/articles/how_to_load_model.html)
+- Simulation: Time-independent effects (`survivalmodels`) [→ article](https://bips-hb.github.io/survinng/articles/Sim_time_independent.html)
+- Simulation: Time-dependent effects (`survivalmodels`) [→ article](https://bips-hb.github.io/survinng/articles/Sim_time_dependent.html)
+- Example on real multi-modal medical data [→ article](https://bips-hb.github.io/survinng/articles/multimodal.html)
 
 
 ## 📚 Citation

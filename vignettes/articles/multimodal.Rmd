@@ -20,10 +20,10 @@ this, we recommend using smaller sample sizes or number of integration points.
 
 We begin by loading the necessary libraries and setting the seeds to ensure reproducibility. The helper functions used for image processing and visualization are sourced from a separate utility script
 which can be found in the `vignettes/articles/real_data` directory or online 
-[in the GitHub repository](https://github.com/bips-hb/Survinng/blob/2640cffaba38e81d6b6f2ee3051b2d9f44d0f86f/vignettes/articles/real_data/utils.R).
+[in the GitHub repository](https://github.com/bips-hb/survinng/blob/2640cffaba38e81d6b6f2ee3051b2d9f44d0f86f/vignettes/articles/real_data/utils.R).
 
 ```{r setup, message=FALSE, warning=FALSE}
-library(Survinng)
+library(survinng)
 library(torch)
 library(torchvision)
 library(ggplot2)
@@ -54,7 +54,7 @@ network structure consisting of a ResNet34 backbone for the image branch and a
 linear transformation for the tabular input.
 
 All required files are available in the `vignettes/articles/real_data` directory 
-or online [in the GitHub repository folder](https://github.com/bips-hb/Survinng/tree/2640cffaba38e81d6b6f2ee3051b2d9f44d0f86f/vignettes/articles/real_data).
+or online [in the GitHub repository folder](https://github.com/bips-hb/survinng/tree/2640cffaba38e81d6b6f2ee3051b2d9f44d0f86f/vignettes/articles/real_data).
 
 ```{r}
 # Load model metadata
@@ -93,7 +93,7 @@ normalization) and stacked into a single tensor. The tabular inputs are
 converted into a Torch tensor to be compatible with the model input format.
 
 **Note:** The tabular and image data can be found in the `vignettes/articles/real_data` 
-directory or online in the [GitHub repository folder](https://github.com/bips-hb/Survinng/tree/2640cffaba38e81d6b6f2ee3051b2d9f44d0f86f/vignettes/articles/real_data).
+directory or online in the [GitHub repository folder](https://github.com/bips-hb/survinng/tree/2640cffaba38e81d6b6f2ee3051b2d9f44d0f86f/vignettes/articles/real_data).
 
 ```{r}
 data <- read.csv(here("vignettes/articles/real_data/deephit_tabular_data.csv"))
@@ -135,7 +135,7 @@ increased memory usage and longer computation times. The explanations are
 stored in data.tables for downstream visualization.
 
 ```{r, cache=TRUE, warning=FALSE, message=FALSE, results='hide'}
-exp_deephit <- Survinng::explain(model, list(data_img, data_tab), 
+exp_deephit <- survinng::explain(model, list(data_img, data_tab), 
                                  model_type = "deephit",
                                  time_bins = seq(0, 17, length.out = n_out))
 

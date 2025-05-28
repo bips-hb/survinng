@@ -15,11 +15,11 @@ torch::torch_manual_seed(42)
 ```
 
 ```{r setup, warning=FALSE, message=FALSE}
-library(Survinng)
+library(survinng)
 library(here)
 ```
 
-The `Survinng` package is designed in a flexible way to allow users to load 
+The `survinng` package is designed in a flexible way to allow users to load 
 models trained in R or Python using `survivalmodels` or `pycox`, respectively.
 Under the hood, the package uses the `torch` package and any base neural network
 can be loaded and will be coverted to the corresponding survival model, e.g.,
@@ -78,7 +78,7 @@ print(output$shape)
 ```
 
 Now, we have our (untrained) base model and corresponding data. The next step
-is to create a `Survinng` explainer object. This is done using the `explain()`
+is to create a `survinng` explainer object. This is done using the `explain()`
 function. The function takes the model, data, and time bins (required for
 a DeepHit model) as input and internally combines the base model with the
 DeepHit architecture. The `model_type` argument is set to `"deephit"` to 
@@ -88,7 +88,7 @@ feature attribution methods in the survival context.
 
 ```{r, fig.width= 15, fig.height= 7}
 # Create explainer object
-exp_deephit <- Survinng::explain(model_deephit, data = data, model_type = "deephit",
+exp_deephit <- survinng::explain(model_deephit, data = data, model_type = "deephit",
                                  time_bins = time_bins)
 print(exp_deephit)
 
@@ -137,7 +137,7 @@ print(output$shape)
 ```
 
 Now, we have our (untrained) base model and corresponding data, including the
-baseline hazard values The next step is to create a `Survinng` explainer
+baseline hazard values The next step is to create a `survinng` explainer
 object. This is done using the `explain()` function. The function takes the
 model, data, and baseline hazard (required for a DeepSurv model) as input
 and internally combines the base model with the DeepSurv architecture. The
@@ -146,7 +146,7 @@ DeepSurv model.
 
 ```{r, fig.width= 15, fig.height= 7}
 # Create explainer object
-exp_deepsurv <- Survinng::explain(model_deepsurv, data = data, 
+exp_deepsurv <- survinng::explain(model_deepsurv, data = data, 
                                   model_type = "deepsurv",
                                   baseline_hazard = base_hazard)
 print(exp_deepsurv)
@@ -234,7 +234,7 @@ print(output$shape) # the instances are replicated t times
 ```
 
 Now, we have our (untrained) base model and corresponding data, including the
-baseline hazard values. The next step is to create a `Survinng` explainer
+baseline hazard values. The next step is to create a `survinng` explainer
 object. This is done using the `explain()` function. The function takes the
 model, data, and baseline hazard (required for a CoxTime model) as input
 and internally combines the base model with the CoxTime architecture. The
@@ -244,7 +244,7 @@ earlier to add the time points to the input features.
 
 ```{r, fig.width= 15, fig.height= 7}
 # Create explainer object
-exp_coxtime <- Survinng::explain(model_coxtime, data = data, 
+exp_coxtime <- survinng::explain(model_coxtime, data = data, 
                                  model_type = "coxtime",
                                  baseline_hazard = base_hazard)
 print(exp_coxtime)
@@ -261,7 +261,7 @@ plot(ig, type = "contr")
 
 The `survivalmodels` package is a R package for survival analysis using deep
 learning. Especially for the deep learning models, it uses the `pycox` package 
-in Python under the hood via `reticulate`. The `Survinng` package is designed
+in Python under the hood via `reticulate`. The `survinng` package is designed
 to load models trained in `survivalmodels` directly. However, there are some
 issues when `torch` in R (i.e., `LibTorch`) and `Pytorch` in Python are 
 loaded in the same session (see [issue #815](https://github.com/mlverse/torch/issues/815)).
@@ -304,10 +304,10 @@ models <- callr::r(function(data) {
   fit_coxtime <- coxtime(Surv(time, status) ~ ., data = data, epochs = 10,
                          num_nodes = 8L)
 
-  # Extract the models using `Survinng`
-  ext_deepsurv <- Survinng::extract_model(fit_deepsurv)
-  ext_deephit <- Survinng::extract_model(fit_deephit)
-  ext_coxtime <- Survinng::extract_model(fit_coxtime)
+  # Extract the models using `survinng`
+  ext_deepsurv <- survinng::extract_model(fit_deepsurv)
+  ext_deephit <- survinng::extract_model(fit_deephit)
+  ext_coxtime <- survinng::extract_model(fit_coxtime)
   
   # Return the extracted models
   list(deepsurv = ext_deepsurv, deephit = ext_deephit, coxtime = ext_coxtime)
@@ -316,15 +316,15 @@ models <- callr::r(function(data) {
 
 
 Now, we have our trained models in the `models` list. The models are
-extracted using the `extract_model()` function from the `Survinng` package.
+extracted using the `extract_model()` function from the `survinng` package.
 These objects and the data to be explained can be passed to the `explain()` 
-function to create the `Survinng` explainer objects. 
+function to create the `survinng` explainer objects. 
 
 ```{r}
 # Create explainer objects
-exp_deepsurv <- Survinng::explain(models$deepsurv, data = data)
-exp_deephit <- Survinng::explain(models$deephit, data = data)
-exp_coxtime <- Survinng::explain(models$coxtime, data = data)
+exp_deepsurv <- survinng::explain(models$deepsurv, data = data)
+exp_deephit <- survinng::explain(models$deephit, data = data)
+exp_coxtime <- survinng::explain(models$coxtime, data = data)
 ```
 
 The `explain()` function will automatically detect the model type and
@@ -466,7 +466,7 @@ labtrans <- list(
 )
 ```
 
-Now, we can create the `Survinng` explainer object using the `explain()` function
+Now, we can create the `survinng` explainer object using the `explain()` function
 and apply all implemented gradient-based feature attribution methods on this 
 model. The `model_type` argument is set to `"coxtime"` to indicate that the
 model is a CoxTime model and the `labtrans` argument is set to the defined 
@@ -474,7 +474,7 @@ transformation.
 
 ```{r, fig.width= 10, fig.height= 15}
 # Create explainer
-explainer <- Survinng::explain(model, data = x_val, model_type = "coxtime",
+explainer <- survinng::explain(model, data = x_val, model_type = "coxtime",
                                baseline_hazard = base_hazard,
                                labtrans = labtrans)
 

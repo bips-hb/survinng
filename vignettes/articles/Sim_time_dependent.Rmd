@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 Load the necessary libraries and source the utility functions.
 
 ```{r setup, message=FALSE, warning=FALSE}
-library(Survinng)
+library(survinng)
 library(ggplot2)
 library(cowplot)
 library(dplyr)
@@ -60,7 +60,7 @@ We consider a simulated dataset with the following characteristics:
 
 ## Load Models and Data
 
-The models used in this vignette are the same as those used in the main paper. The models were trained using the `survivalmodels` package, and the training process is not shown here, but can be found in the `vignettes/articles/Sim_time_dependent` directory or on [GitHub](https://github.com/bips-hb/Survinng/tree/master/vignettes/articles/Sim_time_dependent).
+The models used in this vignette are the same as those used in the main paper. The models were trained using the `survivalmodels` package, and the training process is not shown here, but can be found in the `vignettes/articles/Sim_time_dependent` directory or on [GitHub](https://github.com/bips-hb/survinng/tree/master/vignettes/articles/Sim_time_dependent).
 
 ```{r td fit models, fig.width=10, fig.height=15}
 # Load data
@@ -97,9 +97,9 @@ knitr::include_graphics(here('vignettes/articles/Sim_time_dependent/sim_td_brier
 The `explain()` function creates an explainer object for the survival models. The `data` argument specifies the dataset used for explanation, and the `model` argument specifies the model to be explained. The `target` argument indicates the type of prediction to be explained (e.g., "survival", "risk", "cumulative hazard").
 
 ```{r td explainer}
-exp_deephit <- Survinng::explain(ext_deephit[[1]], data = test)
-exp_coxtime <- Survinng::explain(ext_coxtime[[1]], data = test)
-exp_deepsurv <- Survinng::explain(ext_deepsurv[[1]], data = test)
+exp_deephit <- survinng::explain(ext_deephit[[1]], data = test)
+exp_coxtime <- survinng::explain(ext_coxtime[[1]], data = test)
+exp_deepsurv <- survinng::explain(ext_deepsurv[[1]], data = test)
 ```
 
 

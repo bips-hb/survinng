@@ -18,7 +18,7 @@ Surv_BatchLoader <- function(inputs, inputs_ref, method_pre_fun, model_pre_fun,
                              scale_fun, batch_size, n_timepoints, n) {
   batch_size <- min(batch_size, dim(inputs[[1]])[1] * n_timepoints)
   if (batch_size < n_timepoints) {
-    message("[Survinng] Batch size is smaller than the number of timepoints. Setting ",
+    message("[survinng] Batch size is smaller than the number of timepoints. Setting ",
             "batch size (", batch_size, ") to the number of timepoints (",
             n_timepoints, ").")
     batch_size <- n_timepoints
@@ -51,7 +51,7 @@ setMethod("update", "Surv_BatchLoader", function(object) {
 
   # Update the current index
   if (object@current_index + length(idx) > object@max_index) {
-    warning("[Survinng] You'are trying to get more batches than available. ",
+    warning("[survinng] You'are trying to get more batches than available. ",
             "Resetting the current index to 0.")
     object@current_index <- 0
   } else {
